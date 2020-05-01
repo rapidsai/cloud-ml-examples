@@ -1,0 +1,5 @@
+local_test_dir/
+data/
+dask-worker-space
+.ipynb_checkpoints
+*.orc

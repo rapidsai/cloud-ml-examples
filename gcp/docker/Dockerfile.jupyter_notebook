@@ -1,0 +1,14 @@
+FROM gcr.io/deeplearning-platform-release/base-cu101
+
+RUN . /opt/conda/etc/profile.d/conda.sh \
+    && mkdir -p /opt/conda/envs/rapids_py37 \
+    && wget -q https://storage.googleapis.com/drobison-gcp-gtc-2020/rapids_py37.tar.gz \
+    && tar -xzf rapids_py37.tar.gz -C /opt/conda/envs/rapids_py37 \
+    && rm rapids_py37.tar.gz \
+    && conda activate rapids_py37 \
+    && conda unpack \
+    && ipython kernel install --user --name=rapids_py37 \
+    && pip install ax-platform gcsfs pynvml cupy\
+    && apt autoremove \
+    && apt clean all
+

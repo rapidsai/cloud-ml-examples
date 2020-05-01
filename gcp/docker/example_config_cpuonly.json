@@ -1,0 +1,52 @@
+{
+    "trainingInput": {
+        "args": [
+            "--train",
+            "--do-hpo",
+            "--hpo-num-bins=64",
+            "--cloud-type=GCP",
+            "--compute-type=CPU",
+            "--data-input-path=gs://[YOUR STORAGE BUCKET]",
+            "--data-output-path=gs://[YOUR STORAGE BUCKET]/training_output",
+            "--data-name=airline_20000000.orc",
+            "--model-type=RandomForest"
+        ],
+        "hyperparameters": {
+            "algorithm": "RANDOM_SEARCH",
+            "enableTrialEarlyStopping": true,
+            "goal": "MAXIMIZE",
+            "hyperparameterMetricTag": "hpo_accuracy",
+            "maxParallelTrials": 10,
+            "maxTrials": 100,
+            "maxFailedTrials": 100,
+            "params": [
+                {
+                    "maxValue": 600,
+                    "minValue": 100,
+                    "parameterName": "hpo-num-est",
+                    "type": "INTEGER"
+                },
+                {
+                    "maxValue": 20,
+                    "minValue": 9,
+                    "parameterName": "hpo-max-depth",
+                    "type": "INTEGER"
+                },
+                {
+                    "maxValue": 0.6,
+                    "minValue": 0.2,
+                    "parameterName": "hpo-max-features",
+                    "type": "DOUBLE"
+                }
+            ]
+        },
+        "jobDir": "gs://[YOUR STORAGE BUCKET]/training_output",
+        "masterConfig": {
+            "imageUri": "gcr.io/[YOUR PROJECT NAME]/gcp_rapids_training:latest"
+        },
+        "masterType": "n1-standard-8",
+        "region": "us-west1",
+        "scaleTier": "CUSTOM"
+    }
+}
+

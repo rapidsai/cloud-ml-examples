@@ -1,0 +1,25 @@
+#FROM nvcr.io/nvidia/rapidsai/rapidsai:cuda10.1-runtime-ubuntu18.04
+FROM rapidsai/rapidsai-nightly:0.13-cuda10.1-base-ubuntu18.04-py3.7
+
+RUN . /opt/conda/etc/profile.d/conda.sh \
+    && conda activate rapids \
+    && conda install -y cupy==7.0
+
+RUN apt update --yes \
+    && apt --yes install redis \
+    && apt --yes autoremove \
+    && apt --yes clean
+
+RUN . /opt/conda/etc/profile.d/conda.sh \
+    && conda activate rapids \
+    && pip install -U gcsfs cloudml-hypertune ax-platform 'ray[tune]'
+
+RUN mkdir -p /root/ray_results
+COPY infrastructure/entrypoint.sh \
+    infrastructure/entrypoint.py \
+    infrastructure/rapids_lib.py \
+    /opt/gcp_rapids/
+
+WORKDIR "/opt/gcp_rapids/"
+
+ENTRYPOINT [ "bash", "entrypoint.sh" ]
