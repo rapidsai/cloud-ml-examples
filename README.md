@@ -1,16 +1,29 @@
-# Note on conda environment configuration buckets
-Currently, conda environments are located at the following endpoints for each CSP, and will need to be updated.
+# <div align="left"><img src="img/rapids_logo.png" width="90px"/>&nbsp;RAPIDS Cloud Machine Learning Services Integration</div>
 
-- Azure: https://drobison.blob.core.windows.net/drobison-gtc-2020/rapids_py37.tar.gz
-- AWS:   https://drobison-sagemaker-gtc-2020.s3-us-west-2.amazonaws.com/rapids_py37.tar.gz
-- GCP:   https://storage.googleapis.com/drobison-gcp-gtc-2020/rapids_py37.tar.gz
+RAPIDS is a suite of open-source libraries that bring GPU acceleration
+to data science pipelines. Users building cloud-based hyperparameter
+optimization experiments can take advantage of this acceleration
+throughout their workloads to build models faster, cheaper, and more
+easily on the cloud platform of their choice.
 
-# Workspace for RAPIDS on CSPs
-## Microsoft Azure
-[Deployment guide.](https://gitlab-master.nvidia.com/drobison/aws-sagemaker-gtc-2020/tree/master/azure/README.md "Azure Deployment Guide")
+This repository provides example notebooks and "getting started" code
+samples to help you integrate RAPIDS with the hyperparameter
+optimization services from Azure ML, AWS Sagemaker, and Google
+Cloud. The directory for each cloud contains a step-by-step guide to
+launch an example hyperparameter optimization job.
 
-## AWS Sagemaker
-[Deployment guide.](https://gitlab-master.nvidia.com/drobison/aws-sagemaker-gtc-2020/tree/master/docs/aws/README.md "AWS Deployment Guide")
+Each example job will use RAPIDS
+[cuDF](https://github.com/rapidsai/cudf) to load and preprocess 20
+million rows of airline arrival and departure data and build a model
+to predict whether or not a flight will arrive on time. It
+demonstrates both [cuML](https://github.com/rapidsai/cuml) Random
+Forests and GPU-accelerated XGBoost modeling.
+
+## Microsoft Azure ML
+[Azure ML Step-by-step.](https://gitlab-master.nvidia.com/drobison/aws-sagemaker-gtc-2020/tree/master/azure/README.md "Azure Deployment Guide")
+
+## AWS SageMaker
+[AWS SageMaker Step-by-step.](https://gitlab-master.nvidia.com/drobison/aws-sagemaker-gtc-2020/tree/master/docs/aws/README.md "AWS Deployment Guide")
 
 ## Google Cloud AI Platform
-[Deployment guide.](https://gitlab-master.nvidia.com/drobison/aws-sagemaker-gtc-2020/tree/master/gcp/README.md "GCP Deployment Guide")
+[Google Cloud AI Step-by-step](https://gitlab-master.nvidia.com/drobison/aws-sagemaker-gtc-2020/tree/master/gcp/README.md "GCP Deployment Guide")
