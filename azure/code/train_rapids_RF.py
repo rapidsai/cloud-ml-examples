@@ -2,18 +2,18 @@ import argparse
 import os
 import time
 
-#importing necessary libraries
 import numpy as np
 import pandas as pd
-
 import cudf
 import cuml
+
 from cuml import RandomForestClassifier as cuRF
 from cuml.preprocessing.model_selection import train_test_split
 from cuml.metrics.accuracy import accuracy_score
 
 from rapids_csp_azure import RapidsCloudML, PerfTimer
 from azureml.core.run import Run
+
 run = Run.get_context()
 
 def main():
@@ -40,9 +40,11 @@ def main():
     print('\n---->>>> cuDF version <<<<----\n', cudf.__version__)
     print('\n---->>>> cuML version <<<<----\n', cuml.__version__)
 
-    azure_ml = RapidsCloudML(cloud_type= 'Azure', data_type="Parquet")
+    compute = "multi-GPU"
+    azure_ml = RapidsCloudML(cloud_type= 'Azure', data_type="Parquet", compute_type=compute)
+    print(compute)
 
-    dataset, _ , y_label, _ = azure_ml.load_data(filename=os.path.join(data_dir, 'airline_20m.parquet'))
+    dataset, _ , y_label, _ = azure_ml.load_data(filename=os.path.join(data_dir, 'part*.parquet'))
 
     X = dataset[dataset.columns.difference(['ArrDelay', y_label])]
     y = dataset[y_label]
@@ -95,7 +97,6 @@ def main():
     print( '\n train-time all folds  :', sum(train_time_per_fold))
     print( '\n infer-time per fold  :', infer_time_per_fold)
     print( '\n infer-time all folds  :', sum(infer_time_per_fold))
-
 
 if __name__ == '__main__':
     with PerfTimer() as total_script_time:
