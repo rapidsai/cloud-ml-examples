@@ -1,19 +1,35 @@
+#
+# Copyright (c) 2019-2020, NVIDIA CORPORATION.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
 import argparse
 import os
 import time
 
-#importing necessary libraries
 import numpy as np
 import pandas as pd
-
 import cudf
 import cuml
+
 from cuml import RandomForestClassifier as cuRF
 from cuml.preprocessing.model_selection import train_test_split
 from cuml.metrics.accuracy import accuracy_score
 
 from rapids_csp_azure import RapidsCloudML, PerfTimer
 from azureml.core.run import Run
+
 run = Run.get_context()
 
 def main():
@@ -40,9 +56,11 @@ def main():
     print('\n---->>>> cuDF version <<<<----\n', cudf.__version__)
     print('\n---->>>> cuML version <<<<----\n', cuml.__version__)
 
-    azure_ml = RapidsCloudML(cloud_type= 'Azure', data_type="Parquet")
+    compute = "multi-GPU"
+    azure_ml = RapidsCloudML(cloud_type= 'Azure', data_type="Parquet", compute_type=compute)
+    print(compute)
 
-    dataset, _ , y_label, _ = azure_ml.load_data(filename=os.path.join(data_dir, 'airline_20m.parquet'))
+    dataset, _ , y_label, _ = azure_ml.load_data(filename=os.path.join(data_dir, 'part*.parquet'))
 
     X = dataset[dataset.columns.difference(['ArrDelay', y_label])]
     y = dataset[y_label]
@@ -64,7 +82,6 @@ def main():
         'max_depth' : max_depth,
         'max_features': max_features,
         'n_bins' : n_bins,
-        'CV_FOLDS': 5
     }
 
     # optional cross-validation w/ model_params['n_train_folds'] > 1
@@ -95,7 +112,6 @@ def main():
     print( '\n train-time all folds  :', sum(train_time_per_fold))
     print( '\n infer-time per fold  :', infer_time_per_fold)
     print( '\n infer-time all folds  :', sum(infer_time_per_fold))
-
 
 if __name__ == '__main__':
     with PerfTimer() as total_script_time:
