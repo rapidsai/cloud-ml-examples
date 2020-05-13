@@ -1,0 +1,112 @@
+#!/usr/bin/env bash
+# Copyright (c) 2019-2020, NVIDIA CORPORATION.
+
+# RAPIDS conda packing script
+
+# This script is used to build the component(s) in this repo from
+# source, and can be called with various options to customize the
+# build as needed (see the help output for details)
+
+# Abort script on first error
+set -e
+
+NUMARGS=$#
+ARGS=$*
+
+VALIDARGS="-h --help help -v --verbose --action --cuda --python --rapids --rapids-channel --time-actions"
+HELP="$0 [<target> ...] [<flag> ...]
+   -v, --version          - verbose build mode
+   -h, --help             - print this text
+
+   --action         [pack|unpack] - action to take (default: pack)
+   --cuda           [version]     - cuda version to install (default: 10.2)
+   --python         [version]     - python version to install (default: 3.7)
+   --rapids         [version]     - rapids version to install (default: 0.13)
+   --rapids-channel [ch]          - rapids channel to install from [rapidsai|rapidsai-nightly] (default: rapidsai)
+   --unpack-to      [path]        - path where we should unpack the conda environment
+                                    requires 'action unpack' (default: ./rapids_[rapids_version]_py[python version])
+"
+#--time-actions   [flag]        - flag indicating if commands should include timing information [0|1] (default: 0)
+
+VERBOSE=0
+
+declare -A argvals
+argvals["--action"]="pack"
+argvals["--cuda"]="10.2"
+argvals["--python"]="3.7"
+argvals["--rapids"]="0.13"
+argvals["--rapids-channel"]="rapidsai"
+argvals["--unpack-path"]="./rapids_${argvals["--rapids"]}_py${argvals["--python"]}"
+
+function usage() {
+  echo "Usage: $HELP"
+}
+
+function hasArg {
+  (( ${NUMARGS} != 0 )) && (echo " ${ARGS} " | grep -q " $1 ")
+}
+
+if hasArg -h || hasArg --help || hasArg help; then
+  echo "${HELP}"
+  exit 0
+fi
+
+if hasArg -v || hasArg --verbose; then
+  VERBOSE=1
+fi
+
+# Check for valid usage and process arguments
+if (( ${NUMARGS} != 0 )); then
+  idx=0
+  prev=""
+  for arg in $ARGS; do
+    if ! (echo " ${VALIDARGS} " | grep -q " ${arg} "); then
+      if [[ ${arg} == -* ]]; then
+        echo "Option $idx is invalid: ${arg}"
+        exit 1
+      else
+        if (( $VERBOSE == 1 )); then
+          echo "Setting $prev value as $arg"
+        fi
+        argvals["$prev"]="$arg"
+      fi
+    fi
+    prev=$arg
+    let idx=idx+1
+  done
+fi
+
+ACTION=${argvals["--action"]}
+CUDA_VERSION=${argvals["--cuda"]}
+PYTHON_VERSION=${argvals["--python"]}
+RAPIDS_VERSION=${argvals["--rapids"]}
+RAPIDS_CHANNEL=${argvals["--rapids-channel"]}
+UNPACK_PATH=${argvals["--unpack-path"]}
+
+CONDA_ENV_NAME="rapids${RAPIDS_VERSION}_py${PYTHON_VERSION}"
+
+if [[ "$ACTION" == "pack" ]]; then
+  echo "Creating CONDA environment $CONDA_ENV_NAME"
+  conda create -y --name=$CONDA_ENV_NAME python=$PYTHON_VERSION
+  source activate $CONDA_ENV_NAME
+
+  echo "Installing conda-pack"
+  pip install ipykernel
+  conda install -y -c conda-forge conda-pack
+
+  echo "Installing RAPIDS libraries (this can take a while)"
+  time conda install -y -c $RAPIDS_CHANNEL -c nvidia -c conda-forge \
+      -c defaults rapids=$RAPIDS_VERSION python=$PYTHON_VERSION cudatoolkit=$CUDA_VERSION
+
+  echo "Packing conda environment"
+  conda-pack -n $CONDA_ENV_NAME -o ${CONDA_ENV_NAME}.tar.gz
+else
+  echo "Unpacking into $UNPACK_PATH"
+  mkdir -p "$UNPACK_PATH"
+  tar -xzf ${CONDA_ENV_NAME}.tar.gz -C "$UNPACK_PATH"
+
+  echo "Updating conda environment"
+  source "$UNPACK_PATH/bin/activate"
+  conda-unpack
+  python -m ipykernel install --user --name $CONDA_ENV_NAME
+fi
