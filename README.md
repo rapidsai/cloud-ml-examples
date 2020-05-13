@@ -23,7 +23,9 @@ Forests and GPU-accelerated XGBoost modeling.
 [Azure ML Step-by-step.](https://github.com/rapidsai/cloud-ml-examples/blob/master/azure/README.md "Azure Deployment Guide")
 
 ## AWS SageMaker
-[AWS SageMaker Step-by-step.](https://gitlab-master.nvidia.com/drobison/aws-sagemaker-gtc-2020/tree/master/docs/aws/README.md "AWS Deployment Guide")
+[Amazon SageMaker Step-by-step.](https://github.com/rapidsai/cloud-ml-examples/blob/master/aws/README.md "SageMaker Deployment Guide")
 
 ## Google Cloud AI Platform
 [Google Cloud AI Step-by-step](https://gitlab-master.nvidia.com/drobison/aws-sagemaker-gtc-2020/tree/master/gcp/README.md "GCP Deployment Guide")
+
+<img src="https://github.com/rapidsai/cloud-ml-examples/blob/master/aws/figures/rapids_hpo.png">

@@ -1,4 +1,4 @@
-FROM rapidsai/rapidsai-nightly:0.13-cuda10.1-base-ubuntu18.04-py3.7
+FROM rapidsai/rapidsai-nightly:0.14-cuda10.1-runtime-ubuntu18.04-py3.7
 
 ENV PYTHONUNBUFFERED=TRUE \
     PYTHONDONTWRITEBYTECODE=TRUE \
@@ -7,7 +7,7 @@ ENV PYTHONUNBUFFERED=TRUE \
 RUN apt-get update && apt-get install -y --no-install-recommends build-essential
 RUN source activate rapids && pip install sagemaker-containers
 
-COPY container/rapids_csp.py $CLOUD_PATH/rapids_csp.py
+COPY container/rapids_cloud_ml.py $CLOUD_PATH/rapids_cloud_ml.py
 COPY container/train.py $CLOUD_PATH/train.py
 ENV SAGEMAKER_PROGRAM $CLOUD_PATH/train.py
 
