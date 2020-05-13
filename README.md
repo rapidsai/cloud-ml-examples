@@ -20,7 +20,7 @@ demonstrates both [cuML](https://github.com/rapidsai/cuml) Random
 Forests and GPU-accelerated XGBoost modeling.
 
 ## Microsoft Azure ML
-[Azure ML Step-by-step.](https://gitlab-master.nvidia.com/drobison/aws-sagemaker-gtc-2020/tree/master/azure/README.md "Azure Deployment Guide")
+[Azure ML Step-by-step.](https://github.com/rapidsai/cloud-ml-examples/blob/master/azure/README.md "Azure Deployment Guide")
 
 ## AWS SageMaker
 [AWS SageMaker Step-by-step.](https://gitlab-master.nvidia.com/drobison/aws-sagemaker-gtc-2020/tree/master/docs/aws/README.md "AWS Deployment Guide")
