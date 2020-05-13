@@ -56,11 +56,11 @@ def main():
     print('\n---->>>> cuDF version <<<<----\n', cudf.__version__)
     print('\n---->>>> cuML version <<<<----\n', cuml.__version__)
 
-    compute = "multi-GPU"
+    compute = "single-GPU" # "multi-GPU" option for using multi-GPU algorithms via Dask
     azure_ml = RapidsCloudML(cloud_type= 'Azure', data_type="Parquet", compute_type=compute)
     print(compute)
 
-    dataset, _ , y_label, _ = azure_ml.load_data(filename=os.path.join(data_dir, 'part*.parquet'))
+    dataset, _ , y_label, _ = azure_ml.load_data(filename=os.path.join(data_dir, 'airline_20m.parquet'))
 
     X = dataset[dataset.columns.difference(['ArrDelay', y_label])]
     y = dataset[y_label]

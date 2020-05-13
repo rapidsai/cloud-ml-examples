@@ -51,9 +51,9 @@ This file will be used with [Azure Machine Learning SDK for Python](https://docs
 
 Install the [Azure Machine Learning Python SDK](https://docs.microsoft.com/en-us/python/api/overview/azure/ml/install?view=azure-ml-py) (if you are running in your own environment. SDK is already installed in [Azure Notebooks](https://notebooks.azure.com/) or other Microsoft managed environments), this link includes additional instructions to [setup environment](https://docs.microsoft.com/en-us/azure/machine-learning/how-to-configure-environment#local) on your local computer. 
 
-After setting up a conda environment, clone the [clould-ml-examples repository](https://gitlab-master.nvidia.com/drobison/aws-sagemaker-gtc-2020) by running the following command in a `local_directory`: 
+After setting up a conda environment, clone the [clould-ml-examples repository](https://github.com/rapidsai/cloud-ml-examples.git) by running the following command in a `local_directory`: 
 
-git clone https://gitlab-master.nvidia.com/drobison/aws-sagemaker-gtc-2020 
+git clone https://github.com/rapidsai/cloud-ml-examples.git 
 
 ### Notebooks and Scripts
 
