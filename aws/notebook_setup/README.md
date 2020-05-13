@@ -73,7 +73,7 @@ Packing environment at '[CONDA ENV]/rapids0.13_py3.7' to 'rapids0.13_py3.7.tar.g
 #### Unpacking on a Target Environment
 1. Upload your packed conda environment to a S3 storage bucket.
 1. Pull and unpack your environment via SageMaker Notebook 'Lifecycle Script'
-    1. When creating your SageMaker Notebook, attach the following as its Lifecylcle 'Creation' script:
+    1. When creating your SageMaker Notebook, attach the following as its Lifecycle 'Creation' script:
        ```bash
         #!/bin/bash
         
@@ -92,7 +92,7 @@ Packing environment at '[CONDA ENV]/rapids0.13_py3.7' to 'rapids0.13_py3.7.tar.g
             python -m ipykernel install --user --name $CONDA_ENV
         EOF
    
-        chmod +x /home/ec2-user/lifecylce_script.sh
+        chmod +x /home/ec2-user/lifecycle_script.sh
         echo "Running: /home/ec2-user/lifecycle_script.sh"
         sudo -u ec2-user -i bash "/home/ec2-user/lifecycle_script.sh"
         ```
