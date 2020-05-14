@@ -199,7 +199,7 @@ class RapidsCloudML(object):
 
                     elif 'multi' in self.compute_type:
                         self.log_to_file(f'\n\tReading using dask_cudf')
-                        dataset = dask_cudf.read_parquet(target_filename)
+                        dataset = dask_cudf.read_parquet(target_filename, columns = col_labels)
 
         # cast all columns to float32
         for col in dataset.columns:
@@ -212,7 +212,7 @@ class RapidsCloudML(object):
                 )
 
         dataset[y_label] = dataset[y_label].astype(np.int32) # Needed for cuml RF
-
+        
         dataset = dataset.fillna(0.0) # Filling the null values. Needed for dask-cudf
 
         self.log_to_file(f'\n\tIngestion completed in {ingestion_timer.duration}')
@@ -272,7 +272,7 @@ class RapidsCloudML(object):
                     X_train, X_test, y_train, y_test = dask_train_test_split(dataset,
                                                                              y_label,
                                                                              train_size = train_size,
-                                                                             shuffle = shuffle,
+                                                                             shuffle = False, # shuffle not available for dask_cudf yet
                                                                              random_state = random_state)
         
         self.log_to_file(f'\n\tX_train shape and type{X_train.shape} {type(X_train)}')
