@@ -38,7 +38,7 @@ dataset_columns = [
 target_variable = 'ArrDel15'
 
 def train( model_params, config_params ):
-    global target_variable
+    
     rcml = rapids_cloud_ml.RapidsCloudML( model_type = config_params['model_type'],
                                           compute_type = config_params['compute'] )
         
