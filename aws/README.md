@@ -3,7 +3,7 @@
 0. Upload train/test data to S3 
 
    - We offer the dataset for this demo in a public bucket    
-   https://rapids-csp.s3-us-west-2.amazonaws.com/data/airline_20000000.orc
+   https://s3.console.aws.amazon.com/s3/buckets/cloud-ml-examples/10_years
    
    
 1. Create a SageMaker Notebook Instance
@@ -20,11 +20,11 @@
    - For **Instance type**, we recommend you choose a lightweight instance (e.g., ml.t2.medium) since the notebook instance will only be used to build the container and launch work.
    - For **IAM role**, choose Create a new role, then choose Create role.
    - For **Git repositories**, choose 'Clone a public Git repository to this notebook instance only' and add the cloud-ml-examples repository to the URL
-   > https://github.com/rapidsai/cloud-ml-examples [ WIP -- not released yet ]
+   > https://github.com/rapidsai/cloud-ml-examples 
    - Choose 'Create notebook instance'. 
    
    - In a few minutes, Amazon SageMaker launches an ML compute instance — when its ready you should see several links appear in the Actions tab of the **Notebook Instances** section, click on **Open JupyerLab** to launch into the notebook.   
    > Note: If you see Pending to the right of the notebook instance in the Status column, your notebook is still being created. The status will change to InService when the notebook is ready for use.
 
 3. Run Notebook
-   - Once inside JupyterLab you should be able to navigate to the notebook named **sagemaker_rapids_hpo.ipynb**
+   - Once inside JupyterLab you should be able to navigate to the notebook in the **aws/notebooks** directory named **sagemaker_rapids_hpo.ipynb**
