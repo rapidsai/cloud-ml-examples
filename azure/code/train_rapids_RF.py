@@ -56,12 +56,21 @@ def main():
     print('\n---->>>> cuDF version <<<<----\n', cudf.__version__)
     print('\n---->>>> cuML version <<<<----\n', cuml.__version__)
 
-    compute = "single-GPU" # "multi-GPU" option for using multi-GPU algorithms via Dask
-    azure_ml = RapidsCloudML(cloud_type= 'Azure', data_type="Parquet", compute_type=compute)
+    compute = 'single-GPU' # 'multi-GPU' option for using multi-GPU algorithms via Dask
+    azure_ml = RapidsCloudML(cloud_type= 'Azure', data_type='Parquet', compute_type=compute)
     print(compute)
 
-    dataset, _ , y_label, _ = azure_ml.load_data(filename=os.path.join(data_dir, 'airline_20m.parquet'))
-
+    if compute == 'single-GPU':
+        dataset, _ , y_label, _ = azure_ml.load_data(filename=os.path.join(data_dir, 'airline_20m.parquet'))
+    else:
+       # use parquet files from 'https://airlinedataset.blob.core.windows.net/airline-10years' for multi-GPU training
+       dataset, _ , y_label, _ = azure_ml.load_data(filename=os.path.join(data_dir, 'part*.parquet'), 
+                                                    col_labels = ['Flight_Number_Reporting_Airline',
+                                                                  'Year', 'Quarter', 'Month', 'DayOfWeek',
+                                                                  'DOT_ID_Reporting_Airline', 'OriginCityMarketID', 'DestCityMarketID',
+                                                                  'DepTime', 'DepDelay', 'DepDel15', 'ArrDel15', 'ArrDelay',
+                                                                  'AirTime', 'Distance'], y_label = 'ArrDel15')
+    
     X = dataset[dataset.columns.difference(['ArrDelay', y_label])]
     y = dataset[y_label]
     del dataset
@@ -86,10 +95,10 @@ def main():
 
     # optional cross-validation w/ model_params['n_train_folds'] > 1
     for i_train_fold in range(5):
-        print( f"\n CV fold { i_train_fold } of { 5 }\n" )
+        print( f'\n CV fold { i_train_fold } of { 5 }\n' )
 
         # split data
-        X_train, X_test, y_train, y_test, _ = azure_ml.split_data(X, y, random_state =77, shuffle = True )
+        X_train, X_test, y_train, y_test, _ = azure_ml.split_data(X, y, random_state =77)
         # train model 
         trained_model, training_time = azure_ml.train_model (X_train, y_train, model_params)
 
