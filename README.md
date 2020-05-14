@@ -27,3 +27,11 @@ Forests and GPU-accelerated XGBoost modeling.
 
 ## Google Cloud AI Platform
 [Google Cloud AI Step-by-step](https://gitlab-master.nvidia.com/drobison/aws-sagemaker-gtc-2020/tree/master/gcp/README.md "GCP Deployment Guide")
+
+## Bring Your Own Cloud (Dask and Ray)
+
+In addition to public cloud HPO options, the respository also includes
+"BYOC" sample notebooks that can be run on the public cloud or private
+infrastructure of your choice. These leverage [Ray Tune](ray) or
+[Dask-ML](dask) for distributed infrastructure, while demonstrating
+the same airline classifier HPO workload.
