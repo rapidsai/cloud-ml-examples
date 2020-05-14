@@ -13,7 +13,7 @@
    
    - Choose **Notebook Instances**, then choose 'Create notebook instance'.
    
-<img src='figures/sagemaker_notebook_instance.png'>
+<img src='img/sagemaker_notebook_instance.png'>
 
 2. On the Create notebook instance page, provide the following information (if a field is not mentioned, leave the default values):
    - For **Notebook instance name**, type a name for your notebook instance.
