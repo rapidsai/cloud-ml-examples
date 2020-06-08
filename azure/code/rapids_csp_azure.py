@@ -317,13 +317,25 @@ class RapidsCloudML(object):
         Trains a XGBoost model on X_train and y_train with model_params
 
         Parameters and Objects returned are same as trained_model
-        """
+        """             
+        if 'GPU' in self.compute_type:
+            model_params.update({'tree_method': 'gpu_hist'})
+        else:
+            model_params.update({'tree_method': 'hist'})
+                                
         with PerfTimer() as train_timer:
-            train_DMatrix = xgboost.DMatrix(data = X_train, label = y_train)
-            trained_model = xgboost.train(dtrain = train_DMatrix,
-                                          params = model_params,
-                                          num_boost_round = model_params['num_boost_round'],
-                                          verbose_eval = self.verbose_estimator)
+            if 'single' in self.compute_type:
+                train_DMatrix = xgboost.DMatrix(data = X_train, label = y_train)
+                trained_model = xgboost.train(dtrain = train_DMatrix,
+                                              params = model_params,
+                                              num_boost_round = model_params['num_boost_round'])
+            elif 'multi' in self.compute_type:
+                self.log_to_file("\n\tTraining multi-GPU XGBoost")
+                train_DMatrix = xgboost.dask.DaskDMatrix(self.client, data = X_train, label = y_train)
+                trained_model = xgboost.dask.train(self.client,
+                                                   dtrain = train_DMatrix,
+                                                   params = model_params,
+                                                   num_boost_round = model_params['num_boost_round'])
         return trained_model, train_timer.duration
 
     def fit_random_forest ( self, X_train, y_train, model_params ):
@@ -394,8 +406,14 @@ class RapidsCloudML(object):
         with PerfTimer() as inference_timer:
             try:
                 if self.model_type == 'XGBoost':
-                    test_DMatrix = xgboost.DMatrix(data = X_test, label = y_test)
-                    test_accuracy = 1 - float(trained_model.eval( test_DMatrix ).split(':')[1])
+                    if 'multi' in self.compute_type:
+                        test_DMatrix = xgboost.dask.DaskDMatrix(self.client, data = X_test, label = y_test)
+                        xgb_pred = xgboost.dask.predict(self.client, trained_model, test_DMatrix).compute()
+                        test_accuracy = accuracy_score(y_test.compute(), xgb_pred)
+                    elif 'single' in self.compute_type: 
+                        test_DMatrix = xgboost.DMatrix(data = X_test, label = y_test)
+                        xgb_pred = trained_model.predict(test_DMatrix)
+                        test_accuracy = accuracy_score(y_test, xgb_pred)
 
                 elif self.model_type == 'RandomForest':
                     if 'multi' in self.compute_type:
