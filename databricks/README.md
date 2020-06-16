@@ -1,0 +1,110 @@
+## Databricks Notebooks with MLFlow, RAPIDS, and Hyperopt
+#### Currently, Databricks does not directly support modifying the conda environment, as a result, there are some incompatibilities with RAPIDS 0.14
+### Upload RAPIDS 0.13 Init Script
+1. Copy `src/rapids_install_cuml0.13_cuda10.0_ubuntu16.04.sh` onto your Databricks dbfs file system.
+    1. This will become the base init script that is run at cluster start up.
+    1. Example:
+    ```shell script
+    $ dbfs configure
+       ... configure your dbfs client for your account ...
+    $ dbfs cp src/rapids_install_cuml0.13_cuda10.0_ubuntu16.04.sh dbfs:/databricks/ini_scripts/
+    ```
+   
+### Create a Cluster
+1. Create your cluster
+    1. Select a GPU enabled Databricks runtime. Ex: 6.6 ML 
+        1. Currently 'Use your own Docker container' is not available for ML instances.
+    1. Select a GPU enabled worker and driver type
+        1. Recommended: `g4dn.xxxx` (NVIDIA T4) or `p3.xxxx` (NVIDIA V100)
+    1. Select `Advanced` -> `init_scripts`
+        1. For our example set `init_scripts` to `dbfs:/databricks/init_scripts/rapids_install_cuml0.13_cuda10.0_ubuntu16.04.sh'
+    1. Launch your cluster
+        1. At this point, you should have RAPIDS 0.13 installed in the databricks-ml-gpu conda environment, and can import cudf/cuml modules.         
+
+## Databricks Jobs with MLFlow, RAPIDS, and Hyperopt
+### MLFlow and RAPIDS
+1. RAPIDS Attempts to maintain compatibility with the SKlearn API. This means that, in general, you should be able to
+utilize cuML models with the MLFlow Sklearn interface, including model training, saving artifacts/models, and deploying
+saved models.
+    1. Ex. 
+    ```python
+   import mlflow
+   from cuml.ensemble import RandomForestClassifier
+   
+   model = RandomForestClassifier()
+   mlflow.sklearn.log_model(model, "cuml_model", conda_env='conda.yaml')
+    ```
+   
+## Local Jupyter Notebook
+See: `notebooks/rapids_mlflow_databricks_train_deploy.ipynb`
+   
+## [Databricks-Requirements]
+#### The following are configuration requirements for both publishing to the Databrick's tracking server, as well as initializing remote jobs.
+
+1. Set environment variables expected by MLFlow, which define your Databricks cluster.
+    1. **NOTE**: If you make any changes to the project repo, they will not be reflected in your mlflow deployment until you commit.
+    1. **Note**: While the MLFLow Python API interface should allow these values to be set programatically, that workflow does not appear to work; as of version 1.8.0, `set_tracking_uri` and `set_experiment` do not produce the expected behavior when targeting Databricks. You will likely see raised errors claiming that active and selected experiments do not match, and/or spurrious authentication errors.
+    1. ```bash
+        $ export MLFLOW_EXPERIMENT_NAME=/Users/[YOUR USER NAME]/[EXPERIMENT NAME]
+        $ export MLFLOW_TRACKING_URI=databricks
+        $ export DATABRICKS_HOST=https://[CLUSTER_ID].cloud.databricks.com
+        $ export DATABRICKS_TOKEN="[ACCESS TOKEN]"
+       ```
+       1. Here, ACCESS TOKEN can be created utilizing Databrick's [Token Creation Process](https://docs.databricks.com/dev-tools/api/latest/authentication.html#:~:text=Generate%20a%20personal%20access%20token,-This%20section%20describes&text=in%20the%20upper%20right%20corner,the%20Generate%20New%20Token%20button.).
+
+### Train and Publish to Local or Databrick's MLFlow Tracking Server
+**NOTE! If you make any changes to the project repo, they will not be reflected in your mlflow until you commit.**
+1. Create a new conda environment
+    1. `conda create -f envs/conda.yaml`
+1. Train the model
+    1. `cd databricks-mlflow-hyperopt`
+    1. Publish to local tracking server
+        1. ```shell script
+            mlflow run file:///$PWD -b local\
+                                    -P conda-env=$PWD/envs/conda.yaml\
+                                    -P fpath=$PWD/airline_100000.orc
+           ````
+    1. Publish to Databrick's tracking server
+        1. Export the [required environment](#databricks-requirements) variables for MLFlow
+        1. ```shell script
+            mlflow run file:///$PWD -b local\
+                                    -P conda-env=$PWD/envs/conda.yaml\
+                                    -P fpath=$PWD/airline_100000.orc
+           ```
+1. Deploy your model
+    1. Locate the model's 'Full Path' identity. 
+        1. Local storage
+            1. `$ mlflow ui`
+            1. Locate the model path using the mlflow ui at localhost:5000
+        1. Databricks
+            1. Locate your saved experiment in the Databricks tracking UI at: `/Users/[YOUR USER NAME]/[EXPERIMENT NAME]`
+            1. Ex. `dbfs:/databricks/mlflow/[EXPERIMENT ID #]/[EXPERIMENT RUN HASH]/artifacts/`
+    1. Select the successful run and find the 'Full Path' element
+        1. ![Example 1](imgs/example1.png)
+    1. Deploy your model
+        1. `mlflow models serve -m [PATH_TO_MODEL] -p 55755`
+        1. **Note**: If you have not defined the environment variables described above, this will fail to pull your model
+        from Databricks.
+          
+    1. From Databricks MLFlow UI
+        1. Locate your saved experiment in the Databricks tracking UI at: `/Users/[YOUR USER NAME]/[EXPERIMENT NAME]`
+        1. Ex. `dbfs:/databricks/mlflow/[EXPERIMENT ID #]/[EXPERIMENT RUN HASH]/artifacts/`
+        1. `mlflow models serve -m [PATH_TO_MODEL] -p 55755` 
+1. Send test data to the model using the `test_call.sh` example script.
+    1. `bash test_call.sh`
+       
+## Deploy Models Using MLFlow with Hyperopt and RAPIDS -1.13, on Databricks.
+#### Currently, this approach does not support SparkTrials integration with Hyperopt.
+1. The example `train.py` file supports two simple path specifications: local, and http: prefix.
+    1. Training with Databrick's local file system
+        1. Upload your data and conda environment spec to dbfs
+    1. Training with externally accessible data (ex. http)
+        1. Pass the URL of your dataset to the example training code: `http://your-endpoint.com/datafile.orc` 
+1. Define a cluster configuration, or use the [sample provided](databricks/training_cluster.json)
+1. Initiate Databricks job
+    1. ```shell script
+        mlflow run file:///$PWD -b databricks\
+                                --backend-config=./databricks/training_cluster.json\
+                                -P conda-env=[CONDA SPEC PATH OR URL]\
+                                -P fpath=[DATH PATH]
+       ``` 
