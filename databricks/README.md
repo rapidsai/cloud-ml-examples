@@ -15,6 +15,7 @@
     1. Select a GPU enabled Databricks runtime. Ex: 6.6 ML 
         1. Currently 'Use your own Docker container' is not available for ML instances.
     1. Select a GPU enabled worker and driver type
+        1. **Note** Selected GPU must be Pascal generation or greater. p2.X is not supported.
         1. Recommended: `g4dn.xxxx` (NVIDIA T4) or `p3.xxxx` (NVIDIA V100)
     1. Select `Advanced` -> `init_scripts`
         1. For our example set `init_scripts` to `dbfs:/databricks/init_scripts/rapids_install_cuml0.13_cuda10.0_ubuntu16.04.sh'
@@ -23,7 +24,7 @@
 
 ## Databricks Jobs with MLFlow, RAPIDS, and Hyperopt
 ### MLFlow and RAPIDS
-1. RAPIDS Attempts to maintain compatibility with the SKlearn API. This means that, in general, you should be able to
+1. RAPIDS Attempts to maintain compatibility with the SKlearn API. This means that, in general, you will be able to
 utilize cuML models with the MLFlow Sklearn interface, including model training, saving artifacts/models, and deploying
 saved models.
     1. Ex. 

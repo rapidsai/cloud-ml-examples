@@ -17,52 +17,46 @@ from hyperopt import fmin, tpe, hp, Trials, STATUS_OK
 
 
 def load_data(fpath, compute_type):
-    data_type = 'ORC' if fpath.lower().endswith('.orc') else 'parquet'
+    """
+    Simple helper function for loading data to be used by CPU/GPU models.
 
+    :param fpath: Path to the data to be ingested
+    :param compute_type: [CPU|GPU]
+    :return: DataFrame wrapping the data at [fpath]. Data will be in either a Pandas or RAPIDS (cuDF) DataFrame
+    """
     if 'CPU' in compute_type:
         try:
             import pandas
             import pyarrow
             from pyarrow import orc
         except Exception as error:
-            print(f'! CPU import error : {error}')
+            print(f'Failed to import pandas and pyarrow: {error}')
     elif 'GPU' in compute_type:
         try:
             import cudf
         except Exception as error:
-            print(f'! GPU import error : {error}')
+            print(f'Failed to import cuDF modules: {error}')
 
     if 'CPU' in compute_type:
-        if ('ORC' == data_type):
-            if (fpath.startswith('/') or fpath.startswith('file:')):
-                with open(fpath, mode='rb') as reader:
-                    df = pyarrow.orc.ORCFile(reader).read().to_pandas()
-            else:
-                raise NotImplemented("CPU Remote read not implemented")
-        else:
-            if (fpath.startswith('/') or fpath.startswith('file:')):
-                df = pd.read_parquet(fpath)
-            else:
-                raise NotImplemented("CPU Remote read not implemented")
-
-
-    elif ('GPU' in compute_type):
-        if ('ORC' == data_type):
-            df = cudf.read_orc(fpath)
-        else:
-            df = cudf.read_parquet(fpath)
+        df = pd.read_parquet(fpath)
+    else:
+        df = cudf.read_parquet(fpath)
 
     return df
 
 
-def _train(params, fpath, mode='GPU', log_to_mlflow=None, hyperopt=False):
+def _train(params, fpath, mode='GPU', hyperopt=False):
+    """
+    :param params: hyperparameters. Its structure is consistent with how search space is defined. See below.
+    :param fpath: Path or URL for the training data used with the model.
+    :param mode: Hardware backend to use for training [CPU|GPU]
+    :param hyperopt: Use hyperopt for hyperparameter search during training.
+    :return: dict with fields 'loss' (scalar loss) and 'status' (success/failure status of run)
+    """
     max_depth, max_features, n_estimators = params
     max_depth, max_features, n_estimators = int(max_depth), float(max_features), int(n_estimators)
 
     df = load_data(fpath, compute_type=mode)
-
-    for col in df.columns:
-        df[col] = df[col].astype('float32')
 
     X = df.drop(["ArrDelayBinary"], axis=1)
     y = df["ArrDelayBinary"].astype('int32')
@@ -82,15 +76,14 @@ def _train(params, fpath, mode='GPU', log_to_mlflow=None, hyperopt=False):
     preds = mod.predict(X_test)
     acc = acc_scorer(y_test, preds)
 
-    if (log_to_mlflow):
-        mlparams = {"max_depth": str(max_depth),
-                    "max_features": str(max_features),
-                    "n_estimators": str(n_estimators),
-                    "mode": str(mode)}
-        mlflow.log_params(mlparams)
+    mlparams = {"max_depth": str(max_depth),
+                "max_features": str(max_features),
+                "n_estimators": str(n_estimators),
+                "mode": str(mode)}
+    mlflow.log_params(mlparams)
 
-        mlmetrics = {"accuracy": acc}
-        mlflow.log_metrics(mlmetrics)
+    mlmetrics = {"accuracy": acc}
+    mlflow.log_metrics(mlmetrics)
 
     if (not hyperopt):
         return mod
@@ -98,19 +91,17 @@ def _train(params, fpath, mode='GPU', log_to_mlflow=None, hyperopt=False):
     return {'loss': acc, 'status': STATUS_OK}
 
 
-def train(params, fpath, mode='GPU', log_to_mlflow=None, hyperopt=False):
+def train(params, fpath, mode='GPU', hyperopt=False):
     """
-    An example train method that computes the square of the input.
-    This method will be passed to `hyperopt.fmin()`.
-
+    Proxy function used to call _train
     :param params: hyperparameters. Its structure is consistent with how search space is defined. See below.
+    :param fpath: Path or URL for the training data used with the model.
+    :param mode: Hardware backend to use for training [CPU|GPU]
+    :param hyperopt: Use hyperopt for hyperparameter search during training.
     :return: dict with fields 'loss' (scalar loss) and 'status' (success/failure status of run)
     """
-    if (log_to_mlflow):
-        with mlflow.start_run(nested=True):
-            return _train(params, fpath, mode, log_to_mlflow, hyperopt)
-    else:
-        return _train(params, fpath, mode, log_to_mlflow, hyperopt)
+    with mlflow.start_run(nested=True):
+        return _train(params, fpath, mode, hyperopt)
 
 
 if (__name__ in ("__main__",)):
@@ -129,7 +120,7 @@ if (__name__ in ("__main__",)):
 
     trials = Trials()
     algorithm = tpe.suggest if args.algo == 'tpe' else None
-    fn = partial(train, fpath=args.fpath, mode=args.mode, log_to_mlflow=True, hyperopt=True)
+    fn = partial(train, fpath=args.fpath, mode=args.mode, hyperopt=True)
     experid = 0
 
     with mlflow.start_run():
@@ -141,7 +132,7 @@ if (__name__ in ("__main__",)):
                       trials=trials)
 
         print("===========")
-        fn = partial(train, fpath=args.fpath, mode=args.mode, log_to_mlflow=False, hyperopt=False)
+        fn = partial(train, fpath=args.fpath, mode=args.mode, hyperopt=False)
         final_model = fn(tuple(argmin.values()))
 
         conda_data = ""
