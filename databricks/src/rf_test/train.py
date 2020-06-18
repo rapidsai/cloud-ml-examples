@@ -4,9 +4,9 @@ from functools import partial
 import mlflow
 import mlflow.sklearn
 
-from cuml.metrics.accuracy import accuracy_score as cuml_acc
-from cuml.preprocessing.model_selection import train_test_split as cuml_split
-from cuml.ensemble import RandomForestClassifier as cu_RF
+from cuml.metrics.accuracy import accuracy_score as accuracy_score
+from cuml.preprocessing.model_selection import train_test_split as train_test_split
+from cuml.ensemble import RandomForestClassifier as RandomForestClassifier
 
 from sklearn.model_selection import train_test_split as sk_split
 from sklearn.metrics import accuracy_score as sk_acc
@@ -62,9 +62,9 @@ def _train(params, fpath, mode='GPU', hyperopt=False):
     y = df["ArrDelayBinary"].astype('int32')
 
     if mode == "GPU":
-        X_train, X_test, y_train, y_test = cuml_split(X, y, test_size=0.2)
-        mod = cu_RF(max_depth=max_depth, max_features=max_features, n_estimators=n_estimators)
-        acc_scorer = cuml_acc
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+        mod = RandomForestClassifier(max_depth=max_depth, max_features=max_features, n_estimators=n_estimators)
+        acc_scorer = accuracy_score
     elif mode == "CPU":
         X_train, X_test, y_train, y_test = sk_split(X, y, test_size=0.2)
         mod = sk_RF(max_depth=max_depth, max_features=max_features, n_estimators=n_estimators)
