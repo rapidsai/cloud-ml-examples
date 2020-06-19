@@ -31,7 +31,7 @@
         1. ```shell script
             mlflow run file:///$PWD -b local\
                                     -P conda-env=$PWD/envs/conda.yaml\
-                                    -P fpath=$PWD/airline_100000.orc
+                                    -P fpath=https://rapidsai-cloud-ml-sample-data.s3-us-west-2.amazonaws.com/airline_small.parquet
            ```
 1. Deploy your model
     1. Locate the model's 'Full Path' identity. 
