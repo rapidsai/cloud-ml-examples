@@ -29,7 +29,7 @@
         Databricks account, and save our RAPIDS model.
         1. Export the [required environment](#databricks-requirements) variables for MLFlow
         1. ```shell script
-            mlflow run file:///$PWD -b local\
+            mlflow run file:///$PWD -b local -e hyperopt \
                                     -P conda-env=$PWD/envs/conda.yaml\
                                     -P fpath=https://rapidsai-cloud-ml-sample-data.s3-us-west-2.amazonaws.com/airline_small.parquet
            ```

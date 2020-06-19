@@ -1,3 +1,5 @@
+"""Hyperparameter optimization with cuML, hyperopt, and MLFlow"""
+
 import argparse
 from functools import partial
 
@@ -35,24 +37,26 @@ def _train(params, fpath, hyperopt=False):
     :return: dict with fields 'loss' (scalar loss) and 'status' (success/failure status of run)
     """
     max_depth, max_features, n_estimators = params
-    max_depth, max_features, n_estimators = int(max_depth), float(max_features), int(n_estimators)
+    max_depth, max_features, n_estimators = (int(max_depth), float(max_features), int(n_estimators))
 
     X_train, X_test, y_train, y_test = load_data(fpath)
 
-    mod = RandomForestClassifier(max_depth=max_depth, max_features=max_features, n_estimators=n_estimators)
-    acc_scorer = accuracy_score
+    mod = RandomForestClassifier(max_depth=max_depth,
+                                 max_features=max_features,
+                                 n_estimators=n_estimators)
 
     mod.fit(X_train, y_train)
     preds = mod.predict(X_test)
-    acc = acc_scorer(y_test, preds)
+    acc = accuracy_score(y_test, preds)
 
     mlparams = {"max_depth": str(max_depth),
                 "max_features": str(max_features),
                 "n_estimators": str(n_estimators)}
     mlflow.log_params(mlparams)
 
-    mlmetrics = {"accuracy": acc}
-    mlflow.log_metrics(mlmetrics)
+    mlflow.log_metric("accuracy", acc)
+
+    mlflow.sklearn.log_model(mod, "saved_models")
 
     if (not hyperopt):
         return mod
@@ -81,7 +85,7 @@ if (__name__ == "__main__"):
 
     search_space = [
         hp.uniform('max_depth', 5, 20),
-        hp.uniform('max_features', 0., 1.0),
+        hp.uniform('max_features', 0.1, 1.0),
         hp.uniform('n_estimators', 150, 1000)
     ]
 
