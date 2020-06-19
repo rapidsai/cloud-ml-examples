@@ -35,9 +35,3 @@ saved models.
    model = RandomForestClassifier()
    mlflow.sklearn.log_model(model, "cuml_model", conda_env='conda.yaml')
     ```
-   
-### Example Training and Deployment Notebook
-[Jupyter Notebook](notebooks/rapids_mlflow_databricks_train_deploy.ipynb).
-   
-### Example Training and Deployment Utilizing MLFlow CLI with Databricks
-[Databricks MLFlow CLI](README-Databricks-CLI.md)

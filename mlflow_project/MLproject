@@ -6,6 +6,5 @@ entry_points:
     main:
         parameters:
             fpath: {type: str}
-            mode: {type: str, default: 'GPU'}
             algo: {type: str, default: 'tpe'}
-        command: "python src/rf_test/train.py --fpath={fpath} --mode={mode} --algo={algo}"
+        command: "python src/rf_test/train.py --fpath={fpath} --algo={algo}"
