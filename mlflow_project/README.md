@@ -28,8 +28,8 @@
     1. Deploy your model
         1. `$ mlflow models serve -m [PATH_TO_MODEL] -p 55755`
 
-1. Query the deployed model with test data `test_call.sh` example script.
-    1. `$ bash test_call.sh`
+1. Query the deployed model with test data `src/sample_server_query.sh` example script.
+    1. `$ bash src/sample_server_query.sh`
 
 
 #### CLI Based Workflow + Databricks
