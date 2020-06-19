@@ -11,7 +11,7 @@
         1. This can be edited to allow additional command line variables, specify conda environments, and training
         parameters (see link for additional information).
     1. Publish to local tracking server
-        1. Here we instruct mlflow to run our training routine locally, and publish the result's to the local file system.
+        1. Here we instruct mlflow to run our training routine locally, and publish the results to the local file system.
         1. ```shell script
           $ mlflow run file:///$PWD -b local\
                                    -P conda-env=$PWD/envs/conda.yaml\
