@@ -32,5 +32,4 @@
     1. `$ bash src/sample_server_query.sh`
 
 
-#### CLI Based Workflow + Databricks
-[Databricks MLFlow CLI](README-Databricks.md)
+#### To reproduce this workflow, utilizing Databricks MLFlow tracking server, see: [Databricks MLFlow CLI](README-Databricks.md).
