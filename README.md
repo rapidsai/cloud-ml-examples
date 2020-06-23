@@ -29,7 +29,7 @@ Forests and GPU-accelerated XGBoost modeling.
 [Google Cloud AI Step-by-step](https://github.com/rapidsai/cloud-ml-examples/blob/master/gcp/README.md "GCP Deployment Guide")
 
 ## Databricks
-[Databricks Step-by-step](https://github.com/rapidsai/cloud-ml-examples/blob/master/databricks/README.md "Databricks Depolyment Guide")
+[Databricks Step-by-step](https://github.com/rapidsai/cloud-ml-examples/blob/master/databricks/README.md "Databricks Cloud Deployment Guide")
 
 ## Bring Your Own Cloud (Dask and Ray)
 
