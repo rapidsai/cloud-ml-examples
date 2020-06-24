@@ -27,7 +27,7 @@ It has been tested with RAPIDS 0.13 on DataBricks ML Runtime 6.6. (Support for R
         * **Note** Selected GPU must be Pascal generation or greater. p2.X is not supported.
         * Recommended: `g4dn.xxxx` (NVIDIA T4) or `p3.xxxx` (NVIDIA V100) for AWS users
     3. Select `Advanced` -> `init_scripts`
-        * Add an init scripts with the location `dbfs:/databricks/init_scripts/rapids_install_cuml0.13_cuda10.0_ubuntu16.04.sh'
+        * Add an init scripts with the location `dbfs:/databricks/init_scripts/rapids_instal_cuml0.13_cuda10.0_ubuntu16.04.sh`
 * Launch your cluster
   * At this point, you should have RAPIDS 0.13 installed in the databricks-ml-gpu conda environment, and can import cudf/cuml modules.
 
