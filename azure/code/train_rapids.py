@@ -57,7 +57,7 @@ def main():
     print('\n---->>>> cuML version <<<<----\n', cuml.__version__)
 
     compute = 'single-GPU' # 'multi-GPU' option for using multi-GPU algorithms via Dask
-    azure_ml = RapidsCloudML(cloud_type = 'Azure', model_type = 'RandomForest', data_type = 'Parquet', compute_type=compute)
+    azure_ml = RapidsCloudML(cloud_type='Azure', model_type='RandomForest', data_type='Parquet', compute_type=compute)
     print(compute)
 
     if compute == 'single-GPU':

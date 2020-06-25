@@ -389,7 +389,7 @@ class RapidsCloudML(object):
                 self.log_to_file( "\n\n! Error during fit " + str(error))
         return trained_model, train_timer.duration
     
-    def evaluate_test_perf(self, trained_model, X_test, y_test, threshold = 0.5):
+    def evaluate_test_perf(self, trained_model, X_test, y_test, threshold=0.5):
         """
         Evaluates the model performance on the inference set. For XGBoost we need
         to generate a DMatrix and then we can evaluate the model.
