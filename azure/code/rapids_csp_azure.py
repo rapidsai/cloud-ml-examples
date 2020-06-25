@@ -113,10 +113,6 @@ class RapidsCloudML(object):
                 'objective':'binary:logistic',
                 'random_state' : 0
             }
-            if 'GPU' in self.compute_type:
-                model_params['tree_method'] = 'gpu_hist'
-            else:
-                model_params.update['tree_method'] = 'hist'
             
         elif self.model_type == 'RandomForest':
             # https://docs.rapids.ai/api/cuml/stable/  -> cuml.ensemble.RandomForestClassifier
@@ -180,13 +176,13 @@ class RapidsCloudML(object):
                 # CPU Reading options
                 self.log_to_file(f'\n\tCPU read')
 
-                if 'ORC' in self.data_type:
+                if self.data_type == 'ORC':
                     with open( target_filename, mode='rb') as file:
                         dataset = pyarrow_orc.ORCFile(file).read().to_pandas()
-                elif 'CSV' in self.data_type:
+                elif self.data_type == 'CSV':
                     dataset = pd.read_csv( target_filename, names = col_labels )
                     
-                elif 'Parquet' in self.data_type:
+                elif self.data_type == 'Parquet':
                     
                     if 'single' in self.compute_type:
                         dataset = pd.read_parquet(target_filename)
@@ -199,13 +195,13 @@ class RapidsCloudML(object):
                 # GPU Reading Option
 
                 self.log_to_file(f'\n\tGPU read')
-                if 'ORC' in self.data_type:
+                if self.data_type == 'ORC':
                     dataset = cudf.read_orc(target_filename)
 
-                elif 'CSV' in self.data_type:
+                elif self.data_type == 'CSV':
                     dataset = cudf.read_csv(target_filename, names = col_labels)
 
-                elif 'Parquet' in self.data_type:
+                elif self.data_type == 'Parquet':
 
                     if 'single' in self.compute_type:
                         dataset = cudf.read_parquet(target_filename)
