@@ -57,7 +57,7 @@ def main():
     print('\n---->>>> cuML version <<<<----\n', cuml.__version__)
 
     compute = 'single-GPU' # 'multi-GPU' option for using multi-GPU algorithms via Dask
-    azure_ml = RapidsCloudML(cloud_type= 'Azure', data_type='Parquet', compute_type=compute)
+    azure_ml = RapidsCloudML(cloud_type='Azure', model_type='RandomForest', data_type='Parquet', compute_type=compute)
     print(compute)
 
     if compute == 'single-GPU':
@@ -98,7 +98,7 @@ def main():
         print( f'\n CV fold { i_train_fold } of { 5 }\n' )
 
         # split data
-        X_train, X_test, y_train, y_test, _ = azure_ml.split_data(X, y, random_state =77)
+        X_train, X_test, y_train, y_test, _ = azure_ml.split_data(X, y, random_state=i_train_fold)
         # train model 
         trained_model, training_time = azure_ml.train_model (X_train, y_train, model_params)
 
