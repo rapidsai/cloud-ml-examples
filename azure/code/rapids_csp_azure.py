@@ -110,10 +110,10 @@ class RapidsCloudML(object):
                 'gamma': 0.,
                 'lambda': 1.,
                 'alpha': 0.,
+                'objective':'binary:logistic',
                 'random_state' : 0
             }
-            if 'GPU' in self.compute_type:
-                model_params['tree_method'] = 'gpu_hist'
+            
         elif self.model_type == 'RandomForest':
             # https://docs.rapids.ai/api/cuml/stable/  -> cuml.ensemble.RandomForestClassifier
             model_params = {
@@ -176,23 +176,32 @@ class RapidsCloudML(object):
                 # CPU Reading options
                 self.log_to_file(f'\n\tCPU read')
 
-                if 'ORC' in self.data_type:
+                if self.data_type == 'ORC':
                     with open( target_filename, mode='rb') as file:
                         dataset = pyarrow_orc.ORCFile(file).read().to_pandas()
-                elif 'CSV' in self.data_type:
+                elif self.data_type == 'CSV':
                     dataset = pd.read_csv( target_filename, names = col_labels )
+                    
+                elif self.data_type == 'Parquet':
+                    
+                    if 'single' in self.compute_type:
+                        dataset = pd.read_parquet(target_filename)
+                    
+                    elif 'multi' in self.compute_type:
+                        self.log_to_file(f'\n\tReading using dask dataframe')
+                        dataset = dask.dataframe.read_parquet(target_filename, columns = columns)
 
             elif 'GPU' in self.compute_type:
                 # GPU Reading Option
 
                 self.log_to_file(f'\n\tGPU read')
-                if 'ORC' in self.data_type:
+                if self.data_type == 'ORC':
                     dataset = cudf.read_orc(target_filename)
 
-                elif 'CSV' in self.data_type:
+                elif self.data_type == 'CSV':
                     dataset = cudf.read_csv(target_filename, names = col_labels)
 
-                elif 'Parquet' in self.data_type:
+                elif self.data_type == 'Parquet':
 
                     if 'single' in self.compute_type:
                         dataset = cudf.read_parquet(target_filename)
@@ -261,13 +270,14 @@ class RapidsCloudML(object):
                                                                             train_size = train_size,
                                                                             shuffle = shuffle,
                                                                             random_state = random_state)
+
             elif 'GPU' in self.compute_type:
                 if 'single' in self.compute_type:
                     X_train, X_test, y_train, y_test = cuml_train_test_split(X = dataset,
                                                                              y = y_label,
                                                                              train_size = train_size,
                                                                              shuffle = shuffle,
-                                                                             random_state = random_state ) 
+                                                                             random_state = random_state) 
                 elif 'multi' in self.compute_type:
                     X_train, X_test, y_train, y_test = dask_train_test_split(dataset,
                                                                              y_label,
@@ -317,13 +327,25 @@ class RapidsCloudML(object):
         Trains a XGBoost model on X_train and y_train with model_params
 
         Parameters and Objects returned are same as trained_model
-        """
+        """             
+        if 'GPU' in self.compute_type:
+            model_params.update({'tree_method': 'gpu_hist'})
+        else:
+            model_params.update({'tree_method': 'hist'})
+        
         with PerfTimer() as train_timer:
-            train_DMatrix = xgboost.DMatrix(data = X_train, label = y_train)
-            trained_model = xgboost.train(dtrain = train_DMatrix,
-                                          params = model_params,
-                                          num_boost_round = model_params['num_boost_round'],
-                                          verbose_eval = self.verbose_estimator)
+            if 'single' in self.compute_type:
+                train_DMatrix = xgboost.DMatrix(data = X_train, label = y_train)
+                trained_model = xgboost.train(dtrain = train_DMatrix,
+                                              params = model_params,
+                                              num_boost_round = model_params['num_boost_round'])
+            elif 'multi' in self.compute_type:
+                self.log_to_file("\n\tTraining multi-GPU XGBoost")
+                train_DMatrix = xgboost.dask.DaskDMatrix(self.client, data = X_train, label = y_train)
+                trained_model = xgboost.dask.train(self.client,
+                                                   dtrain = train_DMatrix,
+                                                   params = model_params,
+                                                   num_boost_round = model_params['num_boost_round'])
         return trained_model, train_timer.duration
 
     def fit_random_forest ( self, X_train, y_train, model_params ):
@@ -367,7 +389,7 @@ class RapidsCloudML(object):
                 self.log_to_file( "\n\n! Error during fit " + str(error))
         return trained_model, train_timer.duration
     
-    def evaluate_test_perf(self, trained_model, X_test, y_test):
+    def evaluate_test_perf(self, trained_model, X_test, y_test, threshold=0.5):
         """
         Evaluates the model performance on the inference set. For XGBoost we need
         to generate a DMatrix and then we can evaluate the model.
@@ -394,8 +416,16 @@ class RapidsCloudML(object):
         with PerfTimer() as inference_timer:
             try:
                 if self.model_type == 'XGBoost':
-                    test_DMatrix = xgboost.DMatrix(data = X_test, label = y_test)
-                    test_accuracy = 1 - float(trained_model.eval( test_DMatrix ).split(':')[1])
+                    if 'multi' in self.compute_type:
+                        test_DMatrix = xgboost.dask.DaskDMatrix(self.client, data = X_test, label = y_test)
+                        xgb_pred = xgboost.dask.predict(self.client, trained_model, test_DMatrix).compute()
+                        xgb_pred = (xgb_pred > threshold) * 1.0
+                        test_accuracy = accuracy_score(y_test.compute(), xgb_pred)
+                    elif 'single' in self.compute_type: 
+                        test_DMatrix = xgboost.DMatrix(data = X_test, label = y_test)
+                        xgb_pred = trained_model.predict(test_DMatrix)
+                        xgb_pred = (xgb_pred > threshold) * 1.0
+                        test_accuracy = accuracy_score(y_test, xgb_pred)
 
                 elif self.model_type == 'RandomForest':
                     if 'multi' in self.compute_type:
