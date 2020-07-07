@@ -8,8 +8,8 @@ easily on the cloud platform of their choice.
 
 This repository provides example notebooks and "getting started" code
 samples to help you integrate RAPIDS with the hyperparameter
-optimization services from Azure ML, AWS Sagemaker, and Google
-Cloud. The directory for each cloud contains a step-by-step guide to
+optimization services from Azure ML, AWS Sagemaker, Google
+Cloud, and Databricks. The directory for each cloud contains a step-by-step guide to
 launch an example hyperparameter optimization job.
 
 Each example job will use RAPIDS
@@ -27,6 +27,9 @@ Forests and GPU-accelerated XGBoost modeling.
 
 ## Google Cloud AI Platform
 [Google Cloud AI Step-by-step](https://github.com/rapidsai/cloud-ml-examples/blob/master/gcp/README.md "GCP Deployment Guide")
+
+## Databricks
+[Databricks Step-by-step](https://github.com/rapidsai/cloud-ml-examples/blob/master/databricks/README.md "Databricks Cloud Deployment Guide")
 
 ## Bring Your Own Cloud (Dask and Ray)
 
