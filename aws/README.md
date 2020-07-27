@@ -3,7 +3,7 @@
 0. Upload train/test data to S3 
 
    - We offer the dataset for this demo in a public bucket    
-   https://s3.console.aws.amazon.com/s3/buckets/cloud-ml-examples/10_years
+   https://s3.console.aws.amazon.com/s3/buckets/sagemaker-rapids-hpo-us-east-1/10_years
    
    
 1. Create a SageMaker Notebook Instance
@@ -12,6 +12,7 @@
    > https://console.aws.amazon.com/sagemaker/
    
    - Choose **Notebook Instances**, then choose 'Create notebook instance'.
+   - Note that this notebook does not currently work in SageMaker Studio, due to lack of docker support. We plan to release a version with documentation on how to work around this limitation.
    
 <img src='img/sagemaker_notebook_instance.png'>
 
