@@ -1,6 +1,16 @@
 import random, uuid
+import boto3
 import pandas
-  
+import os
+
+def get_notebook_path():
+    """ Query the root notebook directory [ once ], 
+        we'll end up placing our best trained model in this location.
+    """
+    try: working_directory
+    except NameError: working_directory = os.getcwd()
+    return working_directory
+
 def new_job_name_from_config ( dataset_directory, code_choice, 
                                algorithm_choice, cv_folds,
                                instance_type, trim_limit = 32 ):
@@ -62,19 +72,19 @@ def recommend_instance_type ( code_choice, dataset_directory  ):
     return recommended_instance_type
 
 def validate_dockerfile ( rapids_base_container, dockerfile_name = 'Dockerfile'):
-    
-    # validate that our desired rapids image matches the Dockerfile
+    """ Validate that our desired rapids base image matches the Dockerfile """
     with open( dockerfile_name, 'r') as dockerfile_handle: 
         if rapids_base_container not in dockerfile_handle.read():
             raise Exception('Dockerfile base layer [i.e. FROM statment] does not match the variable rapids_base_container')
             
-def summarize_choices( s3_data_URI, code_choice, 
+def summarize_choices( s3_data_input, s3_model_output, code_choice, 
                        algorithm_choice, cv_folds,
                        instance_type, use_spot_instances_flag,
                        search_strategy, max_jobs, max_parallel_jobs,
                        max_duration_of_experiment_seconds ):
     """ Print the configuration choices, often useful before submitting large jobs """
-    print( f'S3 uri           =\t{s3_data_URI}')
+    print( f's3 data input    =\t{s3_data_input}')
+    print( f's3 model output  =\t{s3_model_output}')
     print( f'compute          =\t{code_choice}')
     print( f'algorithm        =\t{algorithm_choice}, {cv_folds} cv-fold')
     print( f'instance         =\t{instance_type}')
@@ -84,7 +94,36 @@ def summarize_choices( s3_data_URI, code_choice,
     print( f'max_parallel     =\t{max_parallel_jobs}')
     print( f'max runtime      =\t{max_duration_of_experiment_seconds} sec')    
 
-def print_hpo_ranges ( hyperparameter_ranges ):
-    """ Print HPO paramter search ranges """
-    for key, value in hyperparameter_ranges.items():
-        print( f'> range of {key}\t: {value.min_value} , {value.max_value} ')
+def summarize_hpo_results ( tuning_job_name ):
+    """ Query tuning results and display the best score, parameters, and job-name """
+    hpo_results = boto3.Session().client('sagemaker')\
+                                   .describe_hyper_parameter_tuning_job( 
+                                      HyperParameterTuningJobName = tuning_job_name )
+    best_job = hpo_results['BestTrainingJob']['TrainingJobName']
+    best_score = hpo_results['BestTrainingJob']['FinalHyperParameterTuningJobObjectiveMetric']['Value']
+    best_params = hpo_results['BestTrainingJob']['TunedHyperParameters']
+    print(f'best score: {best_score}')
+    print(f'best params: {best_params}')
+    print(f'best job-name: {best_job}')
+    return hpo_results
+
+def download_best_model( bucket, s3_model_output, hpo_results, local_directory ):
+    """ Download best model from S3"""
+    try:
+        target_bucket = boto3.resource('s3').Bucket( bucket )
+        path_prefix = s3_model_output.split('/')[3] + '/' + hpo_results['BestTrainingJob']['TrainingJobName'] + '/output/'
+        objects = target_bucket.objects.filter( Prefix = path_prefix )    
+        for obj in objects:                
+            path, filename = os.path.split( obj.key )
+            local_filename = 'best_' + filename
+            full_url = 's3://' + bucket + '/' + path_prefix + obj.key
+            target_bucket.download_file( obj.key, local_filename )
+            print(f'Successfully downloaded best model\n'
+                  f'> filename: {local_filename}\n'
+                  f'> local directory : {local_directory}\n\n'
+                  f'full S3 path : {full_url}')
+        return local_filename
+    
+    except Exception as download_error:
+        print( f'! Unable to download best model: {download_error}')
+        return None

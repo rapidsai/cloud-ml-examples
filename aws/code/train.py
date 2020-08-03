@@ -13,14 +13,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-""" 
-    logic running in each HPO estimator
-"""
 
 import sys, os, time, traceback
 from rapids_cloud_ml import RapidsCloudML 
 
-# to bring in your own dataset modify the dataset feature and label columns below
+""" Airline dataset specific target variable and feature column names 
+    Note: If you plan to bring in your own dataset modify the variables below
+""" 
 dataset_label_column = 'ArrDel15'
 dataset_feature_columns = [ 'Year', 'Quarter', 'Month', 'DayOfWeek', 
                             'Flight_Number_Reporting_Airline', 'DOT_ID_Reporting_Airline',
@@ -33,9 +32,8 @@ if __name__ == "__main__":
     start_time = time.time()
 
     # parse inputs and build cluster
-    rapids_sagemaker = RapidsCloudML ( input_args = sys.argv[1:], 
-                                 dataset_path = '/*.parquet',
-                                 worker_limit = None )
+    rapids_sagemaker = RapidsCloudML ( input_args = sys.argv[1:] )
+    
     try:
         print( '--- starting workflow --- \n ')
 
@@ -53,23 +51,22 @@ if __name__ == "__main__":
             # evaluate perf
             score = rapids_sagemaker.predict ( trained_model, X_test, y_test )
 
-            # restart cluster [ clean slate ]
-            rapids_sagemaker.cluster_reinitialize()
+            # restart cluster to avoid memory creep [ for multi-CPU/GPU ]
+            rapids_sagemaker.cluster_reinitialize( i_fold )
 
         # save
         rapids_sagemaker.save_model ( trained_model )
                 
         # emit final score to sagemaker
         rapids_sagemaker.emit_final_score()
-                
-        
-        print( f'total samples = {len(X_train) + len(X_test)} \n' 
-               f'total elapsed time = { round( time.time() - start_time) } seconds\n' )
-
+                        
+        print( f'total elapsed time = { round( time.time() - start_time) } seconds\n' )
+    
         sys.exit(0) # success exit code
 
     except Exception as error:
 
         trc = traceback.format_exc()           
         print( ' ! exception: ' + str(error) + '\n' + trc, file = sys.stderr)
+        
         sys.exit(-1) # a non-zero exit code causes the training job to be marked as failed
