@@ -2,8 +2,9 @@
 
 0. Upload train/test data to S3 
 
-   - We offer the dataset for this demo in a public bucket    
-   https://s3.console.aws.amazon.com/s3/buckets/sagemaker-rapids-hpo-us-east-1/10_years
+   - We offer the dataset for this demo in a public bucket hosted in either the `us-east-1` or `us-west-2` regions:
+   > https://s3.console.aws.amazon.com/s3/buckets/sagemaker-rapids-hpo-us-east-1/   
+   > https://s3.console.aws.amazon.com/s3/buckets/sagemaker-rapids-hpo-us-west-2/
    
    
 1. Create a SageMaker Notebook Instance
@@ -28,4 +29,4 @@
    > Note: If you see Pending to the right of the notebook instance in the Status column, your notebook is still being created. The status will change to InService when the notebook is ready for use.
 
 3. Run Notebook
-   - Once inside JupyterLab you should be able to navigate to the notebook in the **aws/notebooks** directory named **sagemaker_rapids_hpo.ipynb**
+   - Once inside JupyterLab you should be able to navigate to the notebook in the root directory named **rapids_sagemaker_hpo.ipynb**

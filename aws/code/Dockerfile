@@ -1,4 +1,4 @@
-FROM rapidsai/rapidsai-nightly:0.15-cuda10.1-runtime-ubuntu18.04-py3.7
+FROM rapidsai/rapidsai:0.14-cuda10.1-runtime-ubuntu18.04-py3.7
 
 # install https://github.com/aws/sagemaker-training-toolkit
 RUN apt-get update && apt-get install -y --no-install-recommends build-essential \ 
