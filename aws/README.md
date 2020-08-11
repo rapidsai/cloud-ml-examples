@@ -2,8 +2,9 @@
 
 0. Upload train/test data to S3 
 
-   - We offer the dataset for this demo in a public bucket    
-   https://s3.console.aws.amazon.com/s3/buckets/sagemaker-rapids-hpo-us-east-1/
+   - We offer the dataset for this demo in a public bucket hosted in either the `us-east-1` or `us-west-2` regions:
+   > https://s3.console.aws.amazon.com/s3/buckets/sagemaker-rapids-hpo-us-east-1/   
+   > https://s3.console.aws.amazon.com/s3/buckets/sagemaker-rapids-hpo-us-west-2/
    
    
 1. Create a SageMaker Notebook Instance
