@@ -34,7 +34,7 @@ declare -A argvals
 argvals["--action"]="pack"
 argvals["--cuda"]="10.2"
 argvals["--python"]="3.7"
-argvals["--rapids"]="0.13"
+argvals["--rapids"]="0.14"
 argvals["--rapids-channel"]="rapidsai"
 argvals["--unpack-path"]="./rapids_${argvals["--rapids"]}_py${argvals["--python"]}"
 
