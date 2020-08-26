@@ -1,4 +1,4 @@
-name: cuml_rapids
+name: cumlrapids
 
 docker_env:
     image: mlflow-rapids-example
@@ -10,4 +10,4 @@ entry_points:
             n_estimators: {type: int}
             max_features: {type: float}
             max_depth: {type: int}
-        command: "python src/rf_test/train_simple.py --fpath={fpath} --n_estimators={n_estimators} --max_features={max_features} --max_depth={max_depth}"
+        command: "/bin/bash src/k8s/entrypoint.sh src/rf_test/train_simple.py --fpath={fpath} --n_estimators={n_estimators} --max_features={max_features} --max_depth={max_depth}"

@@ -1,0 +1,5 @@
+{
+    "kube-context": "microk8s",
+    "kube-job-template-path": "k8s_job_template.yaml",
+    "repository-uri": "localhost:32000/mlflow-rapids-example"
+}
