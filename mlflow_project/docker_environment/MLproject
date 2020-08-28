@@ -4,10 +4,16 @@ docker_env:
     image: mlflow-rapids-example
 
 entry_points:
-    main:
+    simple:
         parameters:
             fpath: {type: str}
             n_estimators: {type: int}
             max_features: {type: float}
             max_depth: {type: int}
         command: "/bin/bash src/k8s/entrypoint.sh src/rf_test/train_simple.py --fpath={fpath} --n_estimators={n_estimators} --max_features={max_features} --max_depth={max_depth}"
+
+    hyperopt:
+        parameters:
+            fpath: {type: str}
+            algo: {type: str, default: 'tpe'}
+        command: "/bin/bash src/k8s/entrypoint.sh src/rf_test/train.py --fpath={fpath} --algo={algo}"

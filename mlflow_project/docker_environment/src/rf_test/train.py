@@ -11,6 +11,7 @@ from cuml.preprocessing.model_selection import train_test_split
 from cuml.ensemble import RandomForestClassifier
 
 from hyperopt import fmin, tpe, hp, Trials, STATUS_OK
+import traceback
 
 
 def load_data(fpath):
@@ -75,6 +76,7 @@ def train(params, fpath, hyperopt=False):
     :return: dict with fields 'loss' (scalar loss) and 'status' (success/failure status of run)
     """
     with mlflow.start_run(nested=True):
+        print("Running MLFLOW Trial", flush=True)
         return _train(params, fpath, hyperopt)
 
 
@@ -91,24 +93,28 @@ if __name__ == "__main__":
         hp.uniform("n_estimators", 150, 1000),
     ]
 
-    trials = Trials()
-    algorithm = tpe.suggest if args.algo == "tpe" else None
-    fn = partial(train, fpath=args.fpath, hyperopt=True)
-    experid = 0
+    try:
+        trials = Trials()
+        algorithm = tpe.suggest if args.algo == "tpe" else None
+        fn = partial(train, fpath=args.fpath, hyperopt=True)
+        experid = 0
 
-    artifact_path = "Airline-Demo"
-    artifact_uri = None
+        artifact_path = "Airline-Demo"
+        artifact_uri = None
 
-    with mlflow.start_run(run_name="RAPIDS-Hyperopt"):
-        argmin = fmin(fn=fn, space=search_space, algo=algorithm, max_evals=2, trials=trials)
+        with mlflow.start_run(run_name="RAPIDS-Hyperopt"):
+            argmin = fmin(fn=fn, space=search_space, algo=algorithm, max_evals=2, trials=trials)
 
-        print("===========")
-        fn = partial(train, fpath=args.fpath, hyperopt=False)
-        final_model = fn(tuple(argmin.values()))
+            print("===========")
+            fn = partial(train, fpath=args.fpath, hyperopt=False)
+            final_model = fn(tuple(argmin.values()))
 
-        mlflow.sklearn.log_model(
-            final_model,
-            artifact_path=artifact_path,
-            registered_model_name="rapids_mlflow_cli",
-            conda_env="envs/conda.yaml",
-        )
+            mlflow.sklearn.log_model(
+                final_model,
+                artifact_path=artifact_path,
+                registered_model_name="rapids_mlflow_cli",
+                conda_env="envs/conda.yaml",
+            )
+    except Exception as e:
+        print(f"train.py threw exception: {e}", flush=True)
+        traceback.print_exc()
