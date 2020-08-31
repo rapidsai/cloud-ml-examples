@@ -6,7 +6,7 @@ RUN source activate rapids \
         boto3 \
         hyperopt \
         mlflow \
-	      psycopg2-binary 
+	    psycopg2-binary
 
 COPY airline_small.parquet /rapids/data/airline_small.parquet
 COPY envs/ /rapids/envs/
