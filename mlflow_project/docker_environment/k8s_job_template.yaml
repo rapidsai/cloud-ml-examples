@@ -15,8 +15,6 @@ spec:
         env:
         - name: KUBE_MLFLOW_TRACKING_URI
           value: "postgresql://mlflow_user:mlflow@mlflow-postgres:5432/mlflow_db"
-#        - name: MLFLOW_S3_ENDPOINT_URL
-#          value: "https://mlflow-k8s.s3.us-east-1.amazonaws.com"
         - name: AWS_DEFAULT_REGION
           value: "us-east-1"
         - name: PYTHONUNBUFFERED
