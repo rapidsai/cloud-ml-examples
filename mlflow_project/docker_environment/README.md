@@ -17,13 +17,18 @@
     - `ARTIFACT BUCKET` : The name of the S3 bucket where MLflow will be configured to store experiment artifacts.
     - `AWS ACCT ID`: Service account ID
     - `AWS ACCT SECRET KEY`: Secret Key associated with `AWS ACCT ID`
-    - `CONTAINER REPO URI` : Uri of the kubernetes container repo
-    - `CONTAINER REPO PORT` : Port for the kubernetes container repo
-    - `POSTGRES ADDR` : address/uri of our postgres endpoint.
+    - `CONTAINER REPO URI` : Uri of the kubernetes container repo, `localhost:32000/<name>` if using microk8s
+    - `CONTAINER REPO PORT` : Port for the kubernetes container repo, `localhost:32000/<name>` if using microk8s
+    - `POSTGRES ADDR` : address/uri of our postgres endpoint. `kubectl get svc`
     - `S3 REGION` : Region where your S3 bucket is created.
     
 - Default project names for this demo
     - `RAPIDS-MLFLOW` : MLflow experiment name
+    - `mlflow_user` : Postgres mlflow database user name
+    - `mlflow` : Postgres mlflow database user password
+    - `mlflow_db` : Postgres mlflow database name
+    - `mlflow-postgres` : Postgres DNS name within our k8s cluster
+    - `5432` : Postgres default port
     - `rapids-mlflow-example` : The tag for the training container for this exercise.
         - This is the base container object used by MLflow to run experiments in Kubernetes.
         - It must contain the appropriate RAPIDS libraries, mlflow, hyperopt, psycopg2 (for Postgres), and boto3 (for S3).
@@ -74,13 +79,33 @@
     - `global.postgresql.postgresqlUsername=mlflow_user`
     - `global.postgresql.postgresqlPassword=mlflow`
     
-- **Deploy an MLflow tracking server **.
-    - **TODO** WRITE HELM CHART
-    - Provides experiment and published model UI.
+- **Deploy an MLflow tracking server**.
+    - Edit `helm/mlflow-tracking-server/values.yaml`
+        - Update `env:mlflowArtifactPath` to your S3 bucket.
+        - If you have your own database, or are using alternate users/table names, you will likely need to edit:
+            - `env:mlflowUser`, `env:mlflowPass`, `env:mlflowDBName`, `env:mlflowDBAddr`, `env:mlflowDBPort`
+    - Install the tracking server:
+        - (microk8s helm3 | helm) install mlflow-tracking-server --set server.type=NodePort --generate-name
+        - Once the command completes, you will see something similar to this:
+        ```shell script
+        export NODE_PORT=$(kubectl get --namespace default -o jsonpath="{.spec.ports[0].nodePort}" services mlflow-tracking-server-1599002582)
+        export NODE_IP=$(kubectl get nodes --namespace default -o jsonpath="{.items[0].status.addresses[0].address}")
+        echo http://$NODE_IP:$NODE_PORT
+        ```
+        - Connecting to `http://$NODE_IP:$NODE_PORT`, will present you with the mlflow tracking server login. Here you can
+        examine previous experiments, and their respective metrics. 
+    - Troubleshooting:
+        - If the http endpoint doesn't appear up:
+            - Check the logs of the tracking server pod for errors, and update or uninstall/reinstall the helm chart if necessary.
+        - If the endpoint works but the tracking service is unable to display metrics or retrieve artifacts:
+            - Double check that your AWS secrets are correctly configured in the k8s cluster
+            - Ensure your S3 bucket is correct
+            - Ensure that your postgres information is correct
+            - Update the helm service and restart
     
 #### MLflow Configuration
 - **Export MLFLOW_TRACKING_URI**
-    - `export MLFLOW_TRACKING_URI=postgresql://mlflow_user:mlflow@[POSTGRES ADDR]:5432/mlflow_db`
+    - `export MLFLOW_TRACKING_URI=postgresql://mlflow_user:mlflow@mlflow-postgres:5432/mlflow_db`
 - **Edit `k8s_config.json`**
     - `kube-context`: This should be set to either your cloud service provider's kubectl context, or `microk8s` if 
     deploying locally.
@@ -93,7 +118,7 @@
 
     
 ### S3 as an _[artifact endpoint](https://www.mlflow.org/docs/latest/tracking.html#artifact-stores)_.
-- Create an S3 bucket/path `[S3 BUCKET]/[S3 ARTIFACT PATH]`, accessible to the `[AWS ACCT ID] / [AWS ACCT SECRET KEY]`
+- Create an S3 bucket/path `[S3 BUCKET]/[S3 ARTIFACT PATH]`, accessible to the `[AWS ACCT ID] + [AWS ACCT SECRET KEY]`
 service account.
     
 ### Create and publish a training container
