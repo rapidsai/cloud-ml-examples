@@ -110,5 +110,5 @@ service account.
         -P conda-env=/rapids/envs/conda.yaml -P fpath=/rapids/data/airline_small.parquet`
 - Log in to your tracking server and verify that the experiment was successfully logged
     - `https://[MLFLOW TRACKING URI]:[MLFLOW TRACKING PORT]`
-    - ![](images/tracking_server.png)
+    ![](images/tracking_server.png)
 
