@@ -41,13 +41,17 @@ spec:
             {{- toYaml .Values.resources | nindent 12 }}
           env:
             - name: MLFLOW_USER
-              value: "mlflow_user"
+              value: "{{ .Values.env.mlflowUser }}"
             - name: MLFLOW_PASS
-              value: "mlflow"
+              value: "{{ .Values.env.mlflowPass }}"
             - name: MLFLOW_DB_NAME
-              value: "mlflow_db"
+              value: "{{ .Values.env.mlflowDBName }}"
             - name: MLFLOW_DB_ADDR
-              value: "mlflow-postgres"
+              value: "{{ .Values.env.mlflowDBAddr }}"
+            - name: MLFLOW_DB_PORT
+              value: "{{ .Values.env.mlflowDBPort }}"
+            - name: MLFLOW_ARTIFACT_PATH
+              value: "{{ .Values.env.mlflowArtifactPath }}"
             - name: AWS_ACCESS_KEY_ID
               valueFrom:
                 secretKeyRef:
