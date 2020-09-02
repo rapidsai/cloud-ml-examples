@@ -33,6 +33,7 @@
         - This is the base container object used by MLflow to run experiments in Kubernetes.
         - It must contain the appropriate RAPIDS libraries, mlflow, hyperopt, psycopg2 (for Postgres), and boto3 (for S3).
             - See [Dockerfile.training](Dockerfile.training)
+    - `mlflow-tracking-server` : Name of the tracking server container built in this example.
 
 ## Configuration
 ### Kubernetes (k8s) environment.
@@ -80,6 +81,12 @@
     - `global.postgresql.postgresqlPassword=mlflow`
     
 - **Deploy an MLflow tracking server**.
+    - Create and publish the tracking server container
+        - This creates the base docker container that MLflow will inject our project into, and deploy into our k8s cluster
+        for training.
+        - `docker build --tag mlflow-tracking-server:latest --file Dockerfile.tracking .`
+        - `docker tag mlflow-tracking-server:latest [CONTAINER_REPO_URI]:[CONTAINER_REPO_PORT]/mlflow-tracking-server:latest`
+        - `docker push [CONTAINER_REPO_URI]:[CONTAINER_REPO_PORT]/mlflow-tracking-server:latest`
     - Edit `helm/mlflow-tracking-server/values.yaml`
         - Update `env:mlflowArtifactPath` to your S3 bucket.
         - If you have your own database, or are using alternate users/table names, you will likely need to edit:
@@ -122,7 +129,7 @@
 service account.
     
 ### Create and publish a training container
-- Build a training container and publish it to your k8s environment.
+- **Build a training container and publish it to your k8s environment**.
     - This creates the base docker container that MLflow will inject our project into, and deploy into our k8s cluster
     for training.
     - `docker build --tag rapids-mlflow-training:latest --file Dockerfile.training .`
@@ -130,10 +137,10 @@ service account.
     - `docker push [CONTAINER_REPO_URI]:[CONTAINER_REPO_PORT]/rapids-mlflow-training:latest`
 
 ### Run an RAPIDS + hyperopt experiment in MLflow + k8s
-- Launch a new experiment
+- **Launch a new experiment**.
     - `mlflow run . --backend kubernetes --backend-config ./k8s_config.json -e hyperopt --experiment-name RAPIDS-MLFLOW 
         -P conda-env=/rapids/envs/conda.yaml -P fpath=/rapids/data/airline_small.parquet`
-- Log in to your tracking server and verify that the experiment was successfully logged
-    - `https://[MLFLOW TRACKING URI]:[MLFLOW TRACKING PORT]`
+- **Log in to your tracking server and verify that the experiment was successfully logged**.
+    - `https://[NODE_IP]:[NODE_PORT]`
     ![](images/tracking_server.png)
 
