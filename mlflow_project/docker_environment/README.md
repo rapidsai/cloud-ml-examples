@@ -82,8 +82,7 @@
     
 - **Deploy an MLflow tracking server**.
     - Create and publish the tracking server container
-        - This creates the base docker container that MLflow will inject our project into, and deploy into our k8s cluster
-        for training.
+        - This creates the container that hosts the mlflow tracking server. 
         - `docker build --tag mlflow-tracking-server:latest --file Dockerfile.tracking .`
         - `docker tag mlflow-tracking-server:latest [CONTAINER_REPO_URI]:[CONTAINER_REPO_PORT]/mlflow-tracking-server:latest`
         - `docker push [CONTAINER_REPO_URI]:[CONTAINER_REPO_PORT]/mlflow-tracking-server:latest`
