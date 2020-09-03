@@ -14,63 +14,59 @@
 # limitations under the License.
 #
 
+import sys, os, time, traceback
+from rapids_cloud_ml import RapidsCloudML 
+
+""" Airline dataset specific target variable and feature column names 
+    Note: If you plan to bring in your own dataset modify the variables below
 """ 
-    logic running in each HPO estimator
-"""
+dataset_label_column = 'ArrDel15'
+dataset_feature_columns = [ 'Year', 'Quarter', 'Month', 'DayOfWeek', 
+                            'Flight_Number_Reporting_Airline', 'DOT_ID_Reporting_Airline',
+                            'OriginCityMarketID', 'DestCityMarketID',
+                            'DepTime', 'DepDelay', 'DepDel15', 'ArrDel15',
+                            'AirTime', 'Distance' ]
 
-import sys, numpy as np
-import rapids_cloud_ml
-
-DEFAULT_CONFIG = {
-    'model_type'       : 'RandomForest', # XGBoost
-    'compute'          : 'multi-CPU',
-    'dataset'          : 'airline',
-    'dataset_filename' : '*.parquet',
-    'CV_folds'         : 1
-}
-
-# airline dataset specific
-dataset_columns = [ 
-    'Flight_Number_Reporting_Airline', 'Year', 'Quarter', 'Month', 'DayOfWeek', 
-    'DOT_ID_Reporting_Airline', 'OriginCityMarketID', 'DestCityMarketID',
-    'DepTime', 'DepDelay', 'DepDel15', 'ArrDel15',
-    'AirTime', 'Distance' ]
-target_variable = 'ArrDel15'
-
-def train( model_params, config_params ):
-    
-    rcml = rapids_cloud_ml.RapidsCloudML( model_type = config_params['model_type'],
-                                          compute_type = config_params['compute'] )
-        
-    # ingest data
-    dataset = rcml.load_data ( filename = config_params['dataset_filename'],
-                                                columns = dataset_columns )
-
-    # cross-validation [ optional ]
-    cv_fold_accuracy = []
-    for i_train_fold in range( config_params['CV_folds'] ):
-
-        rcml.log( f' CV fold : { i_train_fold } \n' )
-
-        # shuffle, split [ and persist ] data 
-        X_train, X_test, y_train, y_test = rcml.split_data( dataset, target_variable, 
-                                                            random_state = i_train_fold )
-        
-        # train model
-        trained_model = rcml.train_model ( X_train, y_train, model_params )
-
-        # evaluate perf
-        test_accuracy = rcml.evaluate_test_perf ( trained_model, X_test, y_test )
-        
-        cv_fold_accuracy += [ test_accuracy ]
-            
-    # emit mean across folds
-    rcml.emit_score( np.mean( cv_fold_accuracy ) )
-    
-    return 0
-   
 if __name__ == "__main__":
-    config_params = rapids_cloud_ml.parse_job_name ( DEFAULT_CONFIG )
-    model_params = rapids_cloud_ml.parse_model_parameters ( sys.argv[1:], config_params )    
-    train ( model_params, config_params )
-    sys.exit(0)
+
+    start_time = time.time()
+
+    # parse inputs and build cluster
+    rapids_sagemaker = RapidsCloudML ( input_args = sys.argv[1:] )
+    
+    try:
+        print( '--- starting workflow --- \n ')
+
+        # [ optional cross-validation] improves robustness/confidence in the best hyper-params        
+        for i_fold in range ( rapids_sagemaker.cv_folds ):
+
+            # run ETL [  ingest -> repartition -> drop missing -> split -> persist ]
+            X_train, X_test, y_train, y_test = rapids_sagemaker.ETL ( columns = dataset_feature_columns, 
+                                                                      label_column = dataset_label_column,
+                                                                      random_seed = i_fold ) 
+
+            # train model
+            trained_model = rapids_sagemaker.train_model ( X_train, y_train )
+
+            # evaluate perf
+            score = rapids_sagemaker.predict ( trained_model, X_test, y_test )
+
+            # restart cluster to avoid memory creep [ for multi-CPU/GPU ]
+            rapids_sagemaker.cluster_reinitialize( i_fold )
+
+        # save
+        rapids_sagemaker.save_model ( trained_model )
+                
+        # emit final score to sagemaker
+        rapids_sagemaker.emit_final_score()
+                        
+        print( f'total elapsed time = { round( time.time() - start_time) } seconds\n' )
+    
+        sys.exit(0) # success exit code
+
+    except Exception as error:
+
+        trc = traceback.format_exc()           
+        print( ' ! exception: ' + str(error) + '\n' + trc, file = sys.stderr)
+        
+        sys.exit(-1) # a non-zero exit code causes the training job to be marked as failed
