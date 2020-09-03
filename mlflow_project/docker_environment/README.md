@@ -7,6 +7,8 @@
     - NVIDIA [Kubernetes plugin](https://github.com/NVIDIA/k8s-device-plugin) (comes integreated with Microk8s) must be 
     installed in your kubernetes cluster.
     - Correctly installed and configured [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl).
+    - Correctly installed [helm](https://helm.sh/docs/intro/install/)
+    
 - **AWS account capable of creating, listing, and populating S3 buckets**.
     - Ensure appropriate [permissions](https://docs.aws.amazon.com/AmazonS3/latest/user-guide/set-permissions.html).
 
@@ -28,12 +30,18 @@
     - `mlflow` : Postgres mlflow database user password
     - `mlflow_db` : Postgres mlflow database name
     - `mlflow-postgres` : Postgres DNS name within our k8s cluster
+        - MLFlow connects to the Postgres database before initiating the k8s deployment, so this value should be consistent
+        on your deployment machine and within the kubernetes cluster.
+        - One way to easily do this with a microk8s deployment, is to add the postgres service address to `/etc/hosts`
     - `5432` : Postgres default port
     - `rapids-mlflow-example` : The tag for the training container for this exercise.
         - This is the base container object used by MLflow to run experiments in Kubernetes.
         - It must contain the appropriate RAPIDS libraries, mlflow, hyperopt, psycopg2 (for Postgres), and boto3 (for S3).
             - See [Dockerfile.training](Dockerfile.training)
     - `mlflow-tracking-server` : Name of the tracking server container built in this example.
+    
+- Training data can be obtained here:
+    - `wget -N https://rapidsai-cloud-ml-sample-data.s3-us-west-2.amazonaws.com/airline_small.parquet`
 
 ## Configuration
 ### Kubernetes (k8s) environment.
@@ -46,7 +54,7 @@
         - [GCP](https://cloud.google.com/kubernetes-engine/docs)
         - [Oracle](https://docs.cloud.oracle.com/en-us/iaas/Content/ContEng/Tasks/contengcreatingclusterusingoke.htm)
 
-- **Local Cluster**.
+- **Microk8s Cluster**.
     - Docker configuration
         - Install the NVIDIA [docker container toolkit](https://github.com/NVIDIA/nvidia-docker).
         - `sudo vi /etc/docker/daemon.json` and add the json below. This will set your docker installation to use the 
@@ -62,24 +70,28 @@
                 }
             }
             ```
+        - `sudo systemctl restart docker`
     - Install and deploy [Microk8s](https://microk8s.io/) on a single machine.
         - Enable addons: `config`, `dns`, `gpu`, and `helm3`
 
 #### Cluster Configuration
 - **Add S3 credentials to k8s cluster**
-    - This adds our S3 bucket credentials to the k8s cluster in a controlled way, that lets us avoid duplicating them
-    in templates or passing them at experiment run time.
+    - Adds our S3 bucket credentials to the k8s cluster in a controlled way; this lets us avoid duplicating credentials
+    in templates, configuration files, or passing them at experiment run time.
     - Note: these values are used within the `k8s_job_template.yaml` file, to populate `AWS_ACCESS_KEY_ID`, and
     `AWS_SECRET_ACCESS_KEY`, as k8s pod (container) environment variables.
     - `kubectl create secret generic awsacct --from-literal=awsacct=[AWS ACCT ID]`
     - `kubectl create secret generic awskey --from-literal=awskey=[AWS ACCT SECRET KEY]`
+
 - **Deploy a Postgres database service to be the MLflow tracking endpoint**.
-    - If you have an existing database, you can use that. For the purposes of this demo we will use the
-    [postgres helm chart](https://hub.helm.sh/charts/bitnami/postgresql). With the following parameters:
-    - `global.postgresql.postgresqlDatabase=mlflow_db`
-    - `global.postgresql.postgresqlUsername=mlflow_user`
-    - `global.postgresql.postgresqlPassword=mlflow`
-    
+    - For the purposes of this demo we will use the [postgres helm chart](https://hub.helm.sh/charts/bitnami/postgresql).
+    With the following parameters:
+        - If you have an existing database, you can use that.
+    - Follow the helm deployment process listed above, setting the following values:
+        - `global.postgresql.postgresqlDatabase=mlflow_db`
+        - `global.postgresql.postgresqlUsername=mlflow_user`
+        - `global.postgresql.postgresqlPassword=mlflow`
+
 - **Deploy an MLflow tracking server**.
     - Create and publish the tracking server container
         - This creates the container that hosts the mlflow tracking server. 
@@ -87,17 +99,17 @@
         - `docker tag mlflow-tracking-server:latest [CONTAINER_REPO_URI]:[CONTAINER_REPO_PORT]/mlflow-tracking-server:latest`
         - `docker push [CONTAINER_REPO_URI]:[CONTAINER_REPO_PORT]/mlflow-tracking-server:latest`
     - Edit `helm/mlflow-tracking-server/values.yaml`
-        - Update `env:mlflowArtifactPath` to your S3 bucket.
+        - Update `env:mlflowArtifactPath` to point at your S3 bucket.
         - If you have your own database, or are using alternate users/table names, you will likely need to edit:
             - `env:mlflowUser`, `env:mlflowPass`, `env:mlflowDBName`, `env:mlflowDBAddr`, `env:mlflowDBPort`
     - Install the tracking server:
-        - (microk8s helm3 | helm) install mlflow-tracking-server --set server.type=NodePort --generate-name
+        - `(microk8s helm3 | helm) install mlflow-tracking-server --set server.type=NodePort --generate-name`
         - Once the command completes, you will see something similar to this:
-        ```shell script
-        export NODE_PORT=$(kubectl get --namespace default -o jsonpath="{.spec.ports[0].nodePort}" services mlflow-tracking-server-1599002582)
-        export NODE_IP=$(kubectl get nodes --namespace default -o jsonpath="{.items[0].status.addresses[0].address}")
-        echo http://$NODE_IP:$NODE_PORT
-        ```
+            ```shell script
+            export NODE_PORT=$(kubectl get --namespace default -o jsonpath="{.spec.ports[0].nodePort}" services mlflow-tracking-server-1599002582)
+            export NODE_IP=$(kubectl get nodes --namespace default -o jsonpath="{.items[0].status.addresses[0].address}")
+            echo http://$NODE_IP:$NODE_PORT
+            ```
         - Connecting to `http://$NODE_IP:$NODE_PORT`, will present you with the mlflow tracking server login. Here you can
         examine previous experiments, and their respective metrics. 
     - Troubleshooting:
