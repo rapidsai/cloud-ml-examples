@@ -4,9 +4,13 @@
 - **Cloud based Kubernetes cluster OR Microk8s compatible deployment system**.
     - Worker node(s) with NVIDIA GPU.
         - Pascal or higher is required to run RAPIDS examples.
-    - NVIDIA [Kubernetes plugin](https://github.com/NVIDIA/k8s-device-plugin) (comes integreated with Microk8s) must be 
+    - NVIDIA [Kubernetes plugin](https://github.com/NVIDIA/k8s-device-plugin) (comes integrated with Microk8s) must be 
     installed in your kubernetes cluster.
     - Correctly installed and configured [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl).
+        - [GCP](https://cloud.google.com/kubernetes-engine/docs/how-to/cluster-access-for-kubectl)
+        - [AWS](https://docs.aws.amazon.com/eks/latest/userguide/create-kubeconfig.html)
+        - [Azure](https://docs.microsoft.com/en-us/azure/aks/kubernetes-walkthrough)
+        - [Oracle](https://docs.cloud.oracle.com/en-us/iaas/Content/ContEng/Tasks/contengdownloadkubeconfigfile.htm)
     - Correctly installed [helm](https://helm.sh/docs/intro/install/)
     
 - **AWS account capable of creating, listing, and populating S3 buckets**.
@@ -88,9 +92,15 @@
     With the following parameters:
         - If you have an existing database, you can use that.
     - Follow the helm deployment process listed above, setting the following values:
-        - `global.postgresql.postgresqlDatabase=mlflow_db`
-        - `global.postgresql.postgresqlUsername=mlflow_user`
-        - `global.postgresql.postgresqlPassword=mlflow`
+        - `--set postgresqlDatabase=mlflow_db`
+        - `--set postgresqlUsername=mlflow_user`
+        - `--set postgresqlPassword=mlflow`
+        - Microk8s Cluster
+            - `--set service.type=NodePort`
+        - CSP Cluster
+            - `--set service.type=LoadBalancer`
+    - Find the external node/load balancer port, which will be used to configure the tracking server and mlflow launches.
+        - `kubectl get svc`
 
 - **Deploy an MLflow tracking server**.
     - Create and publish the tracking server container

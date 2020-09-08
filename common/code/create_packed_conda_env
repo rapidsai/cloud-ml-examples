@@ -21,7 +21,7 @@ HELP="$0 [<target> ...] [<flag> ...]
    --action         [pack|unpack] - action to take (default: pack)
    --cuda           [version]     - cuda version to install (default: 10.2)
    --python         [version]     - python version to install (default: 3.7)
-   --rapids         [version]     - rapids version to install (default: 0.13)
+   --rapids         [version]     - rapids version to install (default: 0.15)
    --rapids-channel [ch]          - rapids channel to install from [rapidsai|rapidsai-nightly] (default: rapidsai)
    --unpack-to      [path]        - path where we should unpack the conda environment
                                     requires 'action unpack' (default: ./rapids_[rapids_version]_py[python version])
@@ -34,7 +34,7 @@ declare -A argvals
 argvals["--action"]="pack"
 argvals["--cuda"]="10.2"
 argvals["--python"]="3.7"
-argvals["--rapids"]="0.14"
+argvals["--rapids"]="0.15"
 argvals["--rapids-channel"]="rapidsai"
 argvals["--unpack-path"]="./rapids_${argvals["--rapids"]}_py${argvals["--python"]}"
 
