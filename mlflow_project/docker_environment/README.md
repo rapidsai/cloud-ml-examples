@@ -93,7 +93,6 @@
         - If you have an existing database, you can use that.
     - Follow the helm deployment process listed above, setting the following values:
         - `--set postgresqlDatabase=mlflow_db`
-        - `--set postgresqlUsername=mlflow_user`
         - `--set postgresqlPassword=mlflow`
         - Microk8s Cluster
             - `--set service.type=NodePort`
@@ -109,11 +108,23 @@
         - `docker tag mlflow-tracking-server:latest [CONTAINER_REPO_URI]:[CONTAINER_REPO_PORT]/mlflow-tracking-server:latest`
         - `docker push [CONTAINER_REPO_URI]:[CONTAINER_REPO_PORT]/mlflow-tracking-server:latest`
     - Edit `helm/mlflow-tracking-server/values.yaml`
-        - Update `env:mlflowArtifactPath` to point at your S3 bucket.
+        - Update:
+            - `env:mlflowArtifactPath` to point at your S3 bucket.
+            - `env:mlflowDBAddr` to be your exposed postgres release service
+                - ex. `my-release-postgres`
+            - `image:repository`
+                - MicroK8s ex. `localhost:32000/mlflow-tracking-server`
+                - GCP ex. `gcr.io/[path to your repo]/mlflow-tracking-server`
         - If you have your own database, or are using alternate users/table names, you will likely need to edit:
-            - `env:mlflowUser`, `env:mlflowPass`, `env:mlflowDBName`, `env:mlflowDBAddr`, `env:mlflowDBPort`
+            - `env:mlflowUser`, `env:mlflowPass`, `env:mlflowDBName`, `env:mlflowDBPort`
     - Install the tracking server:
-        - `(microk8s helm3 | helm) install mlflow-tracking-server --set server.type=NodePort --generate-name`
+        - ```shell script
+          (microk8s helm3 | helm) install mlflow-tracking mlflow-tracking-server 
+          ##### MicroK8s #####
+          --set service.type=NodePort
+          ##### CSP #####
+          --set service.type=LoadBalancer
+          ```
         - Once the command completes, you will see something similar to this:
             ```shell script
             export NODE_PORT=$(kubectl get --namespace default -o jsonpath="{.spec.ports[0].nodePort}" services mlflow-tracking-server-1599002582)
@@ -130,10 +141,14 @@
             - Ensure your S3 bucket is correct
             - Ensure that your postgres information is correct
             - Update the helm service and restart
+
+### S3 as an _[artifact endpoint](https://www.mlflow.org/docs/latest/tracking.html#artifact-stores)_.
+- Create an S3 bucket/path `[S3 BUCKET]/[S3 ARTIFACT PATH]`, accessible to the `[AWS ACCT ID] + [AWS ACCT SECRET KEY]`
+service account.
     
 #### MLflow Configuration
 - **Export MLFLOW_TRACKING_URI**
-    - `export MLFLOW_TRACKING_URI=postgresql://mlflow_user:mlflow@mlflow-postgres:5432/mlflow_db`
+    - `export MLFLOW_TRACKING_URI=postgresql://postgres:mlflow@mlflow-postgres:5432/mlflow_db`
 - **Edit `k8s_config.json`**
     - `kube-context`: This should be set to either your cloud service provider's kubectl context, or `microk8s` if 
     deploying locally.
@@ -144,11 +159,6 @@
     means that your saved artifacts will live only as long as the training pod exists.
     - `mlflow experiments create --experiment-name RAPIDS-MLFLOW --artifact-location s3://[S3 BUCKET]/[S3 ARTIFACT PATH]`
 
-    
-### S3 as an _[artifact endpoint](https://www.mlflow.org/docs/latest/tracking.html#artifact-stores)_.
-- Create an S3 bucket/path `[S3 BUCKET]/[S3 ARTIFACT PATH]`, accessible to the `[AWS ACCT ID] + [AWS ACCT SECRET KEY]`
-service account.
-    
 ### Create and publish a training container
 - **Build a training container and publish it to your k8s environment**.
     - This creates the base docker container that MLflow will inject our project into, and deploy into our k8s cluster
