@@ -20,16 +20,16 @@ demonstrates both [cuML](https://github.com/rapidsai/cuml) Random
 Forests and GPU-accelerated XGBoost modeling.
 
 ## Microsoft Azure ML
-[Azure ML Step-by-step.](https://github.com/rapidsai/cloud-ml-examples/blob/master/azure/README.md "Azure Deployment Guide")
+[Azure ML Step-by-step.](https://github.com/rapidsai/cloud-ml-examples/blob/main/azure/README.md "Azure Deployment Guide")
 
 ## AWS SageMaker
-[Amazon SageMaker Step-by-step.](https://github.com/rapidsai/cloud-ml-examples/blob/master/aws/README.md "SageMaker Deployment Guide")
+[Amazon SageMaker Step-by-step.](https://github.com/rapidsai/cloud-ml-examples/blob/main/aws/README.md "SageMaker Deployment Guide")
 
 ## Google Cloud AI Platform
-[Google Cloud AI Step-by-step](https://github.com/rapidsai/cloud-ml-examples/blob/master/gcp/README.md "GCP Deployment Guide")
+[Google Cloud AI Step-by-step](https://github.com/rapidsai/cloud-ml-examples/blob/main/gcp/README.md "GCP Deployment Guide")
 
 ## Databricks
-[Databricks Step-by-step](https://github.com/rapidsai/cloud-ml-examples/blob/master/databricks/README.md "Databricks Cloud Deployment Guide")
+[Databricks Step-by-step](https://github.com/rapidsai/cloud-ml-examples/blob/main/databricks/README.md "Databricks Cloud Deployment Guide")
 
 ## Bring Your Own Cloud (Dask and Ray)
 
