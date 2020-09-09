@@ -30,7 +30,7 @@
     
 - Default project names for this demo
     - `RAPIDS-MLFLOW` : MLflow experiment name
-    - `mlflow_user` : Postgres mlflow database user name
+    - `postgres` : Postgres mlflow database user name
     - `mlflow` : Postgres mlflow database user password
     - `mlflow_db` : Postgres mlflow database name
     - `mlflow-postgres` : Postgres DNS name within our k8s cluster
@@ -77,6 +77,7 @@
         - `sudo systemctl restart docker`
     - Install and deploy [Microk8s](https://microk8s.io/) on a single machine.
         - Enable addons: `config`, `dns`, `gpu`, and `helm3`
+            - `microk8s enable config dns gpu helm3`
 
 #### Cluster Configuration
 - **Add S3 credentials to k8s cluster**
@@ -105,8 +106,8 @@
     - Create and publish the tracking server container
         - This creates the container that hosts the mlflow tracking server. 
         - `docker build --tag mlflow-tracking-server:latest --file Dockerfile.tracking .`
-        - `docker tag mlflow-tracking-server:latest [CONTAINER_REPO_URI]:[CONTAINER_REPO_PORT]/mlflow-tracking-server:latest`
-        - `docker push [CONTAINER_REPO_URI]:[CONTAINER_REPO_PORT]/mlflow-tracking-server:latest`
+        - `docker tag mlflow-tracking-server:latest [CONTAINER REPO URI]:[CONTAINER REPO PORT]/mlflow-tracking-server:latest`
+        - `docker push [CONTAINER REPO URI]:[CONTAINER REPO PORT]/mlflow-tracking-server:latest`
     - Edit `helm/mlflow-tracking-server/values.yaml`
         - Update:
             - `env:mlflowArtifactPath` to point at your S3 bucket.
@@ -164,7 +165,7 @@ service account.
     - This creates the base docker container that MLflow will inject our project into, and deploy into our k8s cluster
     for training.
     - `docker build --tag rapids-mlflow-training:latest --file Dockerfile.training .`
-    - `docker push [CONTAINER_REPO_URI]:[CONTAINER_REPO_PORT]/rapids-mlflow-training:latest`
+    - `docker push [CONTAINER REPO URI]:[CONTAINER REPO PORT]/rapids-mlflow-training:latest`
 
 ### Run an RAPIDS + hyperopt experiment in MLflow + k8s
 - **Launch a new experiment**.
