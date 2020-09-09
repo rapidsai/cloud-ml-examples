@@ -164,7 +164,6 @@ service account.
     - This creates the base docker container that MLflow will inject our project into, and deploy into our k8s cluster
     for training.
     - `docker build --tag rapids-mlflow-training:latest --file Dockerfile.training .`
-    he h
     - `docker push [CONTAINER_REPO_URI]:[CONTAINER_REPO_PORT]/rapids-mlflow-training:latest`
 
 ### Run an RAPIDS + hyperopt experiment in MLflow + k8s
