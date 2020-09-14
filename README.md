@@ -15,7 +15,7 @@ launch an example hyperparameter optimization job.
 Each example job will use RAPIDS
 [cuDF](https://github.com/rapidsai/cudf) to load and preprocess 20
 million rows of airline arrival and departure data and build a model
-to predict whether or not a flight will arrive on time (dataset is adapted from [Airline On-Time Performance Data from BureauTS](https://transtats.bts.gov/Tables.asp?DB_ID=120&DB_Name=Airline%20On-Time%20Performance%20Data&DB_Short_Name=On-Time#)). It
+to predict whether or not a flight will arrive on time (dataset is adapted from [Airline On-Time Performance Data from BTS](https://transtats.bts.gov/Tables.asp?DB_ID=120&DB_Name=Airline%20On-Time%20Performance%20Data&DB_Short_Name=On-Time#)). It
 demonstrates both [cuML](https://github.com/rapidsai/cuml) Random
 Forests and GPU-accelerated XGBoost modeling.
 
