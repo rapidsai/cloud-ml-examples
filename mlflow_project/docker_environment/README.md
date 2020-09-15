@@ -99,6 +99,13 @@
             - `--set service.type=NodePort`
         - CSP Cluster
             - `--set service.type=LoadBalancer`
+        ```shell script
+        (microk8s helm3 | helm) install mlflow bitnami/postgresql \
+          --set postgresqlDatabase=mlflow_db \
+          --set postgresqlPassword=mlflow \
+          --set service.type=(NodePort | LoadBalancer)
+        ```
+        - **NOTE**: This will create a service called `mlflow-postgres` which we will reference later.
     - Find the external node/load balancer port, which will be used to configure the tracking server and mlflow launches.
         - `kubectl get svc`
 

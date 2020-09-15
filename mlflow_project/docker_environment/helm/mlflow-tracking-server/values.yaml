@@ -6,7 +6,7 @@ replicaCount: 1
 
 env:
   mlflowArtifactPath: "s3://[S3 BUCKET]/[S3 ARTIFACT PATH]"
-  mlflowUser: "mlflow_user"
+  mlflowUser: "postgres"
   mlflowPass: "mlflow"
   mlflowDBName: "mlflow_db"
   mlflowDBAddr: "mlflow-postgres"
