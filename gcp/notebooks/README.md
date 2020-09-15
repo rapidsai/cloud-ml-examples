@@ -5,4 +5,3 @@
 1. Ensure that your build machine has docker installed and configured
     1. https://docs.docker.com/get-started/
 1. Ensure that Google's 'gcloud' sdk is installed and configured
-    1. 

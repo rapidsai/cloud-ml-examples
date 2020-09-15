@@ -1,7 +1,6 @@
 """Simple example integrating cuML with MLFlow"""
 
 import argparse
-from functools import partial
 
 import mlflow
 import mlflow.sklearn
