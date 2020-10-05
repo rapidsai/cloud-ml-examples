@@ -1,4 +1,4 @@
-FROM rapidsai/rapidsai:cuda10.2-runtime-ubuntu18.04-py3.7
+FROM rapidsai/rapidsai:cuda11.0-runtime-ubuntu18.04-py3.8
 
 RUN source activate rapids \
     && mkdir /opt/mlflow \

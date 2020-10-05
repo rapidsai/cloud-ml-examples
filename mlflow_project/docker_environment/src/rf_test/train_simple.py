@@ -10,7 +10,6 @@ from cuml.metrics.accuracy import accuracy_score
 from cuml.preprocessing.model_selection import train_test_split
 from cuml.ensemble import RandomForestClassifier
 
-
 def load_data(fpath):
     """
     Simple helper function for loading data to be used by CPU/GPU models.
@@ -63,7 +62,7 @@ def train(fpath, max_depth, max_features, n_estimators):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--algo", default="tpe", choices=["tpe"], type=str)
-    parser.add_argument("--conda-env", required=True, type=str)
+    parser.add_argument("--conda_env", required=True, type=str)
     parser.add_argument("--fpath", required=True, type=str)
     parser.add_argument("--n_estimators", type=int, default=100)
     parser.add_argument("--max_features", type=float, default=1.0)
@@ -78,7 +77,7 @@ if __name__ == "__main__":
         experiment_name = "RAPIDS-CLI"
         experiment_id = None
 
-        with mlflow.start_run(run_name="RAPIDS-MLFlow"):
+        with mlflow.start_run(run_name="RAPIDS-MLFlow", nested=True):
             model = train(args.fpath, args.max_depth, args.max_features, args.n_estimators)
 
             mlflow.sklearn.log_model(

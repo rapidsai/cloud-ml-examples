@@ -63,7 +63,7 @@ def train(fpath, max_depth, max_features, n_estimators):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--algo", default="tpe", choices=["tpe"], type=str)
-    parser.add_argument("--conda-env", required=True, type=str)
+    parser.add_argument("--conda_env", required=True, type=str)
     parser.add_argument("--fpath", required=True, type=str)
     parser.add_argument("--n_estimators", type=int, default=100)
     parser.add_argument("--max_features", type=float, default=1.0)
@@ -75,18 +75,18 @@ if __name__ == "__main__":
 
     artifact_path = "Airline-Demo"
     artifact_uri = None
-    experiment_name = "RAPIDS-CLI"
+    experiment_name = "RAPIDS-MLflow"
     experiment_id = None
 
     mlflow.set_tracking_uri(uri="sqlite:////tmp/mlflow-db.sqlite")
-    with mlflow.start_run(run_name="RAPIDS-MLFlow"):
+    with mlflow.start_run(run_name="RAPIDS-MLflow"):
         model = train(args.fpath, args.max_depth, args.max_features, args.n_estimators)
 
         mlflow.sklearn.log_model(
             model,
             artifact_path=artifact_path,
             registered_model_name="rapids_mlflow_cli",
-            conda_env="conda.yaml",
+            conda_env=args.conda_env,
         )
         artifact_uri = mlflow.get_artifact_uri(artifact_path=artifact_path)
 
