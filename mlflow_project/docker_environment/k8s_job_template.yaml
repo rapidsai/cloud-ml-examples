@@ -8,10 +8,24 @@ spec:
   backoffLimit: 0
   template:
     spec:
+      volumes:
+        - name: gcsfs-creds
+          secret:
+            secretName: gcsfs-creds
+            items:
+              - key: keyfile.json
+                path: keyfile.json
       containers:
       - name: "{replaced with MLflow Project name}"
         image: "{replaced with URI of Docker image created during Project execution}"
         command: ["{replaced with MLflow Project entry point command}"]
+        volumeMounts:
+          - name: gcsfs-creds
+            mountPath: "/etc/secrets"
+            readOnly: true
+        resources:
+          limits:
+            nvidia.com/gpu: 1
         env:
         - name: KUBE_MLFLOW_TRACKING_URI
           value: "postgresql://mlflow_user:mlflow@mlflow-postgres:5432/mlflow_db"
@@ -21,20 +35,16 @@ spec:
           value: "1"
         - name: PYTHONIOENCODING
           value: "UTF-8"
-        - name: AWS_ACCESS_KEY_ID
-          valueFrom:
-            secretKeyRef:
-              name: awsacct
-              key: awsacct
-        - name: AWS_SECRET_ACCESS_KEY
-          valueFrom:
-            secretKeyRef:
-              name: awskey
-              key: awskey
-      resources:
-        limits:
-          nvidia.com/gpu: 1
-          memory: 512Mi
-        requests:
-          memory: 256Mi
+        - name: GOOGLE_APPLICATION_CREDENTIALS
+          value: "/etc/secrets/keyfile.json"
+        #- name: AWS_ACCESS_KEY_ID
+        #  valueFrom:
+        #    secretKeyRef:
+        #      name: awsacct
+        #      key: awsacct
+        #- name: AWS_SECRET_ACCESS_KEY
+        #  valueFrom:
+        #    secretKeyRef:
+        #      name: awskey
+        #      key: awskey
       restartPolicy: Never

@@ -99,7 +99,6 @@ if __name__ == "__main__":
     artifact_path = "Airline-Demo"
     artifact_uri = None
 
-    mlflow.set_tracking_uri(uri="sqlite:////tmp/mlflow-db.sqlite")
     with mlflow.start_run(run_name="RAPIDS-Hyperopt"):
         argmin = fmin(fn=fn, space=search_space, algo=algorithm, max_evals=2, trials=trials)
 

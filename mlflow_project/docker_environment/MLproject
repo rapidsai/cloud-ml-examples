@@ -1,7 +1,7 @@
 name: cumlrapids
 
 docker_env:
-    image: mlflow-rapids-example
+    image: gcr.io/nv-ai-infra/drobison/rapids-mlflow-training:gcp
 
 entry_points:
     simple:

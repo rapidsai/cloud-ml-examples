@@ -2,11 +2,12 @@
 set -e
 set -x
 source activate rapids
+nvidia-smi
 
 ARGS=( "$@" )
+python --version
 echo "${ARGS[@]}"
 echo "Calling: 'python ${ARGS[@]}'"
-python --version
 echo "---- ENV ----"
 env
 echo "---- LOCAL DIR ----"

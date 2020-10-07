@@ -5,18 +5,18 @@
 replicaCount: 1
 
 env:
-  mlflowArtifactPath: "s3://[S3 BUCKET]/[S3 ARTIFACT PATH]"
+  mlflowArtifactPath: ""
   mlflowUser: "postgres"
   mlflowPass: "mlflow"
   mlflowDBName: "mlflow_db"
-  mlflowDBAddr: "mlflow-postgres"
+  mlflowDBAddr: "mlf-db-postgresql"
   mlflowDBPort: "5432"
 
 image:
-  repository: localhost:32000/mlflow-tracking-server
+  repository: ""
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "latest"
+  tag: "gcp"
 
 imagePullSecrets: []
 nameOverride: ""

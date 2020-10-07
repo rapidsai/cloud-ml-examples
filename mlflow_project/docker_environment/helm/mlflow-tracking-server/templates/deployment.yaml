@@ -27,10 +27,21 @@ spec:
       serviceAccountName: {{ include "mlflow-tracking-server.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      volumes:
+        - name: gcsfs-creds
+          secret:
+            secretName: gcsfs-creds
+            items:
+              - key: keyfile.json
+                path: keyfile.json
       containers:
         - name: {{ .Chart.Name }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
+          volumeMounts:
+            - name: gcsfs-creds
+              mountPath: "/etc/secrets"
+              readOnly: true
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
@@ -52,16 +63,18 @@ spec:
               value: "{{ .Values.env.mlflowDBPort }}"
             - name: MLFLOW_ARTIFACT_PATH
               value: "{{ .Values.env.mlflowArtifactPath }}"
-            - name: AWS_ACCESS_KEY_ID
-              valueFrom:
-                secretKeyRef:
-                  name: awsacct
-                  key: awsacct
-            - name: AWS_SECRET_ACCESS_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: awskey
-                  key: awskey
+            - name: GOOGLE_APPLICATION_CREDENTIALS
+              value: "/etc/secrets/keyfile.json"
+            #- name: AWS_ACCESS_KEY_ID
+            #  valueFrom:
+            #    secretKeyRef:
+            #      name: awsacct
+            #      key: awsacct
+            #- name: AWS_SECRET_ACCESS_KEY
+            #  valueFrom:
+            #    secretKeyRef:
+            #      name: awskey
+            #      key: awskey
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

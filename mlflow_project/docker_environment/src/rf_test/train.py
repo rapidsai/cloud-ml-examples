@@ -2,10 +2,16 @@
 
 import argparse
 from functools import partial
+import os
+import sys
+
+import gcsfs
 
 import mlflow
 import mlflow.sklearn
 
+import cuml
+import cudf
 from cuml.metrics.accuracy import accuracy_score
 from cuml.preprocessing.model_selection import train_test_split
 from cuml.ensemble import RandomForestClassifier
@@ -23,7 +29,13 @@ def load_data(fpath):
     """
     import cudf
 
-    df = cudf.read_parquet(fpath)
+    if (fpath.startswith('gs://')):
+        fs = gcsfs.GCSFileSystem()
+        with fs.open(fpath, mode='rb') as f:
+            df = cudf.read_parquet(f)
+    else:
+        df = cudf.read_parquet(fpath)
+
     X = df.drop(["ArrDelayBinary"], axis=1)
     y = df["ArrDelayBinary"].astype("int32")
 
@@ -40,8 +52,19 @@ def _train(params, fpath, hyperopt=False):
     max_depth, max_features, n_estimators = params
     max_depth, max_features, n_estimators = (int(max_depth), float(max_features), int(n_estimators))
 
-    X_train, X_test, y_train, y_test = load_data(fpath)
+    # Log all of our training parameters for this run.
+    pyver = sys.version_info
+    mlparams = {
+        'cudf_version': str(cudf.__version__),
+        'cuml_version': str(cuml.__version__),
+        'max_depth': str(max_depth),
+        'max_features': str(max_features),
+        'n_estimators': str(n_estimators),
+        'python_version': f"{pyver[0]}.{pyver[1]}.{pyver[2]}.{pyver[3]}",
+    }
+    mlflow.log_params(mlparams)
 
+    X_train, X_test, y_train, y_test = load_data(fpath)
     mod = RandomForestClassifier(
         max_depth=max_depth, max_features=max_features, n_estimators=n_estimators
     )
@@ -50,15 +73,7 @@ def _train(params, fpath, hyperopt=False):
     preds = mod.predict(X_test)
     acc = accuracy_score(y_test, preds)
 
-    mlparams = {
-        "max_depth": str(max_depth),
-        "max_features": str(max_features),
-        "n_estimators": str(n_estimators),
-    }
-    mlflow.log_params(mlparams)
-
     mlflow.log_metric("accuracy", acc)
-
     mlflow.sklearn.log_model(mod, "saved_models")
 
     if not hyperopt:
@@ -76,8 +91,16 @@ def train(params, fpath, hyperopt=False):
     :return: dict with fields 'loss' (scalar loss) and 'status' (success/failure status of run)
     """
     with mlflow.start_run(nested=True):
-        print("Running MLFLOW Trial", flush=True)
         return _train(params, fpath, hyperopt)
+
+def prep_env(args):
+    cpath = args.conda_env
+    if (cpath.startswith('gs://')):
+        fs = gcsfs.GCSFileSystem()
+        with fs.open(cpath, mode='r') as f:
+            cfile = f.read()
+        with open('envs/conda.yaml', 'w') as writer:
+            writer.write(cfile)
 
 
 if __name__ == "__main__":
@@ -93,17 +116,18 @@ if __name__ == "__main__":
         hp.uniform("n_estimators", 150, 1000),
     ]
 
+    with open('/etc/secrets/keyfile.json') as reader:
+        print(reader.read())
+
+    prep_env(args)
     try:
         trials = Trials()
         algorithm = tpe.suggest if args.algo == "tpe" else None
         fn = partial(train, fpath=args.fpath, hyperopt=True)
-        experid = 0
 
-        artifact_path = "Airline-Demo"
-        artifact_uri = None
-
+        artifact_path = "airline-demo"
         with mlflow.start_run(run_name="RAPIDS-Hyperopt"):
-            argmin = fmin(fn=fn, space=search_space, algo=algorithm, max_evals=2, trials=trials)
+            argmin = fmin(fn=fn, space=search_space, algo=algorithm, max_evals=5, trials=trials)
 
             print("===========")
             fn = partial(train, fpath=args.fpath, hyperopt=False)
@@ -112,7 +136,7 @@ if __name__ == "__main__":
             mlflow.sklearn.log_model(
                 final_model,
                 artifact_path=artifact_path,
-                registered_model_name="rapids_mlflow_cli",
+                registered_model_name="rapids_airline_hyperopt_k8s",
                 conda_env="envs/conda.yaml",
             )
     except Exception as e:
