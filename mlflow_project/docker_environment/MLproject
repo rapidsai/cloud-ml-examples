@@ -1,21 +1,12 @@
 name: cumlrapids
 
 docker_env:
-    image: gcr.io/nv-ai-infra/drobison/rapids-mlflow-training:gcp
+    image: rapids-mlflow-training:gcp
 
 entry_points:
-    simple:
-        parameters:
-            conda_env: {type: str, default: './envs/conda.yaml'}
-            fpath: {type: str, default: './airline_small.parquet'}
-            n_estimators: {type: int, default: 100}
-            max_features: {type: float, default: 0.33}
-            max_depth: {type: int, default: 10}
-        command: "/bin/bash src/k8s/entrypoint.sh src/rf_test/train_simple.py --fpath={fpath} \
-        --n_estimators={n_estimators} --max_features={max_features} --max_depth={max_depth} --conda_env={conda_env}"
-
     hyperopt:
         parameters:
-            fpath: {type: str}
             algo: {type: str, default: 'tpe'}
-        command: "/bin/bash src/k8s/entrypoint.sh src/rf_test/train.py --fpath={fpath} --algo={algo}"
+            conda_env: {type: str, default: 'envs/conda.yaml'}
+            fpath: {type: str}
+        command: "/bin/bash src/k8s/entrypoint.sh src/rf_test/train.py --fpath={fpath} --algo={algo} --conda_env={conda_env}"

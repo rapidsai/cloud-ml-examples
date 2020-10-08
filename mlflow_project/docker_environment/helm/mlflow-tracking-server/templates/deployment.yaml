@@ -65,16 +65,6 @@ spec:
               value: "{{ .Values.env.mlflowArtifactPath }}"
             - name: GOOGLE_APPLICATION_CREDENTIALS
               value: "/etc/secrets/keyfile.json"
-            #- name: AWS_ACCESS_KEY_ID
-            #  valueFrom:
-            #    secretKeyRef:
-            #      name: awsacct
-            #      key: awsacct
-            #- name: AWS_SECRET_ACCESS_KEY
-            #  valueFrom:
-            #    secretKeyRef:
-            #      name: awskey
-            #      key: awskey
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

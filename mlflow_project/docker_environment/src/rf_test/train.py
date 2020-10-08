@@ -2,7 +2,6 @@
 
 import argparse
 from functools import partial
-import os
 import sys
 
 import gcsfs
@@ -127,7 +126,7 @@ if __name__ == "__main__":
 
         artifact_path = "airline-demo"
         with mlflow.start_run(run_name="RAPIDS-Hyperopt"):
-            argmin = fmin(fn=fn, space=search_space, algo=algorithm, max_evals=5, trials=trials)
+            argmin = fmin(fn=fn, space=search_space, algo=algorithm, max_evals=10, trials=trials)
 
             print("===========")
             fn = partial(train, fpath=args.fpath, hyperopt=False)

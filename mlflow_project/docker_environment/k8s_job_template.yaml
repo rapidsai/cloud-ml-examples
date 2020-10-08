@@ -27,24 +27,10 @@ spec:
           limits:
             nvidia.com/gpu: 1
         env:
-        - name: KUBE_MLFLOW_TRACKING_URI
-          value: "postgresql://mlflow_user:mlflow@mlflow-postgres:5432/mlflow_db"
-        - name: AWS_DEFAULT_REGION
-          value: "us-east-1"
         - name: PYTHONUNBUFFERED
           value: "1"
         - name: PYTHONIOENCODING
           value: "UTF-8"
         - name: GOOGLE_APPLICATION_CREDENTIALS
           value: "/etc/secrets/keyfile.json"
-        #- name: AWS_ACCESS_KEY_ID
-        #  valueFrom:
-        #    secretKeyRef:
-        #      name: awsacct
-        #      key: awsacct
-        #- name: AWS_SECRET_ACCESS_KEY
-        #  valueFrom:
-        #    secretKeyRef:
-        #      name: awskey
-        #      key: awskey
       restartPolicy: Never
