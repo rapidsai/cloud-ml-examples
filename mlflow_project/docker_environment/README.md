@@ -24,7 +24,7 @@ simple random forest classifier that predicts whether or not a flight will be LA
     - You will need to upload files to a GCP bucket that your cluster project has access to.
         - For more information, check out [GCP's documentation](https://cloud.google.com/storage/docs/uploading-objects).
     - Configure Authentication:
-        - You will need to create a [Service Account](https://cloud.google.com/iam/docs/creating-managing-service-accounts),
+        - You will need to create a [GCP Service Account](https://cloud.google.com/iam/docs/creating-managing-service-accounts),
         __Create a Key__ and store the resulting keyfile.json.
         - Using the GCP console, navigate to ${YOUR_BUCKET}, select **permissions**, and add your newly created service
         account with 'Storage Object Admin' permissions.
@@ -58,7 +58,7 @@ simple random forest classifier that predicts whether or not a flight will be LA
 ***
 - **Create a Secret for our GCP authentication file**
     - **Note:** If something goes wrong with this step, you will likely encounter 'permission denied' errors during the
-    training process below. Ensure that \[YOUR BUCKET\] has the service account as a member, and is assigned the necessary
+    training process below. Ensure that ${YOUR BUCKET} has the service account as a member, and is assigned the necessary
     roles. 
     - Using the `keyfile.json` that you obtained for GCP service account. This will be mapped into our tracking server,
     and training containers as `/etc/secrets/keyfile.json`.
@@ -86,7 +86,7 @@ simple random forest classifier that predicts whether or not a flight will be LA
     - Install the mlflow tracking server
         ```shell script
         cd helm
-        helm install mlf-ts ./mlflow-tracking-server\
+        helm install mlf-ts ./mlflow-tracking-server \
           --set env.mlflowArtifactPath=${GS_ARTIFACT_PATH} \
           --set env.mlflowDBAddr=mlf-db-postgresql \
           --set service.type=LoadBalancer \
