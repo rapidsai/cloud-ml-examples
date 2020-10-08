@@ -5,11 +5,12 @@ simple random forest classifier that predicts whether or not a flight will be LA
 ***
 - **Basic Environment Requirements**
     - You will need to have a GKE cluster running, with at least 1 CPU node, and at least 1 GPU node (P100/V100/T4).
-        - **Note:** As of this writing, you will need to choose the 'N1' node types in order for GPU's to be selectable.
         - **Note:** For the purposes of this demo, we will assume our k8s nodes are provisioned as follows:
             - Version: __1.17.9-gke.6300__
             - Image: __Container-Optimized OS(cos)__
-            - Machine Type: __n1-standard-04__
+            - Node Pools:
+                - cpu-pool: 2 nodes (n1-standard-04)
+                - gpu-pool: 1 node (n1-standard-08 with T4 GPU)
         - **Note:** There will be some configuration parameters specific to your GKE cluster, we will refer to these as
         follows:
             - YOUR_PROJECT: The name of the GCP project where your GKE cluster lives.
