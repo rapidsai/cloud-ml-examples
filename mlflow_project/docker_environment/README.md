@@ -27,7 +27,11 @@ simple random forest classifier that predicts whether or not a flight will be LA
         account with 'Storage Object Admin' permissions.
     - Get the mlflow command line tools and python libraries.
         ```shell script
-        pip install mlflow gcsfs
+        pip install mlflow gcsfs google-cloud google-cloud-storage
+        ```
+    - Install the most recent NVIDIA daemonset driver:
+        ```shell script
+        kubectl apply -f https://raw.githubusercontent.com/GoogleCloudPlatform/container-engine-accelerators/master/nvidia-driver-installer/cos/daemonset-nvidia-v450.yaml
         ```
 - **Add all our data to a GCP storage bucket**
     - Training Data
@@ -45,7 +49,6 @@ simple random forest classifier that predicts whether or not a flight will be LA
         - Decide on a GCR image naming convention
             - We'll assume that it lives at GCR_REPO: `gcr.io/${YOUR_PROJECT}`
         - TODO: Maybe
-            - kubectl apply -f https://raw.githubusercontent.com/GoogleCloudPlatform/container-engine-accelerators/master/nvidia-driver-installer/cos/daemonset-nvidia-v450.yaml
 
 ## Setting Up a Cluster Environment
 **This section is meant to act as a quick start guide, if you're interested in the configuration details, or want to adapt
@@ -135,5 +138,22 @@ the process of setting the appropriate `kubectl` configuration, launching jobs, 
       --experiment-name RAPIDS-MLFLOW-GCP \
       -P conda-env=${GS_CONDA_PATH} -P fpath=${GS_DATA_PATH}
     ```
-- **Log in to your tracking server and verify that the experiment was successfully logged**.
+- **Log in to your tracking server and verify that the experiment was successfully logged, and that you have a registered
+    model**.
     ![](images/ts_single_run.png)
+    ![](images/ts_registered_model.png)
+    
+- **Serve a trained model, locally**
+    - Set you service account credentials
+        ```shell script
+        export GOOGLE_APPLICATION_CREDENTIALS=/[PATH_TO_KEYFILE]/keyfile.json 
+        ```
+    - Serve the model via MLflow CLI
+        ```shell script
+        mlflow models serve -m models:/rapids_airline_hyperopt_k8s/1 -p 56767
+        ```
+    - Run a sample Query
+        ```shell script
+        python src/rf_test/test_query.py 
+        Classification: ON-Time
+        ```
