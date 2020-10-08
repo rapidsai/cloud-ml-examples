@@ -1,6 +1,6 @@
 # End to End - RAPIDS, hyperopt, and MLflow, on Google Kubernetes Engine (GKE).
 ## Pre-requisites
-__For this example purposes of this example we'll be using a subset of the 'airline' dataset. From this, we will build a
+__For the purposes of this example we'll be using a subset of the 'airline' dataset. From this, we will build a
 simple random forest classifier that predicts whether or not a flight will be LATE or ON-TIME.__
 ***
 - **Basic Environment Requirements**
@@ -11,6 +11,8 @@ simple random forest classifier that predicts whether or not a flight will be LA
             - Node Pools:
                 - cpu-pool: 2 nodes (n1-standard-04)
                 - gpu-pool: 1 node (n1-standard-08 with T4 GPU)
+            
+            ![](images/gcp_pools.png)
         - **Note:** There will be some configuration parameters specific to your GKE cluster, we will refer to these as
         follows:
             - YOUR_PROJECT: The name of the GCP project where your GKE cluster lives.
