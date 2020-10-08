@@ -3,51 +3,6 @@ import boto3
 import pandas
 import os
 
-def get_notebook_path():
-    """ Query the root notebook directory [ once ], 
-        we'll end up placing our best trained model in this location.
-    """
-    try: working_directory
-    except NameError: working_directory = os.getcwd()
-    return working_directory
-
-def validate_region ( region ):
-    """ Check that the current [compute] region is one of the two regions where the demo data is hosted """
-    if region not in ['us-east-1', 'us-west-2']:
-        raise Exception ( 'Unsupported region, please switch to us-east-1 or us-west-2' )
-
-def new_job_name_from_config ( dataset_directory, code_choice, 
-                               algorithm_choice, cv_folds,
-                               instance_type, trim_limit = 32 ):
-    """ Build a jobname string that captures the HPO configuration options.
-        This string will be parsed by the worker containers 
-        [ see parse_job_name in rapids_cloud_ml.py ].
-    """
-    job_name = None    
-    try:
-        data_choice_str = dataset_directory.split('_')[0] + 'y'        
-        code_choice_str = code_choice[0] + code_choice[-3:]
-        
-        if 'randomforest' in algorithm_choice.lower() : algorithm_choice_str = 'RF'
-        if 'xgboost' in algorithm_choice.lower() : algorithm_choice_str = 'XGB'    
-        
-        instance_type_str = '-'.join( instance_type.split('.')[1:] )        
-
-        random_8char_str = ''.join( random.choices( uuid.uuid4().hex, k=8 ) )        
-        
-        job_name = f"{data_choice_str}-{code_choice_str}" \
-                    f"-{algorithm_choice_str}-{cv_folds}cv"\
-                    f"-{instance_type_str}-{random_8char_str}"
-        
-        job_name = job_name[:trim_limit]
-        
-        print ( f'generated job name : {job_name}\n')
-        
-    except Exception as error: 
-        print( f'ERROR: unable to generate job name: {error}' )
-    
-    return job_name
-
 def recommend_instance_type ( code_choice, dataset_directory  ):
     """ Based on the code and [airline] dataset-size choices we recommend instance types 
         that we've tested and are known to work. Feel free to ignore/make a different choice.
@@ -116,19 +71,76 @@ def download_best_model( bucket, s3_model_output, hpo_results, local_directory )
     """ Download best model from S3"""
     try:
         target_bucket = boto3.resource('s3').Bucket( bucket )
-        path_prefix = s3_model_output.split('/')[3] + '/' + hpo_results['BestTrainingJob']['TrainingJobName'] + '/output/'
+        path_prefix = s3_model_output.split('/')[-1] + '/' + hpo_results['BestTrainingJob']['TrainingJobName'] + '/output/'
         objects = target_bucket.objects.filter( Prefix = path_prefix )    
         for obj in objects:                
             path, filename = os.path.split( obj.key )
             local_filename = local_directory + '/' + 'best_' + filename
-            full_url = 's3://' + bucket + '/' + path_prefix + obj.key
+            s3_path_to_model = 's3://' + bucket + '/' + path_prefix + filename
             target_bucket.download_file( obj.key, local_filename )
             print(f'Successfully downloaded best model\n'
                   f'> filename: {local_filename}\n'
                   f'> local directory : {local_directory}\n\n'
-                  f'full S3 path : {full_url}')
-        return local_filename
+                  f'full S3 path : {s3_path_to_model}')
+        return local_filename, s3_path_to_model
     
     except Exception as download_error:
         print( f'! Unable to download best model: {download_error}')
         return None
+    
+def new_job_name_from_config ( dataset_directory, region, code_choice, 
+                               algorithm_choice, cv_folds,
+                               instance_type, trim_limit = 32 ):
+    """ 
+    Build a jobname string that captures the HPO configuration options.
+    This is helpful for intepreting logs and for general book-keeping
+    """
+    job_name = None    
+    try:
+        if dataset_directory in [ '1_year', '3_year', '10_year']:
+            data_choice_str = 'air'
+            validate_region ( region )
+        elif dataset_directory in [ 'NYC_taxi']:
+            data_choice_str = 'nyc'
+            validate_region ( region )
+        else:
+            data_choice_str = 'byo'
+            
+        code_choice_str = code_choice[0] + code_choice[-3:]
+        
+        if 'randomforest' in algorithm_choice.lower() : algorithm_choice_str = 'RF'
+        if 'xgboost' in algorithm_choice.lower() : algorithm_choice_str = 'XGB'    
+        
+        instance_type_str = '-'.join( instance_type.split('.')[1:] )        
+
+        random_8char_str = ''.join( random.choices( uuid.uuid4().hex, k=8 ) )        
+        
+        job_name = f"{data_choice_str}-{code_choice_str}" \
+                    f"-{algorithm_choice_str}-{cv_folds}cv"\
+                    f"-{instance_type_str}-{random_8char_str}"
+        
+        job_name = job_name[:trim_limit]
+        
+        print ( f'generated job name : {job_name}\n')
+        
+    except Exception as error: 
+        print( f'ERROR: unable to generate job name: {error}' )
+    
+    return job_name
+
+def validate_region ( region ):
+    """ Check that the current [compute] region is one of the two regions where the demo data is hosted """
+    if isinstance( region, list ): 
+        region = region[0]
+        
+    if region not in ['us-east-1', 'us-west-2']:
+        raise Exception ( 'Unsupported region based on demo data location,'\
+                          ' please switch to us-east-1 or us-west-2' )
+        
+def get_notebook_path():
+    """ Query the root notebook directory [ once ], 
+        we'll end up placing our best trained model in this location.
+    """
+    try: working_directory
+    except NameError: working_directory = os.getcwd()
+    return working_directory
