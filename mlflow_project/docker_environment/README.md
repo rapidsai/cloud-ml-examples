@@ -1,4 +1,20 @@
 # End to End - RAPIDS, hyperopt, and MLflow, on Google Kubernetes Engine (GKE).
+## Overview
+This example will go through the process of setting up all the components to run your own RAPIDS based hyper-parameter
+training, with custom MLflow backend service, artifact storage, and Tracking Server using Google's Cloud Platform (GCP),
+and kuberntes engine (GKE).
+
+By the end of this guide, you will have:
+
+* Deployed a Postgresql database which will serve as your MLflow backing service.
+* Deployed an MLflow Tracking Server, which will act as our REST interface to coordinate logging of training parameters,
+and metrics.
+* Configured a GCP storage bucket endpoint that will act as an MLflow artifact store.
+* Trained a RAPIDS machine learning model on your Kuberntes cluster using the MLflow CLI, and saved it using MLflow's
+model registry tools.
+* Run an example MLflow serving task, using your registered model, which is able to predict whether or not a flight will
+be late.
+
 ## Pre-requisites
 __For the purposes of this example we'll be using a subset of the 'airline' dataset. From this, we will build a
 simple random forest classifier that predicts whether or not a flight will be LATE or ON-TIME.__
