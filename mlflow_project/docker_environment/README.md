@@ -19,7 +19,7 @@ simple random forest classifier that predicts whether or not a flight will be LA
             - YOUR_BUCKET: The name of the GCP storage bucket where your data will be stored. 
             - MLFLOW_TRACKING_UI: The URI of the tracking server we will deploy to your GKE cluster.
         - For more information, check out [GKE Overview](https://cloud.google.com/kubernetes-engine/docs/concepts/kubernetes-engine-overview).
-    - You will need to have your `kubectl` utility configured with the credentials for you GKE cluster instance.
+    - You will need to have your `kubectl` utility configured with the credentials for your GKE cluster instance.
         - For more information, check out [GKE cluster's context](https://cloud.google.com/kubernetes-engine/docs/how-to/cluster-access-for-kubectl#generate_kubeconfig_entry).
     - You will need to upload files to a GCP bucket that your cluster project has access to.
         - For more information, check out [GCP's documentation](https://cloud.google.com/storage/docs/uploading-objects).
@@ -51,7 +51,6 @@ simple random forest classifier that predicts whether or not a flight will be LA
             - We'll assume that it lives at GS_ARTIFACT_PATH: `gs://${YOUR_BUCKET}/artifacts`
         - Decide on a GCR image naming convention
             - We'll assume that it lives at GCR_REPO: `gcr.io/${YOUR_PROJECT}`
-        - TODO: Maybe
 
 ## Setting Up a Cluster Environment
 **This section is meant to act as a quick start guide, if you're interested in the configuration details, or want to adapt
@@ -103,7 +102,7 @@ simple random forest classifier that predicts whether or not a flight will be LA
           NAME                         TYPE           CLUSTER-IP      EXTERNAL-IP               PORT(S)          AGE
           mlf-ts-mlflow-tracking-server    LoadBalancer   10.0.3.220  [MLFLOW TRACKING SERVER]  80:30719/TCP     05m 
         ```
-    - Verify that our tracking server running, and its UI is available.
+    - Verify that our tracking server is running, and its UI is available.
         - Point your web browser at: `http://${MLFLOW_TRACKING_URI}`, and verify that you are presented with a clean MLflow 
         UI, as below.
         ![](images/ts_clean.png)
@@ -129,7 +128,7 @@ the process of setting the appropriate `kubectl` configuration, launching jobs, 
 - **Edit `k8s_config.json`**
     - `kube-context`: This should be set to to your GKE cluster's context/credentials.
     - `kube-job-template-path`: This is the path to your k8s job template, should be `k8s_job_template.yaml`
-    - `repository-uri`: Your GCR endpoint, ex. `${GCR REPO}/mlflow-tracking-server`
+    - `repository-uri`: Your GCR endpoint, ex. `${GCR REPO}/rapids-mlflow-training`
     
 **Run RAPIDS + hyperopt experiment in MLflow + k8s**
 - **Launch a new experiment**.
