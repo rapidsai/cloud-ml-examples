@@ -5,7 +5,7 @@ simple random forest classifier that predicts whether or not a flight will be LA
 ***
 - **Basic Environment Requirements**
     - You will need to have a GKE cluster running, with at least 1 CPU node, and at least 1 GPU node (P100/V100/T4).
-        - **Note:** For the purposes of this demo, we will assume our k8s nodes are provisioned as follows:
+        - **Note:** For the purposes of this demo, we will assume our Kubernetes nodes are provisioned as follows:
             - Version: __1.17.9-gke.6300__
             - Image: __Container-Optimized OS(cos)__
             - Node Pools:
@@ -112,12 +112,12 @@ simple random forest classifier that predicts whether or not a flight will be LA
 ![](images/network_diagram.svg)
       
 ## Running MLflow experiments using kubernetes as a backend for job submission.
-**MLflow's CLI utility allows us to launch project experiments/training as kuberntes jobs. This section will go over
+**MLflow's CLI utility allows us to launch project experiments/training as Kubernetes jobs. This section will go over
 the process of setting the appropriate `kubectl` configuration, launching jobs, and viewing the results**
 ***
 **Create and publish a training container**
 - **Build a training container**.
-    - This creates the base docker container that MLflow will inject our project into, and deploy into our k8s cluster
+    - This creates the base docker container that MLflow will inject our project into, and deploy into our Kubernetes cluster
     for training.
     - `docker build --tag rapids-mlflow-training:gcp --file Dockerfile.training .`
 
@@ -127,10 +127,10 @@ the process of setting the appropriate `kubectl` configuration, launching jobs, 
     - `export MLFLOW_TRACKING_URI=http://${MLFLOW TRACKING_URI}`
 - **Edit `k8s_config.json`**
     - `kube-context`: This should be set to to your GKE cluster's context/credentials.
-    - `kube-job-template-path`: This is the path to your k8s job template, should be `k8s_job_template.yaml`
+    - `kube-job-template-path`: This is the path to your Kubernetes job template, should be `k8s_job_template.yaml`
     - `repository-uri`: Your GCR endpoint, ex. `${GCR REPO}/rapids-mlflow-training`
     
-**Run RAPIDS + hyperopt experiment in MLflow + k8s**
+**Run RAPIDS + hyperopt experiment in MLflow + Kubernetes**
 - **Launch a new experiment**.
     - **Note:** The first time this is run, it can take some time as the training container is pulled to the training node.
     Subsequent runs will be significantly faster.
