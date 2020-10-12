@@ -88,6 +88,7 @@ simple random forest classifier that predicts whether or not a flight will be LA
     MLflow [Backend Store](https://www.mlflow.org/docs/latest/tracking.html#backend-stores), responsible for storing
     metrics, parameters, and model registration information.
         ```shell script
+        helm repo add bitnami https://charts.bitnami.com/bitnami
         helm install mlf-db bitnami/postgresql --set postgresqlDatabase=mlflow_db --set postgresqlPassword=mlflow \
           --set service.type=NodePort
         ```
@@ -164,7 +165,8 @@ the process of setting the appropriate `kubectl` configuration, launching jobs, 
 - **Serve a trained model, locally**
     - Set you service account credentials
         ```shell script
-        export GOOGLE_APPLICATION_CREDENTIALS=/[PATH_TO_KEYFILE]/keyfile.json 
+        export MLFLOW_TRACKING_URI=http://${MLFLOW TRACKING_URI}
+        export GOOGLE_APPLICATION_CREDENTIALS=/.../keyfile.json 
         ```
     - Serve the model via MLflow CLI
         ```shell script
