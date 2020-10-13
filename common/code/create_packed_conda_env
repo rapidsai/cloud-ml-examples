@@ -29,6 +29,7 @@ HELP="$0 [<target> ...] [<flag> ...]
 #--time-actions   [flag]        - flag indicating if commands should include timing information [0|1] (default: 0)
 
 VERBOSE=0
+ACTIVATE=$(dirname `which conda`)/../bin/activate
 
 declare -A argvals
 argvals["--action"]="pack"
@@ -36,7 +37,6 @@ argvals["--cuda"]="10.2"
 argvals["--python"]="3.7"
 argvals["--rapids"]="0.15"
 argvals["--rapids-channel"]="rapidsai"
-argvals["--unpack-path"]="./rapids_${argvals["--rapids"]}_py${argvals["--python"]}"
 
 function usage() {
   echo "Usage: $HELP"
@@ -75,6 +75,7 @@ if (( ${NUMARGS} != 0 )); then
     let idx=idx+1
   done
 fi
+argvals["--unpack-path"]="./rapids_${argvals["--rapids"]}_py${argvals["--python"]}"
 
 ACTION=${argvals["--action"]}
 CUDA_VERSION=${argvals["--cuda"]}
@@ -88,7 +89,7 @@ CONDA_ENV_NAME="rapids${RAPIDS_VERSION}_py${PYTHON_VERSION}"
 if [[ "$ACTION" == "pack" ]]; then
   echo "Creating CONDA environment $CONDA_ENV_NAME"
   conda create -y --name=$CONDA_ENV_NAME python=$PYTHON_VERSION
-  source activate $CONDA_ENV_NAME
+  source $ACTIVATE $CONDA_ENV_NAME
 
   echo "Installing conda-pack"
   pip install ipykernel
