@@ -180,4 +180,3 @@ dependencies:
     - requests-oauthlib==1.3.0
     - sqlalchemy==1.3.13
     - treelite-runtime==0.92
-prefix: /home/sigil/anaconda3/envs/mlflow

@@ -1,5 +1,6 @@
 #/bin/bash
 
+# Launch our mlflow tracking server
 set -e
 set -x
 

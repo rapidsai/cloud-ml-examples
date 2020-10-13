@@ -1,5 +1,5 @@
 {
-    "kube-context": "gke_nv-ai-infra_us-central1-c_drobison-cloud-examples",
+    "kube-context": "",
     "kube-job-template-path": "k8s_job_template.yaml",
-    "repository-uri": "gcr.io/nv-ai-infra/drobison/rapids-mlflow-training"
+    "repository-uri": "${GCR_REPO}/rapids-mlflow-training"
 }

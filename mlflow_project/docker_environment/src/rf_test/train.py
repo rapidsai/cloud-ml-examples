@@ -115,9 +115,6 @@ if __name__ == "__main__":
         hp.uniform("n_estimators", 150, 1000),
     ]
 
-    with open('/etc/secrets/keyfile.json') as reader:
-        print(reader.read())
-
     prep_env(args)
     try:
         trials = Trials()

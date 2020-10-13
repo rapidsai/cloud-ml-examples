@@ -1,4 +1,6 @@
 #!/bin/bash
+# Activates the correct Anaconda environment, and runs the command passed to the container.
+
 set -e
 set -x
 source activate rapids
