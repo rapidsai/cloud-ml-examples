@@ -32,7 +32,8 @@ simple random forest classifier that predicts whether or not a flight will be LA
         - **Note:** There will be some configuration parameters specific to your GKE cluster, we will refer to these as
         follows:
             - YOUR_PROJECT: The name of the GCP project where your GKE cluster lives.
-            - YOUR_BUCKET: The name of the GCP storage bucket where your data will be stored. 
+            - YOUR_REPO: The name of the repository where your GCR images will live.
+            - YOUR_BUCKET: The name of the GCP storage bucket where your data will be stored.
             - MLFLOW_TRACKING_UI: The URI of the tracking server we will deploy to your GKE cluster.
         - For more information, check out [GKE Overview](https://cloud.google.com/kubernetes-engine/docs/concepts/kubernetes-engine-overview).
     - You will need to have your `kubectl` utility configured with the credentials for your GKE cluster instance.
@@ -51,10 +52,14 @@ simple random forest classifier that predicts whether or not a flight will be LA
         - Using the GCP console, navigate to ${YOUR_BUCKET}, select **permissions**, and add your newly created service
         account with 'Storage Object Admin' permissions.
     - Get the mlflow command line tools and python libraries.
+        - These are necessary to use the MLflow CLI tool on your workstation, and satisfy its requirements for interacting
+        with GCP.
         ```shell script
         pip install mlflow gcsfs google-cloud google-cloud-storage kubernetes
         ```
     - Install the most recent NVIDIA daemonset driver:
+        - As of this writing, this was necessary for CUDA 11 compatibility. It may be an optional step for subsequent GKE
+        release versions.
         ```shell script
         kubectl apply -f https://raw.githubusercontent.com/GoogleCloudPlatform/container-engine-accelerators/master/nvidia-driver-installer/cos/daemonset-nvidia-v450.yaml
         ```
@@ -69,10 +74,11 @@ simple random forest classifier that predicts whether or not a flight will be LA
     - Environment Setup 
         - Upload envs/conda.yaml to your GCP cloud storage bucket
             - We'll assume that it lives at GS_CONDA_PATH: `gs://${YOUR BUCKET}/conda.yaml`
-        - Create a sub-folder in your GCP storage bucket for mlflow artifacts
+        - Create a sub-folder in your GCP storage bucket for MLflow artifacts
             - We'll assume that it lives at GS_ARTIFACT_PATH: `gs://${YOUR_BUCKET}/artifacts`
         - Decide on a GCR image naming convention
-            - We'll assume that it lives at GCR_REPO: `gcr.io/${YOUR_PROJECT}`
+            - We'll assume that it lives at GCR_REPO: `gcr.io/${YOUR_PROJECT}/${YOUR_REPO}` \
+            for example: `gcr.io/my-gcp-project/example-repo`
 
 ## Setting Up a Cluster Environment
 **This section is meant to act as a quick start guide, if you're interested in the configuration details, or want to adapt
@@ -82,15 +88,17 @@ simple random forest classifier that predicts whether or not a flight will be LA
     - **Note:** If something goes wrong with this step, you will likely encounter 'permission denied' errors during the
     training process below. Ensure that ${YOUR BUCKET} has the service account as a member, and is assigned the necessary
     roles. 
-    - Using the `keyfile.json` that you obtained for GCP service account. This will be mapped into our tracking server,
-    and training containers as `/etc/secrets/keyfile.json`.
+    - The `keyfile.json` that you obtained for your GCP service account will be mapped into our tracking server,
+    and training containers as `/etc/secrets/keyfile.json`. For this, we'll expose the keyfile as a secret within our
+    Kubernetes cluster.
         ```shell script
         kubectl create secret generic gcsfs-creds --from-file=./keyfile.json
         ```
+    - This will subsequently be mounted as a secret volume, on deployment. For example, see `k8s_job_template.yaml`.
 - **Backend Service Deployment using Postgres**.
     - For this step, we will be using [Bitnami's Postgresql Helm](https://artifacthub.io/packages/helm/bitnami/postgresql)
      package.
-    - Install our postgres database into our GKE cluster via Helm chart. In this situation, Postgres will act as our
+    - Install our postgres database into our GKE cluster via Helm chart. In this situation, Postgresql will act as our
     MLflow [Backend Store](https://www.mlflow.org/docs/latest/tracking.html#backend-stores), responsible for storing
     metrics, parameters, and model registration information.
         ```shell script
@@ -149,7 +157,7 @@ the process of setting the appropriate `kubectl` configuration, launching jobs, 
     - This should be the REST endpoint exposed by our tracking server (see above).
     - `export MLFLOW_TRACKING_URI=http://${MLFLOW TRACKING_URI}`
 - **Edit `k8s_config.json`**
-    - `kube-context`: This should be set to to your GKE cluster's context/credentials.
+    - `kube-context`: This should be set to to your GKE cluster's context/credentials NAME field.
     - `kube-job-template-path`: This is the path to your Kubernetes job template, should be `k8s_job_template.yaml`
     - `repository-uri`: Your GCR endpoint, ex. `${GCR REPO}/rapids-mlflow-training`
     
