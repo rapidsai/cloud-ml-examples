@@ -37,6 +37,12 @@ simple random forest classifier that predicts whether or not a flight will be LA
         - For more information, check out [GKE Overview](https://cloud.google.com/kubernetes-engine/docs/concepts/kubernetes-engine-overview).
     - You will need to have your `kubectl` utility configured with the credentials for your GKE cluster instance.
         - For more information, check out [GKE cluster's context](https://cloud.google.com/kubernetes-engine/docs/how-to/cluster-access-for-kubectl#generate_kubeconfig_entry).
+        - To check that you're using the right context:
+        ```shell script
+        kubectl config get-contexts
+        CURRENT   NAME                 CLUSTER            AUTHINFO            NAMESPACE
+        *         gke_[YOUR_CLUSTER]   gke_[YOUR_CLUSTER] gke_[YOUR_CLUSTER]  
+        ```
     - You will need to upload files to a GCP bucket that your cluster project has access to.
         - For more information, check out [GCP's documentation](https://cloud.google.com/storage/docs/uploading-objects).
     - Configure Authentication:
@@ -46,7 +52,7 @@ simple random forest classifier that predicts whether or not a flight will be LA
         account with 'Storage Object Admin' permissions.
     - Get the mlflow command line tools and python libraries.
         ```shell script
-        pip install mlflow gcsfs google-cloud google-cloud-storage
+        pip install mlflow gcsfs google-cloud google-cloud-storage kubernetes
         ```
     - Install the most recent NVIDIA daemonset driver:
         ```shell script
