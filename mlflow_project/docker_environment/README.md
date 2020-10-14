@@ -73,7 +73,7 @@ simple random forest classifier that predicts whether or not a flight will be LA
             - We'll assume that it lives at GS_DATA_PATH: `gs://${YOUR_BUCKET}/airline_small.parquet`
     - Environment Setup 
         - Upload envs/conda.yaml to your GCP cloud storage bucket
-            - We'll assume that it lives at GS_CONDA_PATH: `gs://${YOUR BUCKET}/conda.yaml`
+            - We'll assume that it lives at GS_CONDA_PATH: `gs://${YOUR_BUCKET}/conda.yaml`
         - Create a sub-folder in your GCP storage bucket for MLflow artifacts
             - We'll assume that it lives at GS_ARTIFACT_PATH: `gs://${YOUR_BUCKET}/artifacts`
         - Decide on a GCR image naming convention
@@ -86,7 +86,7 @@ simple random forest classifier that predicts whether or not a flight will be LA
 ***
 - **Create a Secret for our GCP authentication file**
     - **Note:** If something goes wrong with this step, you will likely encounter 'permission denied' errors during the
-    training process below. Ensure that ${YOUR BUCKET} has the service account as a member, and is assigned the necessary
+    training process below. Ensure that ${YOUR_BUCKET} has the service account as a member, and is assigned the necessary
     roles. 
     - The `keyfile.json` that you obtained for your GCP service account will be mapped into our tracking server,
     and training containers as `/etc/secrets/keyfile.json`. For this, we'll expose the keyfile as a secret within our
@@ -112,7 +112,7 @@ simple random forest classifier that predicts whether or not a flight will be LA
     balancer, which should be the target of our **MLFLOW_TRACKING_URI** variable.
         ```shell script
         docker build --tag ${GCR_REPO}/mlflow-tracking-server:gcp --file Dockerfile.tracking .
-        docker push ${GCR REPO}/mlflow-tracking-server:latest
+        docker push ${GCR_REPO}/mlflow-tracking-server:latest
         ```
     - Install the mlflow tracking server
         ```shell script
@@ -131,7 +131,7 @@ simple random forest classifier that predicts whether or not a flight will be LA
           mlf-ts-mlflow-tracking-server    LoadBalancer   10.0.3.220  <pending>                 80:30719/TCP     01m   
         ....
           NAME                         TYPE           CLUSTER-IP      EXTERNAL-IP               PORT(S)          AGE
-          mlf-ts-mlflow-tracking-server    LoadBalancer   10.0.3.220  [MLFLOW TRACKING SERVER]  80:30719/TCP     05m 
+          mlf-ts-mlflow-tracking-server    LoadBalancer   10.0.3.220  [MLFLOW_TRACKING_SERVER]  80:30719/TCP     05m 
         ```
     - Verify that our tracking server is running, and its UI is available.
         - Point your web browser at: `http://${MLFLOW_TRACKING_URI}`, and verify that you are presented with a clean MLflow 
@@ -155,11 +155,11 @@ the process of setting the appropriate `kubectl` configuration, launching jobs, 
 **Configure your MLProject to use Kubernetes**    
 - **Export MLFLOW_TRACKING_URI**
     - This should be the REST endpoint exposed by our tracking server (see above).
-    - `export MLFLOW_TRACKING_URI=http://${MLFLOW TRACKING_URI}`
+    - `export MLFLOW_TRACKING_URI=http://${MLFLOW_TRACKING_URI}`
 - **Edit `k8s_config.json`**
     - `kube-context`: This should be set to to your GKE cluster's context/credentials NAME field.
     - `kube-job-template-path`: This is the path to your Kubernetes job template, should be `k8s_job_template.yaml`
-    - `repository-uri`: Your GCR endpoint, ex. `${GCR REPO}/rapids-mlflow-training`
+    - `repository-uri`: Your GCR endpoint, ex. `${GCR_REPO}/rapids-mlflow-training`
     
 **Run RAPIDS + hyperopt experiment in MLflow + Kubernetes**
 - **Launch a new experiment**.
@@ -179,7 +179,7 @@ the process of setting the appropriate `kubectl` configuration, launching jobs, 
 - **Serve a trained model, locally**
     - Set you service account credentials
         ```shell script
-        export MLFLOW_TRACKING_URI=http://${MLFLOW TRACKING_URI}
+        export MLFLOW_TRACKING_URI=http://${MLFLOW_TRACKING_URI}
         export GOOGLE_APPLICATION_CREDENTIALS=/.../keyfile.json 
         ```
     - Serve the model via MLflow CLI
