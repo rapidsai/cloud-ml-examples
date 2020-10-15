@@ -1,10 +1,33 @@
+#
+# Copyright (c) 2019-2020, NVIDIA CORPORATION.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
 import os
 import json 
 import argparse
 import glob
 import pprint
-
 import HPODatasets
+
+import logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(message)s",
+    handlers=[ logging.FileHandler("rapids_hpo.log"), 
+               logging.StreamHandler() ]
+)
 
 """  Cloud integrated RAPIDS HPO functionality with AWS SageMaker focus """
 
@@ -40,7 +63,7 @@ class HPOConfig ( object ):
         Parse the ENV variables [ set in the dockerfile ] to determine configuration settings 
         """    
 
-        print('\nparsing configuration choices from environment settings...\n')
+        logging.info('\nparsing configuration choices from environment settings...')
 
         dataset_type = 'Airline' 
         model_type = 'RandomForest'
@@ -48,8 +71,6 @@ class HPOConfig ( object ):
         cv_folds = 3
 
         try:
-            # print ( os.environ ); print ( '\n')
-            
             # parse dataset choice
             dataset_selection = os.environ['DATASET_DIRECTORY'].lower()
             if dataset_selection in [ '1_year', '3_year', '10_year']:
@@ -80,24 +101,24 @@ class HPOConfig ( object ):
             # parse CV folds
             cv_folds = int( os.environ['CV_FOLDS'] )
 
-        except Exception as error:
-            print( f'{error} ! unable to parse job name, loading defaults' )
+        except KeyError as error:
+            logging.info( f'{error} ! unable to parse job name, loading defaults' )
                 
         assert ( dataset_type in ['Airline', 'NYCTaxi','BYOData'] )
         assert ( model_type   in ['RandomForest', 'XGBoost'] )
         assert ( compute_type in ['single-GPU', 'multi-GPU', 'single-CPU', 'multi-CPU'] )
         assert ( cv_folds >= 1 )
         
-        print(f'  Dataset: {dataset_type}\n'
-              f'  Compute: {compute_type}\n'
-              f'  Algorithm: {model_type}\n'
-              f'  CV_folds: {cv_folds}\n')
+        logging.info( f'  Dataset: {dataset_type}\n'
+                      f'  Compute: {compute_type}\n'
+                      f'  Algorithm: {model_type}\n'
+                      f'  CV_folds: {cv_folds}\n')
 
         return dataset_type, model_type, compute_type, cv_folds
 
     def parse_hyper_parameter_inputs ( self, input_args ):
         """ Parse hyperparmeters that are fed in by the HPO orchestrator [e.g., SageMaker ]. """
-        print('parsing model hyperparameters from command line arguments...\n')
+        logging.info('parsing model hyperparameters from command line arguments...log')
         parser = argparse.ArgumentParser ()
 
         if 'XGBoost' in self.model_type:
@@ -154,7 +175,7 @@ class HPOConfig ( object ):
         else:
             raise Exception(f"!error: unknown model type {self.model_type}")
 
-        pprint.pprint( model_params, indent = 5 ); print( '\n' )
+        pprint.pprint( model_params, indent = 5 )
         return model_params
 
     def detect_data_inputs ( self, directory_structure ):
@@ -169,12 +190,12 @@ class HPOConfig ( object ):
         csv_files = glob.glob( directory_structure['train_data'] + '/*.csv' )
 
         if len( csv_files ):
-            print('CSV input files detected')
+            logging.info('CSV input files detected')
             target_files = csv_files
             input_file_type = 'CSV'
 
         elif len( parquet_files ):
-            print('Parquet input files detected')
+            logging.info('Parquet input files detected')
             if 'single-CPU' in self.compute_type:
                 # pandas read_parquet needs a directory input
                 target_files = directory_structure['train_data'] + '/'
@@ -187,26 +208,23 @@ class HPOConfig ( object ):
         n_datafiles = len( target_files )
         assert( n_datafiles > 0 )
 
-        pprint.pprint( target_files ); print('\n')
-        print( f'detected {n_datafiles} files as input \n')
+        pprint.pprint( target_files );
+        logging.info( f'detected {n_datafiles} files as input')
 
         if 'Airline' in self.dataset_type:
-            print( ' using Airline dataset ')
             dataset_columns = HPODatasets.airline_feature_columns
             dataset_label_column = HPODatasets.airline_label_column
             dataset_dtype = HPODatasets.airline_dtype
             
         elif 'NYCTaxi' in self.dataset_type:
-            print( ' using NYCTaxi dataset ')
             dataset_columns = HPODatasets.nyctaxi_feature_columns
             dataset_label_column = HPODatasets.nyctaxi_label_column
             dataset_dtype = HPODatasets.nyctaxi_dtype
             
         elif 'BYOData' in self.dataset_type:
-            print( ' using BYOD dataset ')
             dataset_columns = HPODatasets.BYOD_feature_columns
             dataset_label_column = HPODatasets.BYOD_label_column
             dataset_dtype = HPODatasets.BYOD_dtype
 
-        return target_files, input_file_type, \
-               dataset_columns, dataset_label_column, dataset_dtype
+        return ( target_files, input_file_type, dataset_columns, 
+                 dataset_label_column, dataset_dtype )

@@ -18,8 +18,7 @@ import time
 import os
 
 import dask
-from dask.distributed import LocalCluster
-from dask.distributed import wait, Client
+from dask.distributed import LocalCluster, Client, wait
 
 import xgboost
 import joblib
@@ -37,7 +36,7 @@ class MLWorkflowMultiCPU ( MLWorkflow ):
 
     def __init__(self, hpo_config ):
         print( 'Multi-CPU Workflow')
-        self.start_time = time.time()
+        self.start_time = time.perf_counter()
         
         self.hpo_config = hpo_config
         self.dataset_cache = None
@@ -49,19 +48,16 @@ class MLWorkflowMultiCPU ( MLWorkflow ):
     
     @timer_decorator
     def cluster_initialize ( self ):
-        """ Initialize the dask compute cluster based on the number of available GPU workers.
-            XGBoost has a known issue where training fails if any worker has no data partition
-            so when initializing a dask cluster for xgboost we may need to limit the number of workers
-            see 3rd limitations bullet @ https://xgboost.readthedocs.io/en/latest/tutorials/dask.html 
-        """
+        """ Initialize the dask compute cluster based on the number of available CPU workers."""
 
-        cluster = None;  client = None
+        cluster = None
+        client = None
 
         self.n_workers = os.cpu_count()
-
+        """
         if 'XGBoost' in self.hpo_config.model_type:
             self.n_workers = min( len( self.hpo_config.target_files ), self.n_workers ) 
-
+        """
         cluster = LocalCluster( n_workers = self.n_workers )
         client = Client( cluster )
 
@@ -71,8 +67,7 @@ class MLWorkflowMultiCPU ( MLWorkflow ):
         dask.config.set({'temporary_directory' : self.hpo_config.output_artifacts_directory})
 
         return cluster, client
-
-    @timer_decorator
+    
     def ingest_data ( self ): 
         """ Ingest dataset, CSV and Parquet supported """
 
@@ -97,8 +92,7 @@ class MLWorkflowMultiCPU ( MLWorkflow ):
         print( f'\t dataset len: {len(dataset)}' )
         self.dataset_cache = dataset
         return dataset
-
-    @timer_decorator
+    
     def handle_missing_data ( self, dataset ): 
         """ Drop samples with missing data [ inplace i.e., do not copy dataset ] """
         dataset = dataset.dropna()
@@ -127,10 +121,12 @@ class MLWorkflowMultiCPU ( MLWorkflow ):
         X_train = X_train.persist()
         y_train = y_train.persist()
 
-        return X_train.astype( self.hpo_config.dataset_dtype ),\
-               X_test.astype( self.hpo_config.dataset_dtype ),\
-               y_train.astype( self.hpo_config.dataset_dtype ),\
-               y_test.astype( self.hpo_config.dataset_dtype ) 
+        wait( [X_train, y_train ]);
+
+        return ( X_train.astype( self.hpo_config.dataset_dtype ),
+                 X_test.astype( self.hpo_config.dataset_dtype ),
+                 y_train.astype( self.hpo_config.dataset_dtype ),
+                 y_test.astype( self.hpo_config.dataset_dtype ) )
 
     @timer_decorator
     def fit ( self, X_train, y_train ):       
@@ -147,11 +143,10 @@ class MLWorkflowMultiCPU ( MLWorkflow ):
             trained_model = RandomForestClassifier ( n_estimators = self.hpo_config.model_params['n_estimators'],
                                                      max_depth = self.hpo_config.model_params['max_depth'],
                                                      max_features = self.hpo_config.model_params['max_features'],
-                                                     n_jobs=-1 )\
-                                                     .fit( X_train, y_train.astype('int32') )                                                     
+                                                     n_jobs=-1 ).fit( X_train, y_train.astype('int32') )
         return trained_model 
 
-    @timer_decorator    
+    @timer_decorator
     def predict ( self, trained_model, X_test, threshold = 0.5 ):
         """ Inference with the trained model on the unseen test data """
 
@@ -170,12 +165,12 @@ class MLWorkflowMultiCPU ( MLWorkflow ):
     def score ( self, y_test, predictions ): 
         """ Score predictions vs ground truth labels on test data """
         print('> score predictions')
-        # y_test = y_test.compute()
+        
         score = accuracy_score ( y_test.astype( self.hpo_config.dataset_dtype ),
                                 predictions.astype( self.hpo_config.dataset_dtype ) )
 
         print(f'\t score = {score}')
-        self.cv_fold_scores += [score]
+        self.cv_fold_scores.append( score )
         return score
 
     def save_best_model ( self, score, trained_model, filename = 'saved_model' ): 
@@ -184,11 +179,11 @@ class MLWorkflowMultiCPU ( MLWorkflow ):
         if score > self.best_score:
             self.best_score = score
             print('> saving high-scoring model')
-            output_filename = self.hpo_config.model_store_directory + '/' + str( filename )
+            output_filename = os.path.join( self.hpo_config.model_store_directory, filename )
             if 'XGBoost' in self.hpo_config.model_type:
-                trained_model.save_model( output_filename + '_mcpu_xgb' )
+                trained_model.save_model( f'{output_filename}_mcpu_xgb' )
             elif 'RandomForest' in self.hpo_config.model_type:
-                joblib.dump ( trained_model, output_filename + '_mcpu_rf' )
+                joblib.dump ( trained_model, f'{output_filename}_mcpu_rf' )
             
     @timer_decorator
     async def cleanup ( self, i_fold ):
@@ -205,8 +200,8 @@ class MLWorkflowMultiCPU ( MLWorkflow ):
     
     def emit_final_score ( self ):
         """ Emit score for parsing by the cloud HPO orchestrator """
-
-        print(f'total_time = {round( time.time() - self.start_time )} seconds ')
+        exec_time = time.perf_counter() - self.start_time
+        print(f'total_time = {exec_time:.5f} s ')
 
         if self.hpo_config.cv_folds > 1 :
             print(f'fold scores : {self.cv_fold_scores} \n')

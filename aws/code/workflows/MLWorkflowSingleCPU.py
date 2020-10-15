@@ -15,9 +15,12 @@
 #
 
 import time
+import os
+
 import pandas 
 import xgboost
 import joblib
+
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
@@ -29,7 +32,7 @@ class MLWorkflowSingleCPU ( MLWorkflow ):
 
     def __init__(self, hpo_config ):
         print( 'Single-CPU Workflow')
-        self.start_time = time.time()
+        self.start_time = time.perf_counter()
         
         self.hpo_config = hpo_config
         self.dataset_cache = None
@@ -78,6 +81,7 @@ class MLWorkflowSingleCPU ( MLWorkflow ):
         """ Drop samples with missing data [ inplace i.e., do not copy dataset ] """
         dataset = dataset.dropna()
         return dataset
+
     @timer_decorator
     def split_dataset ( self, dataset, random_state ): 
         """ Split into train and test data subsets, using CV-fold index for randomness """
@@ -87,10 +91,10 @@ class MLWorkflowSingleCPU ( MLWorkflow ):
         X_train, X_test, y_train, y_test = train_test_split( dataset.loc[:, dataset.columns != label_column], 
                                                              dataset[label_column], random_state = random_state )
 
-        return X_train.astype( self.hpo_config.dataset_dtype ),\
-               X_test.astype( self.hpo_config.dataset_dtype ),\
-               y_train.astype( self.hpo_config.dataset_dtype ),\
-               y_test.astype( self.hpo_config.dataset_dtype ) 
+        return ( X_train.astype( self.hpo_config.dataset_dtype ),
+                 X_test.astype( self.hpo_config.dataset_dtype ),
+                 y_train.astype( self.hpo_config.dataset_dtype ),
+                 y_test.astype( self.hpo_config.dataset_dtype ) )
 
     @timer_decorator
     def fit ( self, X_train, y_train ):       
@@ -107,8 +111,7 @@ class MLWorkflowSingleCPU ( MLWorkflow ):
                                                      max_depth = self.hpo_config.model_params['max_depth'],
                                                      max_features = self.hpo_config.model_params['max_features'],
                                                      bootstrap = self.hpo_config.model_params['bootstrap'],
-                                                     n_jobs=-1 )\
-                                                     .fit( X_train, y_train )                                                     
+                                                     n_jobs=-1 ).fit( X_train, y_train )                                                     
         return trained_model 
     
     @timer_decorator
@@ -134,7 +137,7 @@ class MLWorkflowSingleCPU ( MLWorkflow ):
                                 predictions.astype( self.hpo_config.dataset_dtype ) )
 
         print(f'\t score = {score}')
-        self.cv_fold_scores += [score]
+        self.cv_fold_scores.append( score )
         return score
     
     def save_best_model ( self, score, trained_model, filename = 'saved_model' ): 
@@ -143,19 +146,19 @@ class MLWorkflowSingleCPU ( MLWorkflow ):
         if score > self.best_score:
             self.best_score = score
             print('> saving high-scoring model')
-            output_filename = self.hpo_config.model_store_directory + '/' + str( filename )
+            output_filename = os.path.join( self.hpo_config.model_store_directory, filename )
             if 'XGBoost' in self.hpo_config.model_type:
-                trained_model.save_model( output_filename + '_scpu_xgb' )
+                trained_model.save_model( f'{output_filename}_scpu_xgb' )
             elif 'RandomForest' in self.hpo_config.model_type:
-                joblib.dump ( trained_model, output_filename + '_scpu_rf' )
+                joblib.dump ( trained_model, f'{output_filename}_scpu_rf' )
             
     def cleanup ( self, i_fold ):
         print('> end of fold \n') 
     
     def emit_final_score ( self ):
         """ Emit score for parsing by the cloud HPO orchestrator """
-
-        print(f'total_time = {round( time.time() - self.start_time )} seconds ')
+        exec_time = time.perf_counter() - self.start_time
+        print(f'total_time = {exec_time:.5f} s ')
 
         if self.hpo_config.cv_folds > 1 :
             print(f'fold scores : {self.cv_fold_scores} \n')

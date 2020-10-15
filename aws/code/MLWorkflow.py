@@ -1,28 +1,53 @@
+#
+# Copyright (c) 2019-2020, NVIDIA CORPORATION.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
 from abc import abstractmethod
+
 import functools
 import time
+
+import logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(message)s",
+    handlers=[ logging.FileHandler("rapids_hpo.log"), 
+               logging.StreamHandler() ]
+)
+
+def create_workflow( hpo_config ):        
+    if hpo_config.compute_type == 'single-CPU':
+        from workflows.MLWorkflowSingleCPU import MLWorkflowSingleCPU
+        return MLWorkflowSingleCPU( hpo_config )
+
+    if hpo_config.compute_type == 'multi-CPU':
+        from workflows.MLWorkflowMultiCPU import MLWorkflowMultiCPU
+        return MLWorkflowMultiCPU( hpo_config )
+
+    if hpo_config.compute_type == 'single-GPU':
+        from workflows.MLWorkflowSingleGPU import MLWorkflowSingleGPU
+        return MLWorkflowSingleGPU( hpo_config )
+
+    if hpo_config.compute_type == 'multi-GPU':
+        from workflows.MLWorkflowMultiGPU import MLWorkflowMultiGPU
+        return MLWorkflowMultiGPU( hpo_config )
 
 class MLWorkflow ( ):
     def __init__ ( self ):
         return None
 
-    def create_workflow( self, hpo_config ):        
-        if hpo_config.compute_type == 'single-CPU':
-            from workflows.MLWorkflowSingleCPU import MLWorkflowSingleCPU
-            return MLWorkflowSingleCPU( hpo_config )
-
-        if hpo_config.compute_type == 'multi-CPU':
-            from workflows.MLWorkflowMultiCPU import MLWorkflowMultiCPU
-            return MLWorkflowMultiCPU( hpo_config )
-
-        if hpo_config.compute_type == 'single-GPU':
-            from workflows.MLWorkflowSingleGPU import MLWorkflowSingleGPU
-            return MLWorkflowSingleGPU( hpo_config )
-
-        if hpo_config.compute_type == 'multi-GPU':
-            from workflows.MLWorkflowMultiGPU import MLWorkflowMultiGPU
-            return MLWorkflowMultiGPU( hpo_config )
-    
     @abstractmethod
     def ingest_data ( self ): pass
 
@@ -57,7 +82,8 @@ def timer_decorator ( target_function ):
     def timed_execution_wrapper ( *args, **kwargs ):
         start_time = time.perf_counter()
         result = target_function ( *args, **kwargs )
-        print(f" --- {target_function.__name__} completed in {round( time.perf_counter() - start_time, 5 )} s")
+        exec_time = time.perf_counter() - start_time
+        logging.info(f" --- {target_function.__name__} completed in {exec_time:.5f} s")
         return result
         
     return timed_execution_wrapper

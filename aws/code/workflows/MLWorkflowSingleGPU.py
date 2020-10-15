@@ -14,10 +14,14 @@
 # limitations under the License.
 #
 
+
 import time
+import os
+
 import cudf 
 import xgboost
 import joblib
+
 from cuml.preprocessing.model_selection import train_test_split
 from cuml.ensemble import RandomForestClassifier
 from cuml.metrics import accuracy_score
@@ -29,7 +33,7 @@ class MLWorkflowSingleGPU ( MLWorkflow ):
 
     def __init__(self, hpo_config ):
         print( 'Single-GPU Workflow \n')
-        self.start_time = time.time()
+        self.start_time = time.perf_counter()
 
         self.hpo_config = hpo_config
         self.dataset_cache = None
@@ -78,10 +82,10 @@ class MLWorkflowSingleGPU ( MLWorkflow ):
         
         X_train, X_test, y_train, y_test = train_test_split( dataset, label_column, random_state = random_state )
 
-        return X_train.astype( self.hpo_config.dataset_dtype ),\
-               X_test.astype( self.hpo_config.dataset_dtype ),\
-               y_train.astype( self.hpo_config.dataset_dtype ),\
-               y_test.astype( self.hpo_config.dataset_dtype ) 
+        return ( X_train.astype( self.hpo_config.dataset_dtype ),
+                 X_test.astype( self.hpo_config.dataset_dtype ),
+                 y_train.astype( self.hpo_config.dataset_dtype ),
+                 y_test.astype( self.hpo_config.dataset_dtype ) )
 
     @timer_decorator
     def fit ( self, X_train, y_train ):       
@@ -97,9 +101,7 @@ class MLWorkflowSingleGPU ( MLWorkflow ):
             trained_model = RandomForestClassifier ( n_estimators = self.hpo_config.model_params['n_estimators'],
                                                      max_depth = self.hpo_config.model_params['max_depth'],
                                                      max_features = self.hpo_config.model_params['max_features'],
-                                                     n_bins = self.hpo_config.model_params['n_bins'],
-                                                     bootstrap = self.hpo_config.model_params['bootstrap'])\
-                                                     .fit( X_train, y_train.astype('int32') )                                                     
+                                                     n_bins = self.hpo_config.model_params['n_bins']) .fit( X_train, y_train.astype('int32') )
         return trained_model 
 
     @timer_decorator
@@ -123,7 +125,7 @@ class MLWorkflowSingleGPU ( MLWorkflow ):
                                 predictions.astype( self.hpo_config.dataset_dtype ) )
 
         print(f'score = {round(score,5)}')
-        self.cv_fold_scores += [score]
+        self.cv_fold_scores.append( score )
         return score
 
     def save_best_model ( self, score, trained_model, filename = 'saved_model' ): 
@@ -132,11 +134,11 @@ class MLWorkflowSingleGPU ( MLWorkflow ):
         if score > self.best_score:
             self.best_score = score
             print('saving high-scoring model')
-            output_filename = self.hpo_config.model_store_directory + '/' + str( filename )
+            output_filename = os.path.join( self.hpo_config.model_store_directory, filename )
             if 'XGBoost' in self.hpo_config.model_type:
-                trained_model.save_model( output_filename + '_sgpu_xgb' )
+                trained_model.save_model( f'{output_filename}_sgpu_xgb' )
             elif 'RandomForest' in self.hpo_config.model_type:
-                joblib.dump ( trained_model, output_filename + '_sgpu_rf' )
+                joblib.dump ( trained_model, f'{output_filename}_sgpu_rf' )
             
     
     def cleanup ( self, i_fold ):
@@ -144,8 +146,8 @@ class MLWorkflowSingleGPU ( MLWorkflow ):
     
     def emit_final_score ( self ):
         """ Emit score for parsing by the cloud HPO orchestrator """
-
-        print(f'total_time = {round( time.time() - self.start_time )} seconds ')
+        exec_time = time.perf_counter() - self.start_time
+        print(f'total_time = {exec_time:.5f} s ')
 
         if self.hpo_config.cv_folds > 1 :
             print(f'cv-fold scores : {self.cv_fold_scores} \n')

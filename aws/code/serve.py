@@ -25,6 +25,8 @@ import numpy
 
 import flask 
 from flask import Flask, Response
+import logging
+from functools import lru_cache
 
 try:
     """ check for GPU via library imports """
@@ -42,19 +44,21 @@ DEBUG_FLAG = False
 def serve( xgboost_threshold = 0.5 ):
     """ Simple Flask Inference Server for SageMaker hosting of RAPIDS Models """
     app = Flask(__name__)
+    logging.basicConfig(level=logging.DEBUG)
 
     if GPU_INFERENCE_FLAG:
-        print( 'GPU Model Serving Workflow')
-        print( f'> {cupy.cuda.runtime.getDeviceCount()} GPUs detected \n')
+        app.logger.info( 'GPU Model Serving Workflow')
+        app.logger.info( f'> {cupy.cuda.runtime.getDeviceCount()} GPUs detected \n')
     else:
-        print( 'CPU Model Serving Workflow')
-        print( f'> {os.cpu_count()} CPUs detected \n')
+        app.logger.info( 'CPU Model Serving Workflow')
+        app.logger.info( f'> {os.cpu_count()} CPUs detected \n')
         
     @app.route("/ping", methods=["GET"])
     def ping():
         """ SageMaker required method for ensuring serving instance has a heartbeat """
         return Response(response="\n", status=200)
     
+    @lru_cache()
     def load_trained_model ():
         """ 
         Load [ XGBoost or RandomForest ] model into memory 
@@ -62,11 +66,11 @@ def serve( xgboost_threshold = 0.5 ):
         """
         xgb_models = glob.glob('/opt/ml/model/*_xgb')
         rf_models = glob.glob('/opt/ml/model/*_rf')
-        print( f'detected xgboost models : {xgb_models}' ) 
-        print( f'detected randomforest models : {rf_models}\n\n' ) 
+        app.logger.info( f'detected xgboost models : {xgb_models}' ) 
+        app.logger.info( f'detected randomforest models : {rf_models}\n\n' ) 
         model_type = None
 
-        start_time = time.time()
+        start_time = time.perf_counter()
 
         if len( xgb_models ):
             model_type = 'XGBoost'
@@ -84,8 +88,8 @@ def serve( xgboost_threshold = 0.5 ):
             reloaded_model = joblib.load( model_filename )
         else:
             raise Exception ('! No trained models detected')
-
-        print(f'> model {model_filename} loaded in { round( time.time() - start_time, 5) } seconds \n')
+        exec_time = time.perf_counter() - start_time
+        app.logger.info(f'> model {model_filename} loaded in {exec_time:.5f} s \n')
 
         return reloaded_model, model_type, model_filename
 
@@ -96,9 +100,9 @@ def serve( xgboost_threshold = 0.5 ):
         # parse user input
         try:
             if DEBUG_FLAG:
-                print( flask.request.headers )
-                print( flask.request.content_type )
-                print( flask.request.get_data() )
+                app.logger.debug( flask.request.headers )
+                app.logger.debug( flask.request.content_type )
+                app.logger.debug( flask.request.get_data() )
 
             string_data = json.loads( flask.request.get_data() )
             deserialized_data = numpy.array ( string_data ) # , order = 'F' 
@@ -112,9 +116,9 @@ def serve( xgboost_threshold = 0.5 ):
         
         # run inference
         try:
-            start_time = time.time()
+            start_time = time.perf_counter()
             if model_type == 'XGBoost':
-                print(f'running inference using XGBoost model : {model_filename}')
+                app.logger.info(f'running inference using XGBoost model : {model_filename}')
                 
                 if GPU_INFERENCE_FLAG:
                     predictions = reloaded_model.predict( deserialized_data )
@@ -125,7 +129,7 @@ def serve( xgboost_threshold = 0.5 ):
                 predictions = ( predictions > xgboost_threshold ) * 1.0
 
             elif model_type == 'RandomForest':
-                print(f'running inference using RandomForest model : {model_filename}')
+                app.logger.info(f'running inference using RandomForest model : {model_filename}')
 
                 if 'gpu' in model_filename and GPU_INFERENCE_FLAG == False:
                     raise Exception( 'attempting to run CPU inference on a GPU trained RandomForest model')
@@ -133,8 +137,9 @@ def serve( xgboost_threshold = 0.5 ):
                 # this should fail on GPU trained models 
                 predictions = reloaded_model.predict( deserialized_data.astype('float32') )
 
-            print(f'\n predictions: {predictions} \n')
-            print(f' > inference finished in { round( time.time() - start_time, 5) } seconds \n')
+            app.logger.info(f'\n predictions: {predictions} \n')
+            exec_time = time.perf_counter() - start_time            
+            app.logger.info(f' > inference finished in {exec_time:.5f} s \n')
 
             # return predictions
             return Response( response = json.dumps( predictions.tolist() ),
@@ -142,10 +147,13 @@ def serve( xgboost_threshold = 0.5 ):
         
         # error during inference 
         except Exception as inference_error:
-            print( inference_error )
+            app.logger.error( inference_error )
             return Response ( response = f"Inference failure: {inference_error}\n", 
                               status = 400, mimetype='text/csv')
-        
+
+
+    # load trained model and run Flask server to process incoming requests
+    reloaded_model, model_type, model_filename = load_trained_model()
     app.run(host="0.0.0.0", port=8080)
     
 if __name__ == "__main__":

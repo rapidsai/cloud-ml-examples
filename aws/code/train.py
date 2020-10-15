@@ -16,12 +16,12 @@
 
 import sys, traceback
 from HPOConfig import HPOConfig
-from MLWorkflow import MLWorkflow
+from MLWorkflow import create_workflow
 
 def train():
 
     hpo_config = HPOConfig( input_args = sys.argv[1:] )
-    ml_workflow = MLWorkflow().create_workflow( hpo_config )
+    ml_workflow = create_workflow( hpo_config )
 
     # cross-validation to improve robustness via multiple train/test reshuffles
     for i_fold in range ( hpo_config.cv_folds ):
@@ -56,13 +56,10 @@ def train():
 
 if __name__ == "__main__":
 
-    try : 
+    try :         
         train()
-
         sys.exit(0) # success exit code
 
-    except Exception as error:        
-        trc = traceback.format_exc()           
-        print( f' ! exception: {str(error)} \n {trc}')
-
+    except Exception as error:
+        traceback.print_exc()
         sys.exit(-1) # failure exit code

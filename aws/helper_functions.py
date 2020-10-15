@@ -2,6 +2,8 @@ import random, uuid
 import boto3
 import pandas
 import os
+import traceback 
+from functools import lru_cache
 
 def recommend_instance_type ( code_choice, dataset_directory  ):
     """ Based on the code and [airline] dataset-size choices we recommend instance types 
@@ -108,23 +110,25 @@ def new_job_name_from_config ( dataset_directory, region, code_choice,
             
         code_choice_str = code_choice[0] + code_choice[-3:]
         
-        if 'randomforest' in algorithm_choice.lower() : algorithm_choice_str = 'RF'
-        if 'xgboost' in algorithm_choice.lower() : algorithm_choice_str = 'XGB'    
+        if 'randomforest' in algorithm_choice.lower() : 
+            algorithm_choice_str = 'RF'
+        if 'xgboost' in algorithm_choice.lower() : 
+            algorithm_choice_str = 'XGB'    
         
         instance_type_str = '-'.join( instance_type.split('.')[1:] )        
 
-        random_8char_str = ''.join( random.choices( uuid.uuid4().hex, k=8 ) )        
+        random_str = ''.join( random.choices( uuid.uuid4().hex ) )        
         
         job_name = f"{data_choice_str}-{code_choice_str}" \
                     f"-{algorithm_choice_str}-{cv_folds}cv"\
-                    f"-{instance_type_str}-{random_8char_str}"
+                    f"-{instance_type_str}-{random_str}"
         
         job_name = job_name[:trim_limit]
         
         print ( f'generated job name : {job_name}\n')
         
     except Exception as error: 
-        print( f'ERROR: unable to generate job name: {error}' )
+        traceback.print_exc()        
     
     return job_name
 
@@ -136,11 +140,11 @@ def validate_region ( region ):
     if region not in ['us-east-1', 'us-west-2']:
         raise Exception ( 'Unsupported region based on demo data location,'\
                           ' please switch to us-east-1 or us-west-2' )
-        
+
+@lru_cache()
 def get_notebook_path():
     """ Query the root notebook directory [ once ], 
         we'll end up placing our best trained model in this location.
     """
-    try: working_directory
-    except NameError: working_directory = os.getcwd()
+    working_directory = os.getcwd()
     return working_directory
