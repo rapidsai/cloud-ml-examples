@@ -20,70 +20,65 @@ import functools
 import time
 
 import logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(message)s",
-    handlers=[ logging.FileHandler("rapids_hpo.log"), 
-               logging.StreamHandler() ]
-)
+hpo_log = logging.getLogger('hpo_log')
 
-def create_workflow( hpo_config ):        
+
+def create_workflow(hpo_config):
+    """ Workflow Factory [instantiate MLWorkflow based on config] """
     if hpo_config.compute_type == 'single-CPU':
         from workflows.MLWorkflowSingleCPU import MLWorkflowSingleCPU
-        return MLWorkflowSingleCPU( hpo_config )
+        return MLWorkflowSingleCPU(hpo_config)
 
     if hpo_config.compute_type == 'multi-CPU':
         from workflows.MLWorkflowMultiCPU import MLWorkflowMultiCPU
-        return MLWorkflowMultiCPU( hpo_config )
+        return MLWorkflowMultiCPU(hpo_config)
 
     if hpo_config.compute_type == 'single-GPU':
         from workflows.MLWorkflowSingleGPU import MLWorkflowSingleGPU
-        return MLWorkflowSingleGPU( hpo_config )
+        return MLWorkflowSingleGPU(hpo_config)
 
     if hpo_config.compute_type == 'multi-GPU':
         from workflows.MLWorkflowMultiGPU import MLWorkflowMultiGPU
-        return MLWorkflowMultiGPU( hpo_config )
+        return MLWorkflowMultiGPU(hpo_config)
 
-class MLWorkflow ( ):
-    def __init__ ( self ):
-        return None
+
+class MLWorkflow():
+    @abstractmethod
+    def ingest_data(self): pass
 
     @abstractmethod
-    def ingest_data ( self ): pass
+    def handle_missing_data(self, dataset): pass
 
     @abstractmethod
-    def handle_missing_data ( self, dataset ): pass
+    def split_dataset(self, dataset, i_fold): pass
 
     @abstractmethod
-    def split_dataset ( self, dataset, i_fold ): pass
+    def fit(self, X_train, y_train): pass
 
     @abstractmethod
-    def fit ( self, X_train, y_train ): pass
+    def predict(self, trained_model, X_test): pass
 
     @abstractmethod
-    def predict ( self, trained_model, X_test ): pass
+    def score(self, y_test, predictions): pass
 
     @abstractmethod
-    def score ( self, y_test, predictions ): pass
+    def save_trained_model(self, score, trained_model): pass
 
     @abstractmethod
-    def save_trained_model ( self, score, trained_model ): pass
+    def cleanup(self, i_fold): pass
 
     @abstractmethod
-    def cleanup ( self, i_fold ): pass
-    
-    @abstractmethod
-    def emit_final_score ( self ): pass
+    def emit_final_score(self): pass
 
 
-def timer_decorator ( target_function ):
+def timer_decorator(target_function):
 
-    @functools.wraps ( target_function )
-    def timed_execution_wrapper ( *args, **kwargs ):
+    @functools.wraps(target_function)
+    def timed_execution_wrapper(*args, **kwargs):
         start_time = time.perf_counter()
-        result = target_function ( *args, **kwargs )
+        result = target_function(*args, **kwargs)
         exec_time = time.perf_counter() - start_time
-        logging.info(f" --- {target_function.__name__} completed in {exec_time:.5f} s")
+        hpo_log.info(f" --- {target_function.__name__}"
+                     f" completed in {exec_time:.5f} s")
         return result
-        
     return timed_execution_wrapper

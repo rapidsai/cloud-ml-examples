@@ -14,10 +14,12 @@
 # limitations under the License.
 #
 
+
 import time
 import os
 
-import dask, dask_cudf
+import dask
+import dask_cudf
 from dask_cuda import LocalCUDACluster
 from dask.distributed import wait, Client
 
@@ -30,197 +32,219 @@ from cuml.dask.common.utils import persist_across_workers
 from cuml.dask.ensemble import RandomForestClassifier
 from cuml.metrics import accuracy_score
 
-import warnings; warnings.filterwarnings("ignore")
-
 from MLWorkflow import MLWorkflow, timer_decorator
 
 import logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(message)s",
-    handlers=[ logging.FileHandler("rapids_hpo.log"), 
-               logging.StreamHandler() ]
-)
+import warnings
+
+hpo_log = logging.getLogger('hpo_log')
+warnings.filterwarnings("ignore")
 
 
-class MLWorkflowMultiGPU ( MLWorkflow ):
+class MLWorkflowMultiGPU(MLWorkflow):
     """ Multi-GPU Workflow """
 
-    def __init__(self, hpo_config ):
-        logging.info( 'Multi-GPU Workflow')
+    def __init__(self, hpo_config):
+        hpo_log.info('Multi-GPU Workflow')
         self.start_time = time.perf_counter()
-        
+
         self.hpo_config = hpo_config
         self.dataset_cache = None
-        
+
         self.cv_fold_scores = []
         self.best_score = -1
 
         self.cluster, self.client = self.cluster_initialize()
-    
+
     @timer_decorator
-    def cluster_initialize ( self ):
-        """ Initialize the dask compute cluster based on the number of available GPU workers. """
+    def cluster_initialize(self):
+        """ Initialize dask GPU cluster"""
 
         cluster = None
         client = None
-                
+
         self.n_workers = cupy.cuda.runtime.getDeviceCount()
-        """
-        if 'XGBoost' in self.hpo_config.model_type:
-            self.n_workers = min( len( self.hpo_config.target_files ), self.n_workers ) 
-        """
 
-        cluster = LocalCUDACluster( n_workers = self.n_workers )
-        client = Client( cluster )
+        cluster = LocalCUDACluster(n_workers=self.n_workers)
+        client = Client(cluster)
 
-        logging.info(f'dask multi-GPU cluster with {self.n_workers} workers ')
-        
-        dask.config.set({'logging': {'loggers' : {'distributed.nanny': {'level': 'CRITICAL'}}}})
-        dask.config.set({'temporary_directory' : self.hpo_config.output_artifacts_directory})
+        hpo_log.info(f'dask multi-GPU cluster with {self.n_workers} workers ')
+
+        dask.config.set({
+            'temporary_directory': self.hpo_config.output_artifacts_directory,
+            'logging': {'loggers': {'distributed.nanny': {'level': 'CRITICAL'}}}
+        })
 
         return cluster, client
 
-    def ingest_data ( self ): 
+    def ingest_data(self):
         """ Ingest dataset, CSV and Parquet supported [ async/lazy ]"""
 
         if self.dataset_cache is not None:
-            logging.info( '> skipping ingestion, using cache')
+            hpo_log.info('> skipping ingestion, using cache')
             return self.dataset_cache
 
         if 'Parquet' in self.hpo_config.input_file_type:
-            logging.info('> parquet data ingestion')
+            hpo_log.info('> parquet data ingestion')
 
-            dataset = dask_cudf.read_parquet( self.hpo_config.target_files,
-                                              columns = self.hpo_config.dataset_columns )
+            dataset = dask_cudf.read_parquet(
+                self.hpo_config.target_files,
+                columns=self.hpo_config.dataset_columns
+            )
 
         elif 'CSV' in self.hpo_config.input_file_type:
-            logging.info('> csv data ingestion')
-            # dtype = self.hpo_config.dataset_dtype, 
+            hpo_log.info('> csv data ingestion')
 
-            dataset = dask_cudf.read_csv( self.hpo_config.target_files,
-                                          names = self.hpo_config.dataset_columns,                                          
-                                          header = 0 )
-        
-        logging.info( f'\t dataset len: {len(dataset)}' )
+            dataset = dask_cudf.read_csv(
+                self.hpo_config.target_files,
+                names=self.hpo_config.dataset_columns,
+                header=0
+            )
+
+        hpo_log.info(f'\t dataset len: {len(dataset)}')
         self.dataset_cache = dataset
         return dataset
 
-    
-    def handle_missing_data ( self, dataset ): 
-        """ Drop samples with missing data [ inplace i.e., do not copy dataset ; async/lazy ] """
+    def handle_missing_data(self, dataset):
+        """ Drop samples with missing data [ inplace ] """
         dataset = dataset.dropna()
         return dataset
 
     @timer_decorator
-    def split_dataset ( self, dataset, random_state ): 
-        """ 
-        Split into train and test data subsets, using CV-fold index for randomness 
-            Note: Since Dask has a lazy execution model, so far we've built up a computation graph, 
-                  however, no computation has occured. By using a persist_accross_workers call we force execution.
-                  This is helpful prior to model training
+    def split_dataset(self, dataset, random_state):
         """
-        logging.info('> train-test split')
+        Split dataset into train and test data subsets,
+        currently using CV-fold index for randomness.
+        Plan to refactor with dask_ml KFold
+        """
+        hpo_log.info('> train-test split')
         label_column = self.hpo_config.label_column
-        
-        train, test = train_test_split( dataset, random_state = random_state ) 
+
+        train, test = train_test_split(dataset, random_state=random_state)
 
         # build X [ features ], y [ labels ] for the train and test subsets
-        y_train = train[label_column]; 
-        X_train = train.drop(label_column, axis = 1)
+        y_train = train[label_column]
+        X_train = train.drop(label_column, axis=1)
         y_test = test[label_column]
-        X_test = test.drop(label_column, axis = 1)
+        X_test = test.drop(label_column, axis=1)
 
         # force execution
-        X_train, y_train, X_test, y_test = persist_across_workers( self.client,
-                                                                   [ X_train, y_train, X_test, y_test ], 
-                                                                   workers = self.client.has_what().keys() )        
-        # wait! 
-        wait( [X_train, y_train, X_test, y_test] );
+        X_train, y_train, X_test, y_test = persist_across_workers(
+            self.client,
+            [X_train, y_train, X_test, y_test],
+            workers=self.client.has_what().keys()
+        )
 
-        return ( X_train.astype( self.hpo_config.dataset_dtype ),
-                 X_test.astype( self.hpo_config.dataset_dtype ),
-                 y_train.astype( self.hpo_config.dataset_dtype ),
-                 y_test.astype( self.hpo_config.dataset_dtype ) )
+        # wait!
+        wait([X_train, y_train, X_test, y_test])
+
+        return (X_train.astype(self.hpo_config.dataset_dtype),
+                X_test.astype(self.hpo_config.dataset_dtype),
+                y_train.astype(self.hpo_config.dataset_dtype),
+                y_test.astype(self.hpo_config.dataset_dtype))
 
     @timer_decorator
-    def fit ( self, X_train, y_train ):       
-        """ Fit decision tree model [ architecture defined by HPO parameters ] """
+    def fit(self, X_train, y_train):
+        """ Fit decision tree model """
         if 'XGBoost' in self.hpo_config.model_type:
-            logging.info('> fit xgboost model')
-            dtrain = xgboost.dask.DaskDMatrix( self.client, X_train, y_train)
-            xgboost_output = xgboost.dask.train( self.client, self.hpo_config.model_params, dtrain, 
-                                                num_boost_round = self.hpo_config.model_params['num_boost_round'] )
+            hpo_log.info('> fit xgboost model')
+            dtrain = xgboost.dask.DaskDMatrix(self.client, X_train, y_train)
+            num_boost_round = self.hpo_config.model_params['num_boost_round']
+
+            xgboost_output = xgboost.dask.train(
+                self.client,
+                self.hpo_config.model_params, dtrain,
+                num_boost_round=num_boost_round
+            )
+
             trained_model = xgboost_output['booster']
 
         elif 'RandomForest' in self.hpo_config.model_type:
-            logging.info('> fit randomforest model')
-            trained_model = RandomForestClassifier ( n_estimators = self.hpo_config.model_params['n_estimators'],
-                                                     max_depth = self.hpo_config.model_params['max_depth'],
-                                                     max_features = self.hpo_config.model_params['max_features'],
-                                                     n_bins = self.hpo_config.model_params['n_bins'] ).fit( X_train, y_train.astype('int32') )                                              
-        return trained_model 
-    
+            hpo_log.info('> fit randomforest model')
+            trained_model = RandomForestClassifier(
+                n_estimators=self.hpo_config.model_params['n_estimators'],
+                max_depth=self.hpo_config.model_params['max_depth'],
+                max_features=self.hpo_config.model_params['max_features'],
+                n_bins=self.hpo_config.model_params['n_bins']
+            ).fit(X_train, y_train.astype('int32'))
+
+        return trained_model
+
     @timer_decorator
-    def predict ( self, trained_model, X_test, threshold = 0.5 ):
+    def predict(self, trained_model, X_test, threshold=0.5):
         """ Inference with the trained model on the unseen test data """
 
-        logging.info('> predict with trained model ')
+        hpo_log.info('> predict with trained model ')
         if 'XGBoost' in self.hpo_config.model_type:
-            dtest = xgboost.dask.DaskDMatrix( self.client, X_test )
-            predictions = xgboost.dask.predict( self.client, trained_model, dtest).compute() 
-            predictions = (predictions > threshold ) * 1.0                    
-            
+            dtest = xgboost.dask.DaskDMatrix(self.client, X_test)
+            predictions = xgboost.dask.predict(
+                self.client,
+                trained_model,
+                dtest
+            ).compute()
+
+            predictions = (predictions > threshold) * 1.0
+
         elif 'RandomForest' in self.hpo_config.model_type:
-            predictions = trained_model.predict( X_test ).compute()
+            predictions = trained_model.predict(X_test).compute()
 
         return predictions
 
     @timer_decorator
-    def score ( self, y_test, predictions ): 
+    def score(self, y_test, predictions):
         """ Score predictions vs ground truth labels on test data """
-        logging.info('> score predictions')
+        hpo_log.info('> score predictions')
         y_test = y_test.compute()
-        score = accuracy_score ( y_test.astype( self.hpo_config.dataset_dtype ),
-                                predictions.astype( self.hpo_config.dataset_dtype ) )
+        score = accuracy_score(
+            y_test.astype(self.hpo_config.dataset_dtype),
+            predictions.astype(self.hpo_config.dataset_dtype)
+        )
 
-        logging.info(f'\t score = {score}')
-        self.cv_fold_scores.append( score )
+        hpo_log.info(f'\t score = {score}')
+        self.cv_fold_scores.append(score)
         return score
-    
-    def save_best_model ( self, score, trained_model, filename = 'saved_model' ): 
+
+    def save_best_model(self, score, trained_model, filename='saved_model'):
         """  Persist/save model that sets a new high score """
 
         if score > self.best_score:
             self.best_score = score
-            logging.info('> saving high-scoring model')            
-            output_filename = os.path.join( self.hpo_config.model_store_directory, filename )
+            hpo_log.info('> saving high-scoring model')
+            output_filename = os.path.join(
+                self.hpo_config.model_store_directory,
+                filename
+            )
+
             if 'XGBoost' in self.hpo_config.model_type:
-                trained_model.save_model( f'{output_filename}_mgpu_xgb' )
+                trained_model.save_model(f'{output_filename}_mgpu_xgb')
             elif 'RandomForest' in self.hpo_config.model_type:
-                joblib.dump ( trained_model, f'{output_filename}_mgpu_rf' )
-            
+                joblib.dump(trained_model, f'{output_filename}_mgpu_rf')
+
     @timer_decorator
-    async def cleanup ( self, i_fold ):
-        """ Close and restart the cluster when multiple cross validation folds are used to prevent memory creep. """    
-        if i_fold == self.hpo_config.cv_folds -1:
-            logging.info('> done all folds; closing cluster')
+    async def cleanup( self, i_fold):
+        """
+        Close and restart the cluster when multiple cross validation folds
+        are used to prevent memory creep.
+        """
+        if i_fold == self.hpo_config.cv_folds - 1:
+            hpo_log.info('> done all folds; closing cluster')
             await self.client.close()
             await self.cluster.close()
-        elif i_fold < self.hpo_config.cv_folds - 1:            
-            logging.info('> end of fold; reinitializing cluster')
+        elif i_fold < self.hpo_config.cv_folds - 1:
+            hpo_log.info('> end of fold; reinitializing cluster')
             await self.client.close()
             await self.cluster.close()
             self.cluster, self.client = self.cluster_initialize()
 
-    def emit_final_score ( self ):
+    def emit_final_score(self):
         """ Emit score for parsing by the cloud HPO orchestrator """
         exec_time = time.perf_counter() - self.start_time
-        logging.info(f'total_time = {exec_time:.5f} s ')
+        hpo_log.info(f'total_time = {exec_time:.5f} s ')
 
-        if self.hpo_config.cv_folds > 1 :
-            logging.info(f'fold scores : {self.cv_fold_scores}')
+        if self.hpo_config.cv_folds > 1:
+            hpo_log.info(f'fold scores : {self.cv_fold_scores}')
 
-        final_score = sum(self.cv_fold_scores) / len(self.cv_fold_scores) # average
+        # average over CV folds
+        final_score = sum(self.cv_fold_scores) / len(self.cv_fold_scores)
 
-        logging.info(f'final-score: {final_score};')
+        hpo_log.info(f'final-score: {final_score};')

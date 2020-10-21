@@ -11,7 +11,7 @@ echo 'run RAPIDS HPO container with local directory mirroring SageMaker paths'
 RUN_TESTS_FLAG=true
 
 # run HPO container in training mode
-RUN_TRAINING_FLAG=false
+RUN_TRAINING_FLAG=true
 
 # run HPO container in serving mode, with or without GPU inference
 RUN_SERVING_FLAG=false
