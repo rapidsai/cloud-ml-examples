@@ -170,7 +170,7 @@ class HPOConfig(object):
         else:
             raise Exception(f"!error: unknown model type {self.model_type}")
 
-        pprint.pprint(model_params, indent=5)
+        hpo_log.info(pprint.pformat(model_params, indent=5))
         return model_params
 
     def detect_data_inputs(self, directory_structure):
