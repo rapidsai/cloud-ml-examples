@@ -49,7 +49,7 @@ class HPOConfig(object):
             self.dataset_dtype) = self.detect_data_inputs(directory_structure)
 
         self.model_store_directory = directory_structure['model_store']
-        self.output_artifacts_directory = directory_structure['output_artifacts']
+        self.output_artifacts_directory = directory_structure['output_artifacts']  # noqa
 
     def parse_configuration(self):
         """ Parse the ENV variables [ set in the dockerfile ]
@@ -111,19 +111,19 @@ class HPOConfig(object):
 
     def parse_hyper_parameter_inputs(self, input_args):
         """ Parse hyperparmeters provided by the HPO orchestrator """
-        hpo_log.info('parsing model hyperparameters from command line arguments...log')
+        hpo_log.info('parsing model hyperparameters from command line arguments...log')  # noqa
         parser = argparse.ArgumentParser()
 
         if 'XGBoost' in self.model_type:
             # intentionally breaking PEP8 below for argument alignment
-            parser.add_argument( '--max_depth',       type = int,   default = 5 )
-            parser.add_argument( '--num_boost_round', type = int,   default = 10 )
-            parser.add_argument( '--subsample',       type = float, default = .9 )
-            parser.add_argument( '--learning_rate',   type = float, default = 0.3)
-            parser.add_argument( '--reg_lambda',      type = float, default = 1)
-            parser.add_argument( '--gamma',           type = float, default = 0. )
-            parser.add_argument( '--alpha',           type = float, default = 0. )
-            parser.add_argument( '--seed',            type = int,   default = 0 )
+            parser.add_argument( '--max_depth',       type = int,   default = 5 )  # noqa
+            parser.add_argument( '--num_boost_round', type = int,   default = 10 )  # noqa
+            parser.add_argument( '--subsample',       type = float, default = .9 )  # noqa
+            parser.add_argument( '--learning_rate',   type = float, default = 0.3)  # noqa
+            parser.add_argument( '--reg_lambda',      type = float, default = 1)  # noqa
+            parser.add_argument( '--gamma',           type = float, default = 0. )  # noqa
+            parser.add_argument( '--alpha',           type = float, default = 0. )  # noqa
+            parser.add_argument( '--seed',            type = int,   default = 0 )  # noqa
 
             args, unknown_args = parser.parse_known_args(input_args)
 
@@ -149,12 +149,12 @@ class HPOConfig(object):
 
         elif 'RandomForest' in self.model_type:
             # intentionally breaking PEP8 below for argument alignment
-            parser.add_argument( '--max_depth'   , type = int,   default = 5)
-            parser.add_argument( '--n_estimators', type = int,   default = 10)
-            parser.add_argument( '--max_features', type = float, default = 1.0)
-            parser.add_argument( '--n_bins'      , type = float, default = 64)
-            parser.add_argument( '--bootstrap'   , type = bool,  default = True)
-            parser.add_argument( '--random_state', type = int,   default = 0)
+            parser.add_argument( '--max_depth'   , type = int,   default = 5)  # noqa
+            parser.add_argument( '--n_estimators', type = int,   default = 10)  # noqa
+            parser.add_argument( '--max_features', type = float, default = 1.0)  # noqa
+            parser.add_argument( '--n_bins'      , type = float, default = 64)  # noqa
+            parser.add_argument( '--bootstrap'   , type = bool,  default = True)  # noqa
+            parser.add_argument( '--random_state', type = int,   default = 0)  # noqa
 
             args, unknown_args = parser.parse_known_args(input_args)
 

@@ -29,7 +29,7 @@ def recommend_instance_type(code_choice, dataset_directory):
     """
     recommended_instance_type = None
 
-    if 'CPU' in code_choice and dataset_directory in ['1_year', '3_year', 'NYC_taxi']:
+    if 'CPU' in code_choice and dataset_directory in ['1_year', '3_year', 'NYC_taxi']:  # noqa
         detail_str = '16 cpu cores, 64GB memory'
         recommended_instance_type = 'ml.m5.4xlarge'
 
@@ -93,7 +93,7 @@ def summarize_hpo_results(tuning_job_name):
         )
 
     best_job = hpo_results['BestTrainingJob']['TrainingJobName']
-    best_score = hpo_results['BestTrainingJob']['FinalHyperParameterTuningJobObjectiveMetric']['Value']
+    best_score = hpo_results['BestTrainingJob']['FinalHyperParameterTuningJobObjectiveMetric']['Value']  # noqa
     best_params = hpo_results['BestTrainingJob']['TunedHyperParameters']
     print(f'best score: {best_score}')
     print(f'best params: {best_params}')
@@ -114,8 +114,17 @@ def download_best_model(bucket, s3_model_output, hpo_results, local_directory):
 
         for obj in objects:
             path, filename = os.path.split(obj.key)
-            local_filename = local_directory + '/' + 'best_' + filename
-            s3_path_to_model = 's3://' + bucket + '/' + path_prefix + filename
+
+            local_filename = os.path.join(
+                local_directory,
+                'best_' + filename
+            )
+            s3_path_to_model = os.path.join(
+                's3://',
+                bucket,
+                path_prefix,
+                filename
+            )                        
             target_bucket.download_file(obj.key, local_filename)
             print(f'Successfully downloaded best model\n'
                   f'> filename: {local_filename}\n'

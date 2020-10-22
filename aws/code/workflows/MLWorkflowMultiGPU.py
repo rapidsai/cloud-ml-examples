@@ -72,7 +72,7 @@ class MLWorkflowMultiGPU(MLWorkflow):
 
         dask.config.set({
             'temporary_directory': self.hpo_config.output_artifacts_directory,
-            'logging': {'loggers': {'distributed.nanny': {'level': 'CRITICAL'}}}
+            'logging': {'loggers': {'distributed.nanny': {'level': 'CRITICAL'}}}  # noqa
         })
 
         return cluster, client

@@ -55,7 +55,7 @@ class MLWorkflowSingleGPU(MLWorkflow):
 
         if 'Parquet' in self.hpo_config.input_file_type:
             dataset = cudf.read_parquet(self.hpo_config.target_files,
-                                        columns=self.hpo_config.dataset_columns)
+                                        columns=self.hpo_config.dataset_columns)  # noqa
 
         elif 'CSV' in self.hpo_config.input_file_type:
             if isinstance(self.hpo_config.target_files, list):
@@ -138,7 +138,7 @@ class MLWorkflowSingleGPU(MLWorkflow):
 
     @timer_decorator
     def score(self, y_test, predictions):
-        """ Score predictions vs ground truth labels on test data """        
+        """ Score predictions vs ground truth labels on test data """
         dataset_dtype = self.hpo_config.dataset_dtype
         score = accuracy_score(y_test.astype(dataset_dtype),
                                predictions.astype(dataset_dtype))
@@ -163,15 +163,15 @@ class MLWorkflowSingleGPU(MLWorkflow):
                 joblib.dump(trained_model, f'{output_filename}_sgpu_rf')
 
 
-    def cleanup ( self, i_fold ):
+    def cleanup(self, i_fold):
         hpo_log.info('end of cv-fold \n')
 
-    def emit_final_score ( self ):
+    def emit_final_score(self):
         """ Emit score for parsing by the cloud HPO orchestrator """
         exec_time = time.perf_counter() - self.start_time
         hpo_log.info(f'total_time = {exec_time:.5f} s ')
 
-        if self.hpo_config.cv_folds > 1 :
+        if self.hpo_config.cv_folds > 1:
             hpo_log.info(f'cv-fold scores : {self.cv_fold_scores} \n')
 
         # average over CV folds

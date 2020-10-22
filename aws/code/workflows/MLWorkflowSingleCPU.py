@@ -59,7 +59,7 @@ class MLWorkflowSingleCPU(MLWorkflow):
             filepath = self.hpo_config.target_files
 
             dataset = pandas.read_parquet(filepath,
-                                          columns=self.hpo_config.dataset_columns,
+                                          columns=self.hpo_config.dataset_columns,  # noqa
                                           engine='pyarrow')
 
         elif 'CSV' in self.hpo_config.input_file_type:
