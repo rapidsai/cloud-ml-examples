@@ -154,13 +154,13 @@ def new_job_name_from_config(dataset_directory, region, code_choice,
         if 'xgboost' in algorithm_choice.lower():
             algorithm_choice_str = 'XGB'
 
-        instance_type_str = '-'.join(instance_type.split('.')[1:])
+        # instance_type_str = '-'.join(instance_type.split('.')[1:])
 
-        random_str = ''.join(random.choices(uuid.uuid4().hex))
+        random_str = ''.join(random.choices(uuid.uuid4().hex, k=trim_limit))
 
         job_name = f"{data_choice_str}-{code_choice_str}"\
                    f"-{algorithm_choice_str}-{cv_folds}cv"\
-                   f"-{instance_type_str}-{random_str}"
+                   f"-{random_str}"
 
         job_name = job_name[:trim_limit]
 
