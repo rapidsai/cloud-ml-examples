@@ -1,0 +1,5 @@
+{
+    "kube-context": "",
+    "kube-job-template-path": "k8s_job_template.yaml",
+    "repository-uri": "${GCR_REPO}/rapids-mlflow-training"
+}
