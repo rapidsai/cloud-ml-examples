@@ -108,12 +108,12 @@ def main():
         # train model
         trained_model, training_time = azure_ml.train_model(X_train, y_train, model_params)
 
-        train_time_per_fold += [round(training_time, 4)]
+        train_time_per_fold.append(round(training_time, 4))
 
         # evaluate perf
         test_accuracy, infer_time = azure_ml.evaluate_test_perf(trained_model, X_test, y_test)
-        accuracy_per_fold += [round(test_accuracy, 4)]
-        infer_time_per_fold += [round(infer_time, 4)]
+        accuracy_per_fold.append(round(test_accuracy, 4))
+        infer_time_per_fold.append(round(infer_time, 4))
 
         # update best model [ assumes maximization of perf metric ]
         if test_accuracy > global_best_test_accuracy:
