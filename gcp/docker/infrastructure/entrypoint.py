@@ -202,6 +202,8 @@ def _train(model_params, config_params):
     dataset, col_labels, y_label, ingest_time = rcml.load_data(filename=config_params['dataset_filename'])
     rcml.query_memory()
 
+    # classifier expects input data to be of type float32
+    dataset = dataset.astype('float32')
     # classification objective requires int32 label for cuml random forest
     dataset[y_label] = dataset[y_label].astype('int32')
 
