@@ -24,7 +24,25 @@ from joblib import parallel_backend
 import argparse
 from azureml.core.run import Run
 
+run = Run.get_context()
+
 def train_and_eval(X_param, y_param, penalty='l2', C=1.0, l1_ratio=None, fit_intercept=True):
+    """
+        Splits the given data into train and test split to train and evaluate the model
+        for the params parameters.
+        
+        Params
+        ______
+        
+        X_param:  DataFrame. 
+                  The data to use for training and testing. 
+        y_param:  Series. 
+                  The label for training
+        penalty, C, l1_ratio, fit_intercept: The parameter values for Logistic Regression.
+
+        Returns
+        score: log loss of the fitted model
+    """
     X_train, X_valid, y_train, y_valid = train_test_split(X_param,
                                                           y_param,
                                                           random_state=42)
@@ -36,7 +54,12 @@ def train_and_eval(X_param, y_param, penalty='l2', C=1.0, l1_ratio=None, fit_int
     y_pred = classifier.predict(X_valid)
     score = log_loss(y_valid, y_pred)
     return score
+
 def objective(trial, X_param, y_param):
+    """
+    Objective function used for Optuna experiments.
+    Returns the score for optimization task.
+    """
     C = trial.suggest_uniform("C", 0 , 9.0)
     penalty = trial.suggest_categorical("penalty", ['l1', 'none', 'l2'])
     l1_ratio = trial.suggest_uniform("l1_ratio", 0 , 1.0)
@@ -48,6 +71,11 @@ def objective(trial, X_param, y_param):
                            C=C,
                            l1_ratio=l1_ratio,
                            fit_intercept=fit_intercept)
+    run.log('C', np.float(C))
+    run.log('penalty', penalty)
+    run.log('l1_ratio', np.float(l1_ratio))
+    run.log('fit_intercept', fit_intercept)
+    run.log('score',np.float(score))
     return score
 if __name__=="__main__":
 
@@ -57,16 +85,15 @@ if __name__=="__main__":
     args = parser.parse_args()
     data_dir = args.data_dir
     print('Data folder is at:', data_dir)
-    # print('List all files: ', os.listdir(data_dir))
+    print('List all files: ', os.listdir(data_dir))
 
-    cluster = LocalCUDACluster(threads_per_worker=1, ip="", dashboard_address="8081")
+    cluster = LocalCUDACluster(threads_per_worker=1, ip="", dashboard_address="8088")
     c = Client(cluster)
 
     # Query the client for all connected workers
     workers = c.has_what().keys()
     n_workers = len(workers)
-    # df = cudf.read_csv(os.path.join(data_dir, "bnp_train.csv"))
-    df = cudf.read_csv(data_dir)
+    df = cudf.read_csv(os.path.join(data_dir, "train.csv"))
     N_TRIALS = 5
 
     # Drop non-numerical data and fill NaNs before passing to cuML RF
@@ -91,4 +118,3 @@ if __name__=="__main__":
                            n_trials=N_TRIALS,
                            n_jobs=n_workers)
     print('Best params{} and best score{}'.format(study.best_params, study.best_value))
-    print("Done!")
