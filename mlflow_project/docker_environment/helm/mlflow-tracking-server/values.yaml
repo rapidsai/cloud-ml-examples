@@ -1,0 +1,59 @@
+# Default values for mlflow-tracking-server.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+env:
+  mlflowArtifactPath: ""
+  mlflowUser: "postgres"
+  mlflowPass: "mlflow"
+  mlflowDBName: "mlflow_db"
+  mlflowDBAddr: "mlf-db-postgresql"
+  mlflowDBPort: "5432"
+
+image:
+  repository: ""
+  pullPolicy: IfNotPresent
+  tag: "gcp"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: false
+  annotations: {}
+  name: ""
+
+podAnnotations: {}
+
+podSecurityContext: {}
+
+securityContext: {}
+
+service:
+  type: ClusterIP
+  port: 80
+
+ingress:
+  enabled: false
+  annotations: {}
+  hosts:
+    - host: chart-example.local
+      paths: []
+  tls: []
+
+resources: {}
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

@@ -24,7 +24,7 @@ def load_data(fpath):
 
     df = cudf.read_parquet(fpath)
     X = df.drop(["ArrDelayBinary"], axis=1)
-    y = df["ArrDelayBinary"].astype('int32')
+    y = df["ArrDelayBinary"].astype("int32")
 
     return train_test_split(X, y, test_size=0.2)
 
@@ -41,27 +41,29 @@ def _train(params, fpath, hyperopt=False):
 
     X_train, X_test, y_train, y_test = load_data(fpath)
 
-    mod = RandomForestClassifier(max_depth=max_depth,
-                                 max_features=max_features,
-                                 n_estimators=n_estimators)
+    mod = RandomForestClassifier(
+        max_depth=max_depth, max_features=max_features, n_estimators=n_estimators
+    )
 
     mod.fit(X_train, y_train)
     preds = mod.predict(X_test)
     acc = accuracy_score(y_test, preds)
 
-    mlparams = {"max_depth": str(max_depth),
-                "max_features": str(max_features),
-                "n_estimators": str(n_estimators)}
+    mlparams = {
+        "max_depth": str(max_depth),
+        "max_features": str(max_features),
+        "n_estimators": str(n_estimators),
+    }
     mlflow.log_params(mlparams)
 
     mlflow.log_metric("accuracy", acc)
 
     mlflow.sklearn.log_model(mod, "saved_models")
 
-    if (not hyperopt):
+    if not hyperopt:
         return mod
 
-    return {'loss': acc, 'status': STATUS_OK}
+    return {"loss": acc, "status": STATUS_OK}
 
 
 def train(params, fpath, hyperopt=False):
@@ -76,47 +78,37 @@ def train(params, fpath, hyperopt=False):
         return _train(params, fpath, hyperopt)
 
 
-if (__name__ == "__main__"):
+if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--algo', default='tpe', choices=['tpe'], type=str)
-    parser.add_argument('--conda-env', required=True, type=str)
-    parser.add_argument('--fpath', required=True, type=str)
+    parser.add_argument("--algo", default="tpe", choices=["tpe"], type=str)
+    parser.add_argument("--conda-env", required=True, type=str)
+    parser.add_argument("--fpath", required=True, type=str)
     args = parser.parse_args()
 
     search_space = [
-        hp.uniform('max_depth', 5, 20),
-        hp.uniform('max_features', 0.1, 1.0),
-        hp.uniform('n_estimators', 150, 1000)
+        hp.uniform("max_depth", 5, 20),
+        hp.uniform("max_features", 0.1, 1.0),
+        hp.uniform("n_estimators", 150, 1000),
     ]
 
     trials = Trials()
-    algorithm = tpe.suggest if args.algo == 'tpe' else None
+    algorithm = tpe.suggest if args.algo == "tpe" else None
     fn = partial(train, fpath=args.fpath, hyperopt=True)
     experid = 0
 
-    with mlflow.start_run():
-        mlflow.set_tag("mlflow.runName", "RAPIDS-Hyperopt")
-        argmin = fmin(fn=fn,
-                      space=search_space,
-                      algo=algorithm,
-                      max_evals=2,
-                      trials=trials)
+    artifact_path = "Airline-Demo"
+    artifact_uri = None
+
+    with mlflow.start_run(run_name="RAPIDS-Hyperopt"):
+        argmin = fmin(fn=fn, space=search_space, algo=algorithm, max_evals=2, trials=trials)
 
         print("===========")
         fn = partial(train, fpath=args.fpath, hyperopt=False)
         final_model = fn(tuple(argmin.values()))
 
-        conda_data = ""
-        if (args.conda_env.startswith("http")):
-            import requests
-
-            resp = requests.get(args.conda_env)
-            conda_data = str(resp.text)
-        else:
-            with open(args.conda_env, 'r') as reader:
-                conda_data = reader.read()
-
-        with open("conda.yaml", 'w') as writer:
-            writer.write(conda_data)
-
-        mlflow.sklearn.log_model(final_model, "rapids_mlflow", conda_env='conda.yaml')
+        mlflow.sklearn.log_model(
+            final_model,
+            artifact_path=artifact_path,
+            registered_model_name="rapids_mlflow_cli",
+            conda_env="envs/conda.yaml",
+        )

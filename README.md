@@ -31,7 +31,15 @@ Forests and GPU-accelerated XGBoost modeling.
 ## Databricks
 [Databricks Step-by-step](https://github.com/rapidsai/cloud-ml-examples/blob/main/databricks/README.md "Databricks Cloud Deployment Guide")
 
+## MLflow
+[Local Step-by-step](https://github.com/rapidsai/cloud-ml-examples/blob/main/mlflow_project/local_environment/README.md "Local MLflow Deployment with RAPIDS")
+
+[Databricks Step-by-step](https://github.com/rapidsai/cloud-ml-examples/blob/main/mlflow_project/local_environment/README-Databricks.md "Databricks MLflow Deployment with RAPIDS")
+
+[Kubernetes Step-by-step](https://github.com/rapidsai/cloud-ml-examples/blob/main/mlflow_project/docker_environment/README.md "Kubernetes MLflow Deployment with RAPIDS")
+
 ## Bring Your Own Cloud (Dask and Ray)
+
 
 In addition to public cloud HPO options, the respository also includes
 "BYOC" sample notebooks that can be run on the public cloud or private
