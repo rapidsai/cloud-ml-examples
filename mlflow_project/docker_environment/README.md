@@ -21,7 +21,7 @@ simple random forest classifier that predicts whether or not a flight will be LA
 ***
 - **Basic Environment Requirements**
     - You will need to have a GKE cluster running, with at least 1 CPU node, and at least 1 GPU node (P100/V100/T4). For
-    detailed instructions on this process, see this [Detailed Guide](./DetailedConfig.md).
+    detailed instructions on this process, see this [Guide](./DetailedConfig.md).
         - **Note:** For the purposes of this demo, we will assume our Kubernetes nodes are provisioned as follows:
             - Version: __1.17.9-gke.6300__
             - Image: __Container-Optimized OS(cos)__
