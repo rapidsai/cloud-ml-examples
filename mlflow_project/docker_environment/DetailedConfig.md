@@ -11,7 +11,7 @@ Depending on your account limitations, you may have restricted numbers and types
     - Select __ALL QUOTAS__ under the __Details__ column
     - If you find that you’re not given the option to assign GPUs during cluster configuration, re-check that you have an allocated quota.
 
-### [Configure the Cluster hardware](#anchor-configure-cluster)
+## [Configure the Cluster hardware](#anchor-configure-cluster)
 Once you’ve verified that you can allocate the necessary hardware for your cluster, you’ll need to go through the process 
 of creating a new cluster, and configuring node pools that will host your services, and run MLflow jobs.
 
@@ -33,7 +33,7 @@ __Allocate the Appropriate Hardware__
         ![GCP Node Pool Configuration 4](./images/gcp_node_pools_4.png)  
 - Click __Create__ and wait for your cluster to come up.
 
-### [Configure Kubectl](#anchor-kubectl)
+## [Configure Kubectl](#anchor-kubectl)
 __Obtain Kubectl Cluster Credentials from GKE.__
 - First, be sure that [Kubectl is installed](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
 - Once your cluster appears to be up, running, and reported green by GKE, we need use __glcoud__ to configure kubectl
@@ -60,7 +60,7 @@ As of this writing, this step is necessary to ensure that a CUDA 11 compatible d
 kubectl apply -f https://raw.githubusercontent.com/GoogleCloudPlatform/container-engine-accelerators/master/nvidia-driver-installer/cos/daemonset-nvidia-v450.yaml
 ```
 
-### [Create a Storage Bucket and Make it Accessible from GKE](#anchor-create-storage-bucket)
+## [Create a Storage Bucket and Make it Accessible from GKE](#anchor-create-storage-bucket)
 You need to create a storage bucket that can read and write to from your GKE cluster. This will host the training data,
 as well as providing an endpoint for MLflow to use as artifact storage. For this, you’ll need two items: the bucket itself,
 and a service account that you can use to authenticate with, from GKE.
@@ -80,7 +80,7 @@ select __Create Key__.
     - Save the file you are prompted with as __keyfile.json__
     - You will inject this, as a secret, into your GKE cluster.
 
-### [Create a Storage Bucket and Attach Your Service Account](#anchor-config-storage-bucket)
+## [Create a Storage Bucket and Attach Your Service Account](#anchor-config-storage-bucket)
 - Navigate to your [GCP Console](https://console.cloud.google.com/)
 - Select __Storage__ $\rightarrow$ __Browser__  
     ![Storage Label](./images/gcp_storage.png)  
