@@ -42,7 +42,7 @@ __Allocate the Appropriate Hardware__
 ## [Configure Kubectl](#anchor-kubectl)
 __Obtain Kubectl Cluster Credentials from GKE.__
 - First, be sure that [Kubectl is installed](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
-- Once your cluster appears to be up, running, and reported green by GKE, we need use __glcoud__ to configure kubectl
+- Once your cluster appears to be up, running, and reported green by GKE, we need to use __glcoud__ to configure kubectl
 with the correct credentials.
    ```shell script
    gcloud container clusters get-credentials rapids-mlflow-test --region us-east1-c
