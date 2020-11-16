@@ -1,4 +1,10 @@
 # [Detailed Google Kubernetes Engine (GKE) Guide](#anchor-start)
+### Baseline
+
+For all steps referring to the Google Cloud Platform (GCP) console window, components can be selected from the 'Huburger Button'
+on the top left of the console.
+![Hamburger Bars](./images/gcp_hamburger_bar.png)
+
 ## [Create a GKE Cluster](#anchor-create-cluster)
 __Verify Adequate GPU Quotas__
 
