@@ -1,0 +1,7 @@
+FROM rapidsai/rapidsai:cuda10.1-runtime-ubuntu18.04-py3.8
+
+RUN apt update -y \
+    && apt install --no-install-recommends build-essential \
+
+RUN . /opt/conda/etc/profile.d/conda.sh \
+    && conda activate rapids \
