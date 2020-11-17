@@ -47,4 +47,4 @@ infrastructure of your choice. These leverage [Ray Tune](ray) or
 [Dask-ML](dask) for distributed infrastructure, while demonstrating
 the same airline classifier HPO workload.
 
-![Logo](aws/img/rapids_hpo.png)
+![Logo](cloud_service_providers/aws/img/rapids_hpo.png)

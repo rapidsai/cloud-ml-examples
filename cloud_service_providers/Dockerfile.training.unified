@@ -1,0 +1,78 @@
+ARG rapids_cuda_version="cuda10.1"
+ARG rapids_release_type="runtime"
+ARG rapids_os="ubuntu18.04"
+ARG rapids_python="py3.8"
+FROM rapidsai/rapidsai:${rapids_cuda_version}-${rapids_release_type}-${rapids_os}-${rapids_python}
+
+# ensure printed output/log-messages retain correct order
+ENV PYTHONUNBUFFERED=True
+
+RUN apt update -y \
+    && apt install -y --no-install-recommends build-essential \
+    && apt autoremove -y \
+    && apt clean -y
+
+# AWS Requirements
+ARG aws_dataset_directory="1_year"
+ARG aws_algorithm_choice="XGBoost"
+ARG aws_ml_workflow_choice="singleGPU"
+ARG aws_cv_folds="3"
+ARG aws_cloud_path="/opt/ml/code"
+#/opt/ml/code
+#---------------------------------------------------
+ENV AWS_DATASET_DIRECTORY=${aws_dataset_directory}
+ENV AWS_ALGORITHM_CHOICE=${aws_algorithm_choice}
+ENV AWS_ML_WORKFLOW_CHOICE=${aws_ml_workflow_choice}
+ENV AWS_CV_FOLDS=${aws_cv_folds}
+ENV AWS_CLOUD_PATH=${aws_cloud_path}
+#===================================================
+
+RUN mkdir -p /opt/rapids/aws
+ADD aws/code/entrypoint.sh \
+    aws/code/HPOConfig.py \
+    aws/code/HPODatasets.py \
+    aws/code/MLWorkflow.py \
+    aws/code/serve.py \
+    aws/code/train.py \
+    opt/rapids/aws/
+
+RUN . /opt/conda/etc/profile.d/conda.sh \
+    && conda activate rapids \
+    && conda install -c anaconda -c conda-forge \
+        flask \
+        dask-ml \
+    && pip install sagemaker-training
+
+# Azure Requirements
+RUN mkdir -p /opt/rapids/azure/
+ADD azure/* \
+    /opt/rapids/azure/
+
+RUN . /opt/conda/etc/profile.d/conda.sh \
+    && conda activate rapids \
+    && pip install \
+        azureml-sdk \
+        azureml-widgets \
+        azureml-mlflow
+
+# GCP Requirements
+RUN mkdir -p /opt/rapids/gcp
+ADD gcp/docker/infrastructure/* \
+     /opt/rapids/gcp/
+
+RUN . /opt/conda/etc/profile.d/conda.sh \
+    && conda activate rapids \
+    && pip install -U \
+        gcsfs \
+        cloudml-hypertune \
+        ax-platform \
+        sqlalchemy \
+        'ray[tune]'
+
+RUN mkdir -p /opt/rapids_cloudml
+ADD infrastructure/* \
+     /opt/rapids_cloudml/
+
+WORKDIR "/opt/rapids_cloudml"
+ENTRYPOINT [ "bash", "entrypoint.sh" ]
+
