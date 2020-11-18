@@ -1,8 +1,8 @@
-ARG rapids_cuda_version="cuda10.1"
+ARG rapids_cuda_version="10.1"
 ARG rapids_release_type="runtime"
 ARG rapids_os="ubuntu18.04"
 ARG rapids_python="py3.8"
-FROM rapidsai/rapidsai:${rapids_cuda_version}-${rapids_release_type}-${rapids_os}-${rapids_python}
+FROM rapidsai/rapidsai:cuda${rapids_cuda_version}-${rapids_release_type}-${rapids_os}-${rapids_python}
 
 # ensure printed output/log-messages retain correct order
 ENV PYTHONUNBUFFERED=True
@@ -18,16 +18,29 @@ ARG aws_algorithm_choice="XGBoost"
 ARG aws_ml_workflow_choice="singleGPU"
 ARG aws_cv_folds="3"
 ARG aws_cloud_path="/opt/ml/code"
-#/opt/ml/code
 #---------------------------------------------------
 ENV AWS_DATASET_DIRECTORY=${aws_dataset_directory}
 ENV AWS_ALGORITHM_CHOICE=${aws_algorithm_choice}
 ENV AWS_ML_WORKFLOW_CHOICE=${aws_ml_workflow_choice}
 ENV AWS_CV_FOLDS=${aws_cv_folds}
 ENV AWS_CLOUD_PATH=${aws_cloud_path}
+ENV RAPIDS_AWS_INSTALL_PATH=${aws_cloud_path}
 #===================================================
 
-RUN mkdir -p /opt/rapids/aws
+## Azure Requirements
+ARG azure_install_path="/opt/rapids/azure"
+#----------------------------------------------
+ENV RAPIDS_AZURE_INSTALL_PATH=${azure_install_path}
+#==============================================
+
+## GCP Requirements
+ARG gcp_install_path="/opt/rapids/gcp"
+#----------------------------------------------
+ENV RAPIDS_GCP_INSTALL_PATH=${gcp_install_path}
+#==============================================
+
+# AWS Install
+RUN mkdir -p ${RAPIDS_AWS_INSTALL_PATH}
 ADD aws/code/entrypoint.sh \
     aws/code/HPOConfig.py \
     aws/code/HPODatasets.py \
@@ -43,8 +56,8 @@ RUN . /opt/conda/etc/profile.d/conda.sh \
         dask-ml \
     && pip install sagemaker-training
 
-# Azure Requirements
-RUN mkdir -p /opt/rapids/azure/
+# Azure Install
+RUN mkdir -p ${RAPIDS_AZURE_INSTALL_PATH}
 ADD azure/* \
     /opt/rapids/azure/
 
@@ -55,8 +68,8 @@ RUN . /opt/conda/etc/profile.d/conda.sh \
         azureml-widgets \
         azureml-mlflow
 
-# GCP Requirements
-RUN mkdir -p /opt/rapids/gcp
+# GCP Install
+RUN mkdir -p ${RAPIDS_GCP_INSTALL_PATH}
 ADD gcp/docker/infrastructure/* \
      /opt/rapids/gcp/
 
@@ -73,6 +86,7 @@ RUN mkdir -p /opt/rapids_cloudml
 ADD infrastructure/* \
      /opt/rapids_cloudml/
 
+## Unified entrypoint
 WORKDIR "/opt/rapids_cloudml"
 ENTRYPOINT [ "bash", "entrypoint.sh" ]
 

@@ -1,18 +1,11 @@
 import argparse
 import random
-import gcsfs
+import os
 import logging
 import hypertune
 import json
 import sys
 
-from typing import (List,
-                    Set,
-                    Dict,
-                    Tuple,
-                    Optional)
-
-# RayTune + Ax elements
 from ray import tune
 from ray.tune import track
 from ray.tune.suggest.ax import AxSearch
@@ -262,21 +255,6 @@ def train(model_params, config_params):
     -------
 
     """
-    #rcml = RapidsCloudML(cloud_type=config_params['cloud_type'],
-    #                     model_type=config_params['model_type'],
-    #                     compute_type=f"single-{args.compute_type}",
-    #                     CSP_paths=config_params['paths'])
-
-    ## environment check
-    #rcml.environment_check()
-
-    ## ingest data [ post pre-processing ]
-    #dataset, col_labels, y_label, ingest_time = rcml.load_data(filename=config_params['dataset_filename'])
-    #rcml.query_memory()
-
-    ## classification objective requires int32 label for cuml random forest
-    #dataset[y_label] = dataset[y_label].astype('int32')
-
     # ----------------------------------------------------------------------------------------------------
     # cross-validation folds
     # ----------------------------------------------------------------------------------------------------
@@ -288,18 +266,11 @@ def train(model_params, config_params):
     else:
         global_best_test_accuracy = _train(config_params=config_params, model_params=model_params)
 
-    # save model
-    # rcml.save_best_model(global_best_model)
-
-    # ----------------------------------------------------------------------------------------------------
-    # TODO: baseline [ single-node - multi-GPU w/ dask ]
-    # ----------------------------------------------------------------------------------------------------
     return global_best_model, global_best_test_accuracy
 
 
 def gcp_path_setup(args):
-    # TODO: Ad-hoc, needs to be more generic.
-    hyperpath = '/opt/gcp_rapids/hyperparameters.json'
+    hyperpath = f'{os.environ["RAPIDS_GCP_INSTALL_PATH"]}/hyperparameters.json'
     hyperdict = {}
     for key, val in args.__dict__.items():
         if (key.startswith('hpo')):

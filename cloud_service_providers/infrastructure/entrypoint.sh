@@ -11,7 +11,7 @@ if [[ -f "${aws_hpo_params_path}" ]]; then
 fi
 
 # If we're doing GCP AI-Platform HPO, a number of AIP_XXX values will be set.
-if [[ -n "$AIP_FRAMEWORK" ]]; then
+if [[ -n "$CLOUD_ML_HP_METRIC_FILE" ]]; then
   EXEC_CONTEXT="gcp_aip_hpo"
 fi
 
