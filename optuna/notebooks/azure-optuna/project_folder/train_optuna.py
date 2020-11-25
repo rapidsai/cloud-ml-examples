@@ -99,7 +99,7 @@ if __name__=="__main__":
     # Drop non-numerical data and fill NaNs before passing to cuML RF
     CAT_COLS = list(df.select_dtypes('object').columns)
     df = df.drop(CAT_COLS, axis=1)
-    df = df.fillna(0)
+    df = df.dropna()
 
     df = df.astype("float32")
     X, y = df.drop(["target"], axis=1), df["target"].astype('int32')
