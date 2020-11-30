@@ -71,7 +71,6 @@ dependencies:
   - libevent=2.1.10=h72c5cf5_0
   - libffi=3.3=he6710b0_1
   - libgcc-ng=9.2.0=h24d8f2e_2
-  - libgfortran-ng=7.5.0=hdf63c60_6
   - libhwloc=2.1.0=h3c4fd83_0
   - libiconv=1.15=h516909a_1006
   - liblapack=3.8.0=16_openblas
