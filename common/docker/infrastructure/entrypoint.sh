@@ -40,6 +40,6 @@ else
   # TODO: Azure workflow is substantially different.
   echo "Running AzureML HPO entrypoint."
   cd /opt/rapids/azure || exit 1
-  echo "Running: ${ARGS[@]}"
-  eval "${ARGS[@]}"
+  echo "Running: bash ${ARGS[@]}"
+  bash "${ARGS[@]}"
 fi

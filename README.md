@@ -38,8 +38,14 @@ Forests and GPU-accelerated XGBoost modeling.
 
 [Kubernetes Step-by-step](https://github.com/rapidsai/cloud-ml-examples/blob/main/mlflow_project/docker_environment/README.md "Kubernetes MLflow Deployment with RAPIDS")
 
-## Bring Your Own Cloud (Dask and Ray)
+## Cloud Examples Container
+From the root cloud-ml-examples directory:
+```shell script
+docker build --tag cloud_examples_unified:latest --file ./common/docker/Dockerfile.training.unified ./
+```
 
+
+## Bring Your Own Cloud (Dask and Ray)
 
 In addition to public cloud HPO options, the respository also includes
 "BYOC" sample notebooks that can be run on the public cloud or private
@@ -47,4 +53,4 @@ infrastructure of your choice. These leverage [Ray Tune](ray) or
 [Dask-ML](dask) for distributed infrastructure, while demonstrating
 the same airline classifier HPO workload.
 
-![Logo](cloud_service_providers/aws/img/rapids_hpo.png)
+![Logo](aws/img/rapids_hpo.png)

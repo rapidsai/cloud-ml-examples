@@ -71,7 +71,7 @@ RUN . /opt/conda/etc/profile.d/conda.sh \
 # GCP Install
 RUN mkdir -p ${RAPIDS_GCP_INSTALL_PATH}
 ADD gcp/docker/infrastructure/* \
-     /opt/rapids/gcp/
+    /opt/rapids/gcp/
 
 RUN . /opt/conda/etc/profile.d/conda.sh \
     && conda activate rapids \
@@ -83,7 +83,7 @@ RUN . /opt/conda/etc/profile.d/conda.sh \
         'ray[tune]'
 
 RUN mkdir -p /opt/rapids_cloudml
-ADD infrastructure/* \
+ADD common/docker/infrastructure/* \
      /opt/rapids_cloudml/
 
 ## Unified entrypoint
