@@ -1,0 +1,19 @@
+kind: Pod
+metadata:
+  labels:
+    dask_type: scheduler
+spec:
+  restartPolicy: Never
+  containers:
+    - image: gcr.io/nv-ai-infra/drobison/dask-unified:0.02
+      imagePullPolicy: IfNotPresent
+      args: [ dask-scheduler ]
+      name: dask-scheduler
+      resources:
+        limits:
+          cpu: "7"
+          memory: 25G
+          nvidia.com/gpu: 1
+        requests:
+          cpu: "7"
+          memory: 25G
