@@ -90,5 +90,4 @@ ADD common/docker/infrastructure/* \
 
 ## Unified entrypoint
 WORKDIR "/opt/rapids_cloudml"
-ENTRYPOINT [ "bash", "entrypoint.sh" ]
-
+ENTRYPOINT [ "bash", "/opt/rapids_cloudml/entrypoint.sh" ]
