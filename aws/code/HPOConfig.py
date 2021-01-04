@@ -64,7 +64,7 @@ class HPOConfig(object):
 
         try:
             # parse dataset choice
-            dataset_selection = os.environ['DATASET_DIRECTORY'].lower()
+            dataset_selection = os.environ['AWS_DATASET_DIRECTORY'].lower()
             if dataset_selection in ['1_year', '3_year', '10_year']:
                 dataset_type = 'Airline'
             elif dataset_selection in ['nyc_taxi']:
@@ -73,14 +73,14 @@ class HPOConfig(object):
                 dataset_type = 'BYOData'
 
             # parse model type
-            model_selection = os.environ['ALGORITHM_CHOICE'].lower()
+            model_selection = os.environ['AWS_ALGORITHM_CHOICE'].lower()
             if model_selection in ['randomforest']:
                 model_type = 'RandomForest'
             elif model_selection in ['xgboost']:
                 model_type = 'XGBoost'
 
             # parse compute choice
-            compute_selection = os.environ['ML_WORKFLOW_CHOICE'].lower()
+            compute_selection = os.environ['AWS_ML_WORKFLOW_CHOICE'].lower()
             if 'multigpu' in compute_selection:
                 compute_type = 'multi-GPU'
             elif 'multicpu' in compute_selection:
@@ -91,7 +91,7 @@ class HPOConfig(object):
                 compute_type = 'single-GPU'
 
             # parse CV folds
-            cv_folds = int(os.environ['CV_FOLDS'])
+            cv_folds = int(os.environ['AWS_CV_FOLDS'])
 
         except KeyError as error:
             hpo_log.info(f'Configuration parser failed : {error}')

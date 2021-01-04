@@ -98,13 +98,13 @@ function launch_container {
     # mounted dataset choice
     LOCAL_DATA_DIR=${2:-$PARQUET_DATA}
     # configuration settings
-    DATASET_DIRECTORY=${3:-"1_year"} 
-    ALGORITHM_CHOICE=${4:-"xgboost"}
-    ML_WORKFLOW_CHOICE=${5:-"singlegpu"}
+    AWS_DATASET_DIRECTORY=${3:-"1_year"} 
+    AWS_ALGORITHM_CHOICE=${4:-"xgboost"}
+    AWS_ML_WORKFLOW_CHOICE=${5:-"singlegpu"}
     # GPUs en/dis-abled within container
     GPU_ENABLED_FLAG=${6:-true}
 
-    CV_FOLDS=${7:-"1"}
+    AWS_CV_FOLDS=${7:-"1"}
     JOB_NAME="local-test"
 
     # select whether GPUs are enabled
@@ -118,10 +118,10 @@ function launch_container {
                     ${GPU_ENUMERATION} \
                     -p $JUPYTER_PORT:8888 -p 8080:8080 \
                     --env SM_TRAINING_ENV='{"job_name":''"'${JOB_NAME}'"''}'\
-                    --env DATASET_DIRECTORY=${DATASET_DIRECTORY} \
-                    --env ALGORITHM_CHOICE=${ALGORITHM_CHOICE} \
-                    --env ML_WORKFLOW_CHOICE=${ML_WORKFLOW_CHOICE} \
-                    --env CV_FOLDS=${CV_FOLDS} \
+                    --env AWS_DATASET_DIRECTORY=${AWS_DATASET_DIRECTORY} \
+                    --env AWS_ALGORITHM_CHOICE=${AWS_ALGORITHM_CHOICE} \
+                    --env AWS_ML_WORKFLOW_CHOICE=${AWS_ML_WORKFLOW_CHOICE} \
+                    --env AWS_CV_FOLDS=${AWS_CV_FOLDS} \
                     -v ${LOCAL_TEST_DIR}:${SAGEMAKER_ROOT_DIR} \
                     -v ${LOCAL_DATA_DIR}:${SAGEMAKER_ROOT_DIR}/input/data/training \
                     --workdir ${SAGEMAKER_ROOT_DIR}/code \
@@ -139,10 +139,10 @@ function test_multiple_configurations {
     do
         if (( $idataset==1 )); then
             DATASET_CHOICE=$PARQUET_DATA
-            DATASET_DIRECTORY="1_year"
+            AWS_DATASET_DIRECTORY="1_year"
         else
             DATASET_CHOICE=$CSV_DATA
-            DATASET_DIRECTORY="nyc_taxi"
+            AWS_DATASET_DIRECTORY="nyc_taxi"
         fi
         echo ${DATASET_JOB_PREFIX}
 
@@ -150,32 +150,32 @@ function test_multiple_configurations {
         for ialgorithm in {1..2}
         do
             if (( $ialgorithm==1 )); then
-                ALGORITHM_CHOICE="xgboost"
+                AWS_ALGORITHM_CHOICE="xgboost"
             else
-                ALGORITHM_CHOICE="randomforest"
+                AWS_ALGORITHM_CHOICE="randomforest"
             fi
 
             # workfow
             for iworkflow in {1..4}
             do
                 if (( $iworkflow==1 )); then
-                    ML_WORKFLOW_CHOICE="singlegpu"
+                    AWS_ML_WORKFLOW_CHOICE="singlegpu"
                     GPU_ENABLED_FLAG=true
                 elif (( $iworkflow==2 )); then
-                    ML_WORKFLOW_CHOICE="multigpu"
+                    AWS_ML_WORKFLOW_CHOICE="multigpu"
                     GPU_ENABLED_FLAG=true
                 elif (( $iworkflow==3 )); then
-                    ML_WORKFLOW_CHOICE="singlecpu"
+                    AWS_ML_WORKFLOW_CHOICE="singlecpu"
                     GPU_ENABLED_FLAG=false
                 elif (( $iworkflow==4 )); then
-                    ML_WORKFLOW_CHOICE="multicpu"
+                    AWS_ML_WORKFLOW_CHOICE="multicpu"
                     GPU_ENABLED_FLAG=false
                 fi
 
                 echo -e "----------------------------------------------\n"
                 echo -e " starting test "
                 echo -e "----------------------------------------------\n"
-                launch_container "train" $DATASET_CHOICE $DATASET_DIRECTORY $ALGORITHM_CHOICE $ML_WORKFLOW_CHOICE $GPU_ENABLED_FLAG
+                launch_container "train" $DATASET_CHOICE $AWS_DATASET_DIRECTORY $AWS_ALGORITHM_CHOICE $AWS_ML_WORKFLOW_CHOICE $GPU_ENABLED_FLAG
                 echo -e "--- end of test #${iconfig} ---\n"
 
             done

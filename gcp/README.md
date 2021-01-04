@@ -11,8 +11,8 @@ Workflow: Install the required libraries, and authentication components for GCP,
     1. See: https://cloud.google.com/container-registry/docs/advanced-authentication
 1. Configure a google cloud object storage bucket that will provide and output location 
 1. Build the custom container
-    1. `$ cd gcp/docker`
-    1. `$ docker build --tag gcr.io/[YOUR_PROJECT_NAME]/rapids_training_container:latest --file Dockerfile.training .`
+    1. `$ cd cloud_service_providers`
+    1. `$ docker build --tag gcr.io/[YOUR_PROJECT_NAME]/rapids_training_container:latest --file Dockerfile.training.unified .`
     1. `$ docker push gcr.io/[YOUR_PROJECT_NAME]/rapids_training_container:latest`
 1. Training via GCP UI
     1. A quick note regarding GCP's cloudml-Hypertune
@@ -167,21 +167,21 @@ and launch an AI Platform notebook backed on this container.
 
 1. Pull or create custom container
     1. Build locally
-        1. `$ cd gcp/docker`
-        1. `$ docker build --tag gcr.io/[YOUR PROJECT NAME]/rapids-py37 --file Dockerfile.jupyter_notebook ./`
+        1. `$ cd cloud_service_providers/gcp/docker`
+        1. `$ docker build --tag gcr.io/[YOUR PROJECT NAME]/rapids-py38 --file Dockerfile.jupyter_notebook ./`
 1. Push to the Google Container Registry
     1. Ensure gcloud is installed and you have configured the GCR authentication helper for Docker.
         1. See: https://cloud.google.com/container-registry/docs/advanced-authentication 
-    1. `$ docker push gcr.io/[YOUR PROJECT NAME]/rapids-py37`
+    1. `$ docker push gcr.io/[YOUR PROJECT NAME]/rapids-py38`
 1. Log into your GCP console.
     1. Select AI-Platform -> Notebooks
     1. Select a "New Instance" -> "Customize Instance"
         1. Name your instance
         1. Select Environment -> Custom Container
-            1. Enter: gcr.io/[YOUR PROJECT NAME]/rapids-py37 
+            1. Enter: gcr.io/[YOUR PROJECT NAME]/rapids-py38 
         1. Select 'install gpu driver for me'
         1. Select 'customize'
             1. For your GPU type, select T4, or V100
             1. Select the number of GPUs 1-8
         1. Launch your notebook service.
-    1. Once JupyterLab is running, you will have a kernel available in your jupyter notebooks called 'rapids_py37' which will have rapids installed.
+    1. Once JupyterLab is running, you will have a kernel available in your jupyter notebooks called 'rapids_py38' which will have rapids installed.

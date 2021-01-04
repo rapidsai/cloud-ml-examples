@@ -1,8 +1,5 @@
 FROM rapidsai/rapidsai:cuda10.1-runtime-ubuntu18.04-py3.8
 
-RUN . /opt/conda/etc/profile.d/conda.sh \
-    && conda activate rapids
-
 RUN apt update --yes \
     && apt --yes install redis \
     && apt --yes autoremove \

@@ -14,11 +14,11 @@ An [Azure Machine Learning service workspace](https://docs.microsoft.com/en-us/a
 
 - Sign in to the Azure portal and navigate to Resource groups page by clicking on **Resource groups** in the portal:
 
-![Portal](./img/Portal.JPG)
+![Portal](img/Portal.JPG)
 
 - Select one of the available Resource groups or create a new one by clicking on the **Add** button:
 
-![ResourceGroup](./img/ResourceGroup.JPG)
+![ResourceGroup](img/ResourceGroup.JPG)
 
 - You can also select **+ Create a resource** in the upper-left corner of Azure portal and search for Resource group
 
@@ -26,11 +26,11 @@ Select a a *Subscription* with GPU resources, enter a name for the *Resource gro
 
  3. Next we will create a Machine Learning service workspace: navigate to your Resource groups page and click on the **Add** button, this will take you to the [Azure Marketplace](https://azuremarketplace.microsoft.com/). Use the search bar to find **Machine Learning** or select **AI + Machine Learning** category on the left:  
 
-![MarketPlace](./img/MarketPlace.JPG)
+![MarketPlace](img/MarketPlace.JPG)
 
 - Click on *Machine Learning* and this will direct you to the page below:
 
-![MLWorkspace](./img/MLWorkspace.JPG)
+![MLWorkspace](img/MLWorkspace.JPG)
 
 - Enter a unique *Workspace Name* that indentifies your workspace, select your Azure *Subscription*, use an existing *Resource group* in your subscription and select a *Location* with adequate GPU quota.
 
@@ -38,7 +38,7 @@ After entering the information, select **Review + Create**. The deployment succe
 
 4. After creating the workspace, download the **config.json** file that includes information about workspace configuration. 
 
-![Config](./img/Config.JPG)
+![Config](img/Config.JPG)
 
 This file will be used with [Azure Machine Learning SDK for Python](https://docs.microsoft.com/en-us/python/api/overview/azure/ml/?view=azure-ml-py) in the notebook example to load the workspace and contains a dictionary list with key-values for:
 
