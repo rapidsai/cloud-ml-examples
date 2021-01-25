@@ -3,8 +3,8 @@
 These are a few examples to get started on Azure. We'll look at how to set up the environment locally and on Azure to run the notebooks provided. 
 
 Index
-1. [Create an Azure Machine Learning Service Workspace](#)
-2. [RAPIDS MNMG example using dask-clouprovider](#)
+1. [Create an Azure Machine Learning Service Workspace](1. Create an Azure Machine Learning Service Workspace)
+2. [RAPIDS MNMG example using dask-clouprovider](2.-RAPIDS-MNMG-example-using-dask-clouprovider)
 3. [RAPIDS Hyperparameter Optimization on AzureML](#)
 
 # 1. Create an Azure Machine Learning Service Workspace
