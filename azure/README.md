@@ -4,7 +4,7 @@ These are a few examples to get started on Azure. We'll look at how to set up th
 
 Index
 1. [Create an Azure Machine Learning Service Workspace](1. Create an Azure Machine Learning Service Workspace)
-2. [RAPIDS MNMG example using dask-clouprovider](2.-RAPIDS-MNMG-example-using-dask-clouprovider)
+2. [RAPIDS MNMG example using dask-clouprovider](#2.-RAPIDS-MNMG-example-using-dask-clouprovider)
 3. [RAPIDS Hyperparameter Optimization on AzureML](#)
 
 # 1. Create an Azure Machine Learning Service Workspace
