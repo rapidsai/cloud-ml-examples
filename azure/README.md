@@ -2,10 +2,11 @@
 
 These are a few examples to get started on Azure. We'll look at how to set up the environment locally and on Azure to run the notebooks provided. 
 
-Index
-1. [Create an Azure Machine Learning Service Workspace](1. Create an Azure Machine Learning Service Workspace)
-2. [RAPIDS MNMG example using dask-clouprovider](2.-RAPIDS-MNMG-example-using-dask-clouprovider)
-3. [RAPIDS Hyperparameter Optimization on AzureML](#)
+Sections in README
+
+1. Create an Azure Machine Learning Service Workspace
+2. RAPIDS MNMG example using dask-clouprovider
+3. RAPIDS Hyperparameter Optimization on AzureML
 
 # 1. Create an Azure Machine Learning Service Workspace
 
@@ -53,9 +54,9 @@ This file will be used with [Azure Machine Learning SDK for Python](https://docs
 * Resource group
 
 
-# 2. RAPIDS MNMG example using dask-clouprovider
+# 2. RAPIDS MNMG example using Dask Cloud Provider
 
-This [Azure MNMG notebook](#) will use [dask-cloudprovider](#) to run a multi-node muli-GPU example on Azure. For this, we will make use of [AzureVMCluster](#) function to set-up a cluster and run an example.
+This [Azure MNMG notebook](#) will use [Dask Cloud Provider](https://cloudprovider.dask.org/en/latest/) to run a multi-node muli-GPU example on Azure. For this, we will make use of [AzureVMCluster](https://cloudprovider.dask.org/en/latest/azure.html#azurevm) function to set-up a cluster and run an example.
 
 
 ## 2(a) Set up environment on local computer
