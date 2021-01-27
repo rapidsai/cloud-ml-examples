@@ -10,7 +10,8 @@ ENV PYTHONUNBUFFERED=True
 RUN apt update -y \
     && apt install -y --no-install-recommends build-essential \
     && apt autoremove -y \
-    && apt clean -y
+    && apt clean -y \
+    && rm -rf /var/lib/apt/lists/*
 
 # AWS Requirements
 ARG aws_dataset_directory="1_year"
@@ -41,7 +42,7 @@ ENV RAPIDS_GCP_INSTALL_PATH=${gcp_install_path}
 
 # AWS Install
 RUN mkdir -p ${RAPIDS_AWS_INSTALL_PATH}
-ADD aws/code/entrypoint.sh \
+COPY aws/code/entrypoint.sh \
     aws/code/HPOConfig.py \
     aws/code/HPODatasets.py \
     aws/code/MLWorkflow.py \
@@ -58,7 +59,7 @@ RUN . /opt/conda/etc/profile.d/conda.sh \
 
 # Azure Install
 RUN mkdir -p ${RAPIDS_AZURE_INSTALL_PATH}
-ADD azure/* \
+COPY azure/* \
     /opt/rapids/azure/
 
 RUN . /opt/conda/etc/profile.d/conda.sh \
@@ -72,7 +73,7 @@ RUN . /opt/conda/etc/profile.d/conda.sh \
 
 # GCP Install
 RUN mkdir -p ${RAPIDS_GCP_INSTALL_PATH}
-ADD gcp/docker/infrastructure/* \
+COPY gcp/docker/infrastructure/* \
     /opt/rapids/gcp/
 
 RUN . /opt/conda/etc/profile.d/conda.sh \
@@ -85,7 +86,7 @@ RUN . /opt/conda/etc/profile.d/conda.sh \
         'ray[tune]'
 
 RUN mkdir -p /opt/rapids_cloudml
-ADD common/docker/infrastructure/* \
+COPY common/docker/infrastructure/* \
      /opt/rapids_cloudml/
 
 ## Unified entrypoint
