@@ -1,0 +1,49 @@
+name: docker-deploy
+
+on:
+  push:
+    branches: main
+
+jobs:
+  images:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        cuda:
+          - "11.0"
+          - "10.2"
+        img_type:
+          - runtime
+        os:
+          - ubuntu18.04
+        python:
+          - "3.8"
+    steps:
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: gpucibot
+          password: ${{ secrets.GPUCIBOT_DOCKERHUB_TOKEN }}
+      - name: Build and push
+        uses: docker/build-push-action@v2
+        with:
+          push: true
+          pull: true
+          file: ./common/docker/Dockerfile.training.unified
+          tags: rapidsai/could-ml:cuda${{ matrix.cuda }}-${{ matrix.img_type }}-${{ matrix.os }}-py${{ matrix.python }}
+          build-args: |
+            rapids_cuda_version=${{ matrix.cuda }}
+  # description:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Update repo description
+  #       uses: peter-evans/dockerhub-description@v2
+  #       with:
+  #         username: gpucibot
+  #         password: ${{ secrets.GPUCIBOT_DOCKERHUB_TOKEN }}
+  #         repository: rapidsai/could-ml
+  #         readme-filepath: common/docker/DockerHubREADME.md
