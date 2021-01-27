@@ -1,5 +1,5 @@
 ARG rapids_cuda_version="10.1"
-ARG rapids_release_type="runtime"
+ARG rapids_release_type="base"
 ARG rapids_os="ubuntu18.04"
 ARG rapids_python="py3.8"
 FROM rapidsai/rapidsai:cuda${rapids_cuda_version}-${rapids_release_type}-${rapids_os}-${rapids_python}

@@ -13,7 +13,7 @@ jobs:
           - "11.0"
           - "10.2"
         img_type:
-          - runtime
+          - base
         os:
           - ubuntu18.04
         python:
