@@ -5,15 +5,17 @@ on:
     branches: main
     paths:
       - README.md
+      - .github/workflows/docker-description.yaml
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v2
       - name: Update repo description
         uses: peter-evans/dockerhub-description@v2
         with:
-          username: gpucibot
-          password: ${{ secrets.GPUCIBOT_DOCKERHUB_TOKEN }}
+          username: ${{ secrets.DOCKERHUB_USER }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
           repository: rapidsai/rapidsai-cloud-ml
           readme-filepath: README.md
