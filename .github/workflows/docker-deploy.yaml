@@ -15,5 +15,5 @@ jobs:
         with:
           username: gpucibot
           password: ${{ secrets.GPUCIBOT_DOCKERHUB_TOKEN }}
-          repository: rapidsai/cloud-ml
+          repository: rapidsai/rapidsai-cloud-ml
           readme-filepath: README.md

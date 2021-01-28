@@ -10,7 +10,7 @@ source ~/.bashrc
 cd ~
 
 # Set vars
-export DOCKER_IMG="rapidsai/cloud-ml"
+export DOCKER_IMG="rapidsai/rapidsai-cloud-ml"
 export DOCKER_TAG="${RAPIDS_VER}-cuda${CUDA_VER}-${IMG_TYPE}-${LINUX_VER}-py${PYTHON_VER}"
 export DOCKERFILE="common/docker/Dockerfile.training.unified"
 
