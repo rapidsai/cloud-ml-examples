@@ -1,8 +1,9 @@
+ARG rapids_version="0.17"
 ARG rapids_cuda_version="10.1"
 ARG rapids_release_type="base"
 ARG rapids_os="ubuntu18.04"
 ARG rapids_python="py3.8"
-FROM rapidsai/rapidsai:cuda${rapids_cuda_version}-${rapids_release_type}-${rapids_os}-${rapids_python}
+FROM rapidsai/rapidsai:${rapids_version}-cuda${rapids_cuda_version}-${rapids_release_type}-${rapids_os}-${rapids_python}
 
 # ensure printed output/log-messages retain correct order
 ENV PYTHONUNBUFFERED=True
