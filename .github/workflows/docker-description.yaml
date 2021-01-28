@@ -5,6 +5,7 @@ on:
     branches: main
     paths:
       - README.md
+      - .github/workflows/docker-description.yaml
 
 jobs:
   deploy:
