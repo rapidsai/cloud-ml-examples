@@ -30,6 +30,7 @@ echo "${DH_TOKEN}" | docker login --username "${DH_USER}" --password-stdin
 gpuci_logger "Starting build..."
 set -x # Print build command
 docker build \
+    --pull \
     --squash \
     --build-arg "RAPIDS_VER=${RAPIDS_VER}" \
     --build-arg "CUDA_VER=${CUDA_VER}" \
