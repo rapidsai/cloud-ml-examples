@@ -1,0 +1,3 @@
+# Ops files
+/ci/        @rapidsai/ops-codeowners
+/.github/   @rapidsai/ops-codeowners
