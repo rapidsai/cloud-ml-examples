@@ -10,9 +10,9 @@ source ~/.bashrc
 cd ~
 
 # Set vars
-DOCKER_IMG="rapidsai/cloud-ml"
-DOCKER_TAG="${RAPIDS_VER}-cuda${CUDA_VER}-${IMG_TYPE}-${LINUX_VER}-py${PYTHON_VER}"
-DOCKERFILE="common/docker/Dockerfile.training.unified"
+export DOCKER_IMG="rapidsai/cloud-ml"
+export DOCKER_TAG="${RAPIDS_VER}-cuda${CUDA_VER}-${IMG_TYPE}-${LINUX_VER}-py${PYTHON_VER}"
+export DOCKERFILE="common/docker/Dockerfile.training.unified"
 
 # Show env
 gpuci_logger "Exposing current environment..."
@@ -24,7 +24,7 @@ cat ${DOCKERFILE}
 gpuci_logger ">>>> END Dockerfile <<<<"
 
 # Docker Login
-docker login --username "${DH_USER}" --password "${DH_TOKEN}"
+echo "${DH_TOKEN}" | docker login --username "${DH_USER}" --password-stdin
 
 # Build Image
 gpuci_logger "Starting build..."
