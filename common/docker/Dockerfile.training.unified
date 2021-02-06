@@ -3,7 +3,7 @@ ARG CUDA_VER="10.1"
 ARG IMG_TYPE="base"
 ARG LINUX_VER="ubuntu18.04"
 ARG PYTHON_VER="3.8"
-FROM rapidsai/rapidsai:${RAPIDS_VER}-cuda${CUDA_VER}-${IMG_TYPE}-${LINUX_VER}-py${PYTHON_VER}
+FROM rapidsai/rapidsai-core:${RAPIDS_VER}-cuda${CUDA_VER}-${IMG_TYPE}-${LINUX_VER}-py${PYTHON_VER}
 
 # ensure printed output/log-messages retain correct order
 ENV PYTHONUNBUFFERED=True
