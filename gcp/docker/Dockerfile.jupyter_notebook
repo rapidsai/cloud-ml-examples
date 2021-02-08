@@ -2,9 +2,9 @@ FROM gcr.io/deeplearning-platform-release/base-cu110
 
 RUN . /opt/conda/etc/profile.d/conda.sh \
     && mkdir -p /opt/conda/envs/rapids_py38 \
-    && wget -q https://rapidsai-data.s3.us-east-2.amazonaws.com/conda-pack/rapidsai/rapids0.16_cuda11.0_py3.8.tar.gz  \
-    && tar -xzf rapids0.16_cuda11.0_py3.8.tar.gz -C /opt/conda/envs/rapids_py38 \
-    && rm rapids0.16_cuda11.0_py3.8.tar.gz \
+    && wget -q https://rapidsai-data.s3.us-east-2.amazonaws.com/conda-pack/rapidsai/rapids0.17_cuda11.0_py3.8.tar.gz  \
+    && tar -xzf rapids0.18_cuda11.0_py3.8.tar.gz -C /opt/conda/envs/rapids_py38 \
+    && rm rapids0.17_cuda11.0_py3.8.tar.gz \
     && conda activate rapids_py38 \
     && conda unpack \
     && ipython kernel install --user --name=rapids_py38 \
