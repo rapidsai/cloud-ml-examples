@@ -66,7 +66,7 @@ We recommend using RAPIDS docker image on your local system and using the same i
 
 In the example notebook we are using `rapidsai/rapidsai-core:cuda10.2-runtime-ubuntu18.04-py3.8` docker image, to pull and run this use the following command. The `-v` flag sets the volume you'd like to mount on the docker container. This way, the changes you make within the docker container are present on your local system to. Make sure to change `local/path` to the path which contains this repository.
 
-    `docker run --runtime nvidia --rm -it -p 8888:8888 -p 8787:8787 -v /local/path:/docker/path rapidsai/rapidsai-core:cuda10.2-runtime-ubuntu18.04-py3.8`
+`docker run --runtime nvidia --rm -it -p 8888:8888 -p 8787:8787 -v /local/path:/docker/path rapidsai/rapidsai-core:cuda10.2-runtime-ubuntu18.04-py3.8`
 
 
 ## 2(b) Setup Azure environment
