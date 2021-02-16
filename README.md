@@ -1,8 +1,7 @@
 # <div align="left"><img src="img/rapids_logo.png" width="90px"/>&nbsp;RAPIDS Cloud Machine Learning Services Integration</div>
 
 RAPIDS is a suite of open-source libraries that bring GPU acceleration
-to data science pipelines. Users building cloud-based hyperparameter
-optimization experiments can take advantage of this acceleration
+to data science pipelines. Users building cloud-based machine learning experiments can take advantage of this acceleration
 throughout their workloads to build models faster, cheaper, and more
 easily on the cloud platform of their choice.
 
@@ -14,20 +13,22 @@ launch an example hyperparameter optimization job. Each example job will use RAP
 [cuDF](https://github.com/rapidsai/cudf) to load and preprocess 
 data and use [cuML](https://github.com/rapidsai/cuml) or [XGBoost](https://github.com/dmlc/xgboost) for GPU-accelerated model training. RAPIDS also integrates easily with MLflow to track and orchestrate experiments from any of these frameworks. 
 
-For large datasets, we have added example notebooks to load data and train models on multiple GPUs in the same instance or in a multi-node multi-GPU cluster using [Dask](https://github.com/dask/dask). 
+For large datasets, you can find example notebooks using [Dask](https://github.com/dask/dask) to load data and train models on multiple GPUs in the same instance or in a multi-node multi-GPU cluster. 
 
-| | | |
+| Cloud / Framework | HPO Example | Multi-node multi-GPU Example|
 | - | - | - |
-| **Microsoft Azure** | [Azure ML HPO](https://github.com/rapidsai/cloud-ml-examples/blob/main/azure/README.md "Azure Deployment Guide") | [Azure multi-node multi-GPU cuML](https://github.com/rapidsai/cloud-ml-examples/tree/main/azure#2-rapids-mnmg-example-using-dask-cloud-provider "Azure MNMG notebook") 
+| **Microsoft Azure** | [Azure ML HPO](https://github.com/rapidsai/cloud-ml-examples/blob/main/azure/README.md "Azure Deployment Guide") | [Multi-node multi-GPU cuML on Azure](https://github.com/rapidsai/cloud-ml-examples/tree/main/azure#2-rapids-mnmg-example-using-dask-cloud-provider "Azure MNMG notebook") 
 | **Amazon Web Services (AWS)** | [AWS SageMaker HPO](https://github.com/rapidsai/cloud-ml-examples/blob/main/aws/README.md "SageMaker Deployment Guide") |
-| **Google Cloud Platform (GCP)** | [Google AI Platform HPO ](https://github.com/rapidsai/cloud-ml-examples/blob/main/gcp/README.md "GCP Deployment Guide") | [Google Kubernetes Engine (GKE) multi-node multi-GPU XGBoost and cuML](WIP "GKE MNMG notebook") 
+| **Google Cloud Platform (GCP)** | [Google AI Platform HPO ](https://github.com/rapidsai/cloud-ml-examples/blob/main/gcp/README.md "GCP Deployment Guide") | [Multi-node multi-GPU XGBoost and cuML on <br /> Google Kubernetes Engine (GKE)](WIP "GKE MNMG notebook") 
 | **Databricks** | [Hyperopt and MLflow on Databricks ](https://github.com/rapidsai/cloud-ml-examples/blob/main/databricks/README.md "Databricks Cloud Deployment Guide") |
 | **MLflow** | [Hyperopt and MLflow on GKE](https://github.com/rapidsai/cloud-ml-examples/blob/main/mlflow_project/docker_environment/README.md "Kubernetes MLflow Deployment with RAPIDS")
-| **Optuna** | [Dask-Optuna HPO](https://github.com/rapidsai/cloud-ml-examples/blob/main/optuna/notebooks/optuna_rapids.ipynb "Dask-Optuna notebook") | [Optuna on Azure ML](https://github.com/rapidsai/cloud-ml-examples/blob/main/optuna/notebooks/azure-optuna/run_optuna.ipynb "Optuna on Azure notebook")
+| **Optuna** | [Dask-Optuna HPO](https://github.com/rapidsai/cloud-ml-examples/blob/main/optuna/notebooks/optuna_rapids.ipynb "Dask-Optuna notebook") <br />  [Optuna on Azure ML](https://github.com/rapidsai/cloud-ml-examples/blob/main/optuna/notebooks/azure-optuna/run_optuna.ipynb "Optuna on Azure notebook")|
 | **Ray Tune** | [Ray Tune HPO](https://github.com/rapidsai/cloud-ml-examples/tree/main/ray "RayTune Deployment Guide")
 ---
 
 ## Quick Start Using RAPIDS Cloud ML Container
+
+The [Cloud ML Docker Repository](https://hub.docker.com/r/rapidsai/rapidsai-cloud-ml) provides a ready to run Docker container with RAPIDS and libraries/SDKs for AWS SageMaker, Azure ML and Google AI Platfrom HPO examples. 
 
 ### Pull Docker Image:
 ```shell script
