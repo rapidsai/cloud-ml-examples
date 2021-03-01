@@ -1,0 +1,95 @@
+ARG RAPIDS_VER="0.18"
+ARG CUDA_VER="10.2"
+ARG IMG_TYPE="base"
+ARG LINUX_VER="ubuntu18.04"
+ARG PYTHON_VER="3.8"
+FROM rapidsai/rapidsai-core:${RAPIDS_VER}-cuda${CUDA_VER}-${IMG_TYPE}-${LINUX_VER}-py${PYTHON_VER}
+
+# ensure printed output/log-messages retain correct order
+ENV PYTHONUNBUFFERED=True
+
+RUN apt update -y \
+    && apt install -y --no-install-recommends build-essential \
+    && apt autoremove -y \
+    && apt clean -y \
+    && rm -rf /var/lib/apt/lists/*
+
+# AWS Requirements
+ARG aws_dataset_directory="1_year"
+ARG aws_algorithm_choice="XGBoost"
+ARG aws_ml_workflow_choice="singleGPU"
+ARG aws_cv_folds="3"
+ARG aws_cloud_path="/opt/ml/code"
+#---------------------------------------------------
+ENV AWS_DATASET_DIRECTORY=${aws_dataset_directory}
+ENV AWS_ALGORITHM_CHOICE=${aws_algorithm_choice}
+ENV AWS_ML_WORKFLOW_CHOICE=${aws_ml_workflow_choice}
+ENV AWS_CV_FOLDS=${aws_cv_folds}
+ENV AWS_CLOUD_PATH=${aws_cloud_path}
+ENV RAPIDS_AWS_INSTALL_PATH=${aws_cloud_path}
+#===================================================
+
+## Azure Requirements
+ARG azure_install_path="/opt/rapids/azure"
+#----------------------------------------------
+ENV RAPIDS_AZURE_INSTALL_PATH=${azure_install_path}
+#==============================================
+
+## GCP Requirements
+ARG gcp_install_path="/opt/rapids/gcp"
+#----------------------------------------------
+ENV RAPIDS_GCP_INSTALL_PATH=${gcp_install_path}
+#==============================================
+
+# AWS Install
+RUN mkdir -p ${RAPIDS_AWS_INSTALL_PATH}
+COPY aws/code/entrypoint.sh \
+    aws/code/HPOConfig.py \
+    aws/code/HPODatasets.py \
+    aws/code/MLWorkflow.py \
+    aws/code/serve.py \
+    aws/code/train.py \
+    opt/rapids/aws/
+
+RUN . /opt/conda/etc/profile.d/conda.sh \
+    && conda activate rapids \
+    && conda install -c anaconda -c conda-forge \
+        flask \
+        dask-ml \
+    && pip install sagemaker-training
+
+# Azure Install
+RUN mkdir -p ${RAPIDS_AZURE_INSTALL_PATH}
+COPY azure/* \
+    /opt/rapids/azure/
+
+RUN . /opt/conda/etc/profile.d/conda.sh \
+    && conda activate rapids \
+    && pip install \
+        azureml-sdk \
+        azureml-widgets \
+        azureml-mlflow \
+        optuna \
+        dask-optuna
+
+# GCP Install
+RUN mkdir -p ${RAPIDS_GCP_INSTALL_PATH}
+COPY gcp/docker/infrastructure/* \
+    /opt/rapids/gcp/
+
+RUN . /opt/conda/etc/profile.d/conda.sh \
+    && conda activate rapids \
+    && pip install -U \
+        gcsfs \
+        cloudml-hypertune \
+        ax-platform \
+        sqlalchemy \
+        'ray[tune]'
+
+RUN mkdir -p /opt/rapids_cloudml
+COPY common/docker/infrastructure/* \
+     /opt/rapids_cloudml/
+
+## Unified entrypoint
+WORKDIR "/opt/rapids_cloudml"
+ENTRYPOINT [ "bash", "/opt/rapids_cloudml/entrypoint.sh" ]

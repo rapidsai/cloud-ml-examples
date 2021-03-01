@@ -1,0 +1,13 @@
+FROM rapidsai/rapidsai:cuda11.0-runtime-ubuntu18.04-py3.8
+#To use the nightly release build: FROM rapidsai/rapidsai-dev-nightly:0.16-cuda11.0-devel-ubuntu16.04-py3.8
+
+RUN source activate rapids \
+    && mkdir /opt/mlflow \
+    && pip install \
+        boto3 \
+        google-cloud \
+        google-cloud-storage \
+        gcsfs \
+        hyperopt \
+        mlflow \
+	    psycopg2-binary

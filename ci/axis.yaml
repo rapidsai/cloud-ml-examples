@@ -1,0 +1,15 @@
+CUDA_VER:
+  - "11.0"
+  - "10.2"
+
+IMG_TYPE:
+  - base
+
+LINUX_VER:
+  - ubuntu18.04
+
+PYTHON_VER:
+  - "3.8"
+
+RAPIDS_VER:
+  - "0.18"

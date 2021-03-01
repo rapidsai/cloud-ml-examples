@@ -1,0 +1,12 @@
+name: cumlrapids
+
+docker_env:
+    image: rapids-mlflow-training:gcp
+
+entry_points:
+    hyperopt:
+        parameters:
+            algo: {type: str, default: 'tpe'}
+            conda_env: {type: str, default: 'envs/conda.yaml'}
+            fpath: {type: str}
+        command: "/bin/bash src/k8s/entrypoint.sh src/rf_test/train.py --fpath={fpath} --algo={algo} --conda-env={conda_env}"

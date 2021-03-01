@@ -1,0 +1,79 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "mlflow-tracking-server.fullname" . }}
+  labels:
+    {{- include "mlflow-tracking-server.labels" . | nindent 4 }}
+spec:
+{{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+{{- end }}
+  selector:
+    matchLabels:
+      {{- include "mlflow-tracking-server.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+    {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      labels:
+        {{- include "mlflow-tracking-server.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "mlflow-tracking-server.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      volumes:
+        - name: gcsfs-creds
+          secret:
+            secretName: gcsfs-creds
+            items:
+              - key: keyfile.json
+                path: keyfile.json
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          volumeMounts:
+            - name: gcsfs-creds
+              mountPath: "/etc/secrets"
+              readOnly: true
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          env:
+            - name: MLFLOW_USER
+              value: "{{ .Values.env.mlflowUser }}"
+            - name: MLFLOW_PASS
+              value: "{{ .Values.env.mlflowPass }}"
+            - name: MLFLOW_DB_NAME
+              value: "{{ .Values.env.mlflowDBName }}"
+            - name: MLFLOW_DB_ADDR
+              value: "{{ .Values.env.mlflowDBAddr }}"
+            - name: MLFLOW_DB_PORT
+              value: "{{ .Values.env.mlflowDBPort }}"
+            - name: MLFLOW_ARTIFACT_PATH
+              value: "{{ .Values.env.mlflowArtifactPath }}"
+            - name: GOOGLE_APPLICATION_CREDENTIALS
+              value: "/etc/secrets/keyfile.json"
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

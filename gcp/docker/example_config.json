@@ -39,12 +39,12 @@
                 }
             ]
         },
-        "jobDir": "gs://drobison-gcp-gtc-2020/training_output",
+        "jobDir": "gs://[YOUR STORAGE BUCKET]/training_output",
         "masterConfig": {
-            "imageUri": "gcr.io/k80-exploration/gcp_rapids_training:latest",
+            "imageUri": "gcr.io/[YOUR GCR PATH]/rapids_training_container:latest",
             "acceleratorConfig": {
                 "count": "1",
-                "type": "NVIDIA_TESLA_V100"
+                "type": "NVIDIA_TESLA_T4"
             }
         },
         "masterType": "n1-standard-8",

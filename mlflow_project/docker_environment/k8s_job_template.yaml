@@ -1,0 +1,36 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: "{replaced with MLflow Project name}"
+  namespace: default
+spec:
+  ttlSecondsAfterFinished: 100
+  backoffLimit: 0
+  template:
+    spec:
+      volumes:
+        - name: gcsfs-creds
+          secret:
+            secretName: gcsfs-creds
+            items:
+              - key: keyfile.json
+                path: keyfile.json
+      containers:
+      - name: "{replaced with MLflow Project name}"
+        image: "{replaced with URI of Docker image created during Project execution}"
+        command: ["{replaced with MLflow Project entry point command}"]
+        volumeMounts:
+          - name: gcsfs-creds
+            mountPath: "/etc/secrets"
+            readOnly: true
+        resources:
+          limits:
+            nvidia.com/gpu: 1
+        env:
+        - name: PYTHONUNBUFFERED
+          value: "1"
+        - name: PYTHONIOENCODING
+          value: "UTF-8"
+        - name: GOOGLE_APPLICATION_CREDENTIALS
+          value: "/etc/secrets/keyfile.json"
+      restartPolicy: Never

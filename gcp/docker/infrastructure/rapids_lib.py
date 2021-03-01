@@ -124,6 +124,7 @@ class RapidsCloudML(object):
             elif 'GPU' in self.compute_type:
                 X_train, X_test, y_train, y_test = cuml_train_test_split(X=dataset, y=y_label, train_size=train_size,
                                                                          shuffle=shuffle, random_state=random_state)
+
         self.log_to_file(f'\t> split completed in {split_timer.duration}')
         return X_train, X_test, y_train, y_test, split_timer.duration
 

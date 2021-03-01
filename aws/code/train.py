@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2019-2020, NVIDIA CORPORATION.
+# Copyright (c) 2019-2021, NVIDIA CORPORATION.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,63 +14,67 @@
 # limitations under the License.
 #
 
-""" 
-    logic running in each HPO estimator
-"""
+import sys
+import traceback
+import logging
 
-import sys, numpy as np
-import rapids_cloud_ml
+from HPOConfig import HPOConfig
+from MLWorkflow import create_workflow
 
-DEFAULT_CONFIG = {
-    'model_type'       : 'RandomForest', # XGBoost
-    'compute'          : 'multi-CPU',
-    'dataset'          : 'airline',
-    'dataset_filename' : '*.parquet',
-    'CV_folds'         : 1
-}
 
-# airline dataset specific
-dataset_columns = [ 
-    'Flight_Number_Reporting_Airline', 'Year', 'Quarter', 'Month', 'DayOfWeek', 
-    'DOT_ID_Reporting_Airline', 'OriginCityMarketID', 'DestCityMarketID',
-    'DepTime', 'DepDelay', 'DepDel15', 'ArrDel15',
-    'AirTime', 'Distance' ]
-target_variable = 'ArrDel15'
+def train():
+    hpo_config = HPOConfig(input_args=sys.argv[1:])
+    ml_workflow = create_workflow(hpo_config)
 
-def train( model_params, config_params ):
-    
-    rcml = rapids_cloud_ml.RapidsCloudML( model_type = config_params['model_type'],
-                                          compute_type = config_params['compute'] )
-        
-    # ingest data
-    dataset = rcml.load_data ( filename = config_params['dataset_filename'],
-                                                columns = dataset_columns )
+    # cross-validation to improve robustness via multiple train/test reshuffles
+    for i_fold in range(hpo_config.cv_folds):
+        # ingest
+        dataset = ml_workflow.ingest_data()
 
-    # cross-validation [ optional ]
-    cv_fold_accuracy = []
-    for i_train_fold in range( config_params['CV_folds'] ):
+        # handle missing samples [ drop ]
+        dataset = ml_workflow.handle_missing_data(dataset)
 
-        rcml.log( f' CV fold : { i_train_fold } \n' )
+        # split into train and test set
+        X_train, X_test, y_train, y_test = ml_workflow.split_dataset(
+            dataset,
+            random_state=i_fold
+        )
 
-        # shuffle, split [ and persist ] data 
-        X_train, X_test, y_train, y_test = rcml.split_data( dataset, target_variable, 
-                                                            random_state = i_train_fold )
-        
         # train model
-        trained_model = rcml.train_model ( X_train, y_train, model_params )
+        trained_model = ml_workflow.fit(X_train, y_train)
 
-        # evaluate perf
-        test_accuracy = rcml.evaluate_test_perf ( trained_model, X_test, y_test )
-        
-        cv_fold_accuracy += [ test_accuracy ]
-            
-    # emit mean across folds
-    rcml.emit_score( np.mean( cv_fold_accuracy ) )
-    
-    return 0
-   
+        # use trained model to predict target labels of test data
+        predictions = ml_workflow.predict(trained_model, X_test)
+
+        # score test set predictions against ground truth
+        score = ml_workflow.score(y_test, predictions)
+
+        # save trained model [ if it sets a new-high score ]
+        ml_workflow.save_best_model(score, trained_model)
+
+        # restart cluster to avoid memory creep [ for multi-CPU/GPU ]
+        ml_workflow.cleanup(i_fold)
+
+    # emit final score to cloud HPO [i.e., SageMaker]
+    ml_workflow.emit_final_score()
+
+
+def configure_logging():
+    hpo_log = logging.getLogger('hpo_log')
+    log_handler = logging.StreamHandler()
+    log_handler.setFormatter(
+        logging.Formatter('%(asctime)-15s %(levelname)8s %(name)s %(message)s')
+    )
+    hpo_log.addHandler(log_handler)
+    hpo_log.setLevel(logging.DEBUG)
+    hpo_log.propagate = False
+
+
 if __name__ == "__main__":
-    config_params = rapids_cloud_ml.parse_job_name ( DEFAULT_CONFIG )
-    model_params = rapids_cloud_ml.parse_model_parameters ( sys.argv[1:], config_params )    
-    train ( model_params, config_params )
-    sys.exit(0)
+    configure_logging()
+    try:
+        train()
+        sys.exit(0)  # success exit code
+    except Exception:
+        traceback.print_exc()
+        sys.exit(-1)  # failure exit code

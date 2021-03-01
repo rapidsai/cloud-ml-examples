@@ -1,8 +1,4 @@
-#FROM nvcr.io/nvidia/rapidsai/rapidsai:cuda10.1-runtime-ubuntu18.04
-FROM rapidsai/rapidsai-nightly:0.13-cuda10.1-base-ubuntu18.04-py3.7
-
-RUN . /opt/conda/etc/profile.d/conda.sh \
-    && conda activate rapids
+FROM rapidsai/rapidsai:cuda10.1-runtime-ubuntu18.04-py3.8
 
 RUN apt update --yes \
     && apt --yes install redis \
