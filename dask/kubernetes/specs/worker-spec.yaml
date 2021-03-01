@@ -5,15 +5,15 @@ metadata:
 spec:
   restartPolicy: Never
   containers:
-    - image: gcr.io/nv-ai-infra/drobison/dask-unified:0.02
+    - image: gcr.io/nv-ai-infra/drobison/dask-unified:0.18
       imagePullPolicy: IfNotPresent
-      args: [ dask-cuda-worker, $(DASK_SCHEDULER_ADDRESS), --rmm-pool-size, 10GB ]
+      args: [ dask-cuda-worker, $(DASK_SCHEDULER_ADDRESS), --rmm-managed-memory ]
       name: dask-cuda-worker
       resources:
         limits:
-          cpu: "7"
-          memory: 25G
+          cpu: "3"
+          memory: 13G
           nvidia.com/gpu: 1
         requests:
-          cpu: "7"
-          memory: 25G
+          cpu: "3"
+          memory: 13G

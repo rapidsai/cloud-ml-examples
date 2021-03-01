@@ -24,6 +24,13 @@ You need both Jupyter and RAPIDS 0.13 or later installed to begin. See
 https://rapids.ai/start.html for instructions. We recommend using 0.14
 nightly packages for the latest updates. Dask-ML can be installed via conda or pip, following the instructions from: https://ml.dask.org/install.html.
 
+## RAPIDS + Dask-Kubernetes sample notebooks
+Dask_cuML_Exploration and Dask_cuML_Exploration_Full provide a template
+for launching a dask cluster on top of your kubernetes environment, loading
+the NYC-Taxi dataset, and generating performance metrics for the available
+cuML Multi-Node Multi-GPU (MNMG) algorithms in your environment.
 
+See: [Dask-Kubernetes](https://kubernetes.dask.org/en/latest/) and cuML's
+[API documentation](https://docs.rapids.ai/api/cuml/stable/api.html#multi-node-multi-gpu-algorithms) for additional information.
 
    
