@@ -12,4 +12,4 @@ PYTHON_VER:
   - "3.8"
 
 RAPIDS_VER:
-  - "0.17"
+  - "0.18"
