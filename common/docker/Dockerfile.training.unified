@@ -56,7 +56,9 @@ RUN . /opt/conda/etc/profile.d/conda.sh \
     && conda install -c anaconda -c conda-forge \
         flask \
         dask-ml \
-    && pip install sagemaker-training
+    && conda clean --all \
+    && pip install sagemaker-training \
+    && pip cache purge
 
 # Azure Install
 RUN mkdir -p ${RAPIDS_AZURE_INSTALL_PATH}
@@ -70,7 +72,8 @@ RUN . /opt/conda/etc/profile.d/conda.sh \
         azureml-widgets \
         azureml-mlflow \
         optuna \
-        dask-optuna
+        dask-optuna \
+    && pip cache purge
 
 # GCP Install
 RUN mkdir -p ${RAPIDS_GCP_INSTALL_PATH}
@@ -84,7 +87,8 @@ RUN . /opt/conda/etc/profile.d/conda.sh \
         cloudml-hypertune \
         ax-platform \
         sqlalchemy \
-        'ray[tune]'
+        'ray[tune]' \
+    && pip cache purge
 
 RUN mkdir -p /opt/rapids_cloudml
 COPY common/docker/infrastructure/* \
