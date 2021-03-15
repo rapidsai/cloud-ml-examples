@@ -1,0 +1,19 @@
+kind: Pod
+metadata:
+  labels:
+    dask_type: GPU_worker
+spec:
+  restartPolicy: Never
+  containers:
+    - image: gcr.io/[YOUR_PROJECT_PATH]/dask-unified:0.18
+      imagePullPolicy: IfNotPresent
+      args: [ dask-cuda-worker, $(DASK_SCHEDULER_ADDRESS), --rmm-managed-memory ]
+      name: dask-cuda-worker
+      resources:
+        limits:
+          cpu: "3"
+          memory: 10G
+          nvidia.com/gpu: 1
+        requests:
+          cpu: "3"
+          memory: 10G
