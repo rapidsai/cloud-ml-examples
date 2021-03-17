@@ -12,6 +12,12 @@ Workflow: We will create a notebook instance using the `RAPIDS 0.18 [Experimenta
         1. Create
         1. Once JupterLab is running, you will have jupyter notebooks with rapids installed and rapids notebook examples under tutorials/RapidsAi.
 
+To create an instance with A100s:
+1. Select "New Instance" -> "Customize instance"
+1. Select us-central1 region 
+1. Select "RAPIDS 0.18 [Experimental]" Environment
+1. Choose A2 highgpu (for 1, 2 4 and 8 A100s) or A1 megagpu (16x A100s) as machine type
+
 ### Install RAPIDS on a pre-made Notebook
 Motivation: We have an existing GCP notebook that we wish to update to support RAPIDS functionality.  
 Workflow: We will create a notebook instance, and run a shell script that will install a Jupyter kernel and allow us to run RAPIDS based tasks.  
