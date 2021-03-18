@@ -1,7 +1,7 @@
 ### Utilizing Databricks' for MLFlow Tracking and Job Training
 
 #### Assumptions and Naming Conventions
-- All shell commands are assumed to be run within the `/cloud-ml-examples/mlflow_project/docker_environment` directory.
+- All shell commands are assumed to be run within the `/cloud-ml-examples/mlflow/docker_environment` directory.
 
 - There are a number of configuration parameters that will be specific to your _environment_ and _deployment_:
     - `DATBRICKS HOST` : URI of your Databricks service, will be of the form: `https://<cluster_id>.cloud.databricks.com` 
@@ -31,7 +31,7 @@
     - `$ conda create -f envs/conda.yaml`
     - `$ databricks configure`
 - Train the model
-    - `$ cd mlflow_project`
+    - `$ cd mlflow`
     - Publish to Databrick's tracking server
         - Here, we use mlflow to run our training routine locally, publish the resulting metrics to our configured
         Databricks account, and save our RAPIDS model.
