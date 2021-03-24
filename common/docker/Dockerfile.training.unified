@@ -85,7 +85,6 @@ RUN . /opt/conda/etc/profile.d/conda.sh \
     && pip install -U \
         gcsfs \
         cloudml-hypertune \
-        ax-platform \
         sqlalchemy \
         'ray[tune]' \
     && pip cache purge
