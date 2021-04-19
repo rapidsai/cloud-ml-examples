@@ -52,3 +52,8 @@ gpuci_logger "Starting upload..."
 GPUCI_RETRY_MAX=5
 GPUCI_RETRY_SLEEP=120
 gpuci_retry docker push ${DOCKER_IMG}:${DOCKER_TAG}
+
+if [ "$DOCKER_TAG" = "${RAPIDS_VER}-cuda11.0-base-ubuntu18.04-py3.8" ]; then
+  docker tag ${DOCKER_IMG}:${DOCKER_TAG} ${DOCKER_IMG}:latest
+  gpuci_retry docker push ${DOCKER_IMG}:latest
+fi

@@ -4,7 +4,7 @@ on:
   push:
     branches: main
     paths:
-      - README.md
+      - common/docker/DockerHubREADME.md
       - .github/workflows/docker-description.yaml
 
 jobs:
