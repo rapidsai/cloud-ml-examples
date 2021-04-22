@@ -49,11 +49,13 @@ COPY aws/code/entrypoint.sh \
     aws/code/MLWorkflow.py \
     aws/code/serve.py \
     aws/code/train.py \
-    aws/code/workflows/MLWorkflowMultiCPU.py \
+    ${aws_cloud_path}"/"
+
+COPY aws/code/workflows/MLWorkflowMultiCPU.py \
     aws/code/workflows/MLWorkflowMultiGPU.py \
     aws/code/workflows/MLWorkflowSingleCPU.py \
     aws/code/workflows/MLWorkflowSingleGPU.py \
-    opt/rapids/aws/
+    ${aws_cloud_path}"/workflows/"
 
 RUN . /opt/conda/etc/profile.d/conda.sh \
     && conda activate rapids \
