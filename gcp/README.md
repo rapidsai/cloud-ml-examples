@@ -1,6 +1,45 @@
 ## Quick start guide
 Here we will go over some common tasks, related to utilizing RAPIDS on the GCP AI Platform. Note that strings containing '[YOUR_XXX]' indicate items that you will need to supply, based on your specific resource names and environment.
 
+### Create a Notebook using the RAPIDS environemnt
+Motivation: We would like to create a GCP notebook with RAPIDS 0.18 release
+Workflow: We will create a notebook instance using the `RAPIDS 0.18 [Experimental]` env
+
+1. Log into your GCP console.
+    1. Select AI-Platform -> Notebooks
+    1. Select a "New Instance" -> "RAPIDS 0.18 [Experimental]"
+        1. Select 'Install NVIDIA GPU driver automatically for me'
+        1. Create
+        1. Once JupterLab is running, you will have jupyter notebooks with rapids installed and rapids notebook examples under tutorials/RapidsAi.
+
+To create an instance with A100s:
+1. Select "New Instance" -> "Customize instance"
+1. Select us-central1 region 
+1. Select "RAPIDS 0.18 [Experimental]" Environment
+1. Choose A2 highgpu (for 1, 2 4 and 8 A100s) or A1 megagpu (16x A100s) as machine type
+
+### Install RAPIDS on a pre-made Notebook
+Motivation: We have an existing GCP notebook that we wish to update to support RAPIDS functionality.  
+Workflow: We will create a notebook instance, and run a shell script that will install a Jupyter kernel and allow us to run RAPIDS based tasks.  
+  
+1. Log into your GCP console.
+    1. Select AI-Platform -> Notebooks
+    1. Select a "New Instance" -> "Python 3 (CUDA Toolkit 11.0)" -> With 1 NVIDIA Tesla T4
+        1. Select 'Install NVIDIA GPU driver automatically for me'
+        1. Create.
+    1. Once JupyterLab is running
+        1. Open a new terminal
+        1. Run
+           ```shell
+           RAPIDS_VER=0.18
+           CUDA_VER=11.0
+           wget -q https://rapidsai-data.s3.us-east-2.amazonaws.com/conda-pack/rapidsai/rapids${RAPIDS_VER}_cuda${CUDA_VER}_py3.8.tar.gz
+           tar -xzf rapids${RAPIDS_VER}_cuda${CUDA_VER}_py3.8.tar.gz -C /opt/conda/envs/rapids_py38
+           conda activate rapids_py38
+           ipython kernel install --user --name=rapids_py38
+           ```
+        1. Once completed, you will now have a new kernel in your jupyter notebooks called 'rapids_py38' which will have rapids installed.
+
 ### Deploy a custom RAPIDS training container utilizing the 'airline dataset', and initiate a training job with support for HyperParameter Optimization (HPO)
 Motivation: We would like to be able to utilize GCP's AI Platform for training a custom model, utilizing RAPIDS.  
 Workflow: Install the required libraries, and authentication components for GCP, configure a storage bucket for persistent data, build our custom training container, upload the container, and launch a training job with HPO.
@@ -16,7 +55,7 @@ Workflow: Install the required libraries, and authentication components for GCP,
         1. `docker tag <image> gcr.io/[YOUR_PROJECT_NAME]/rapids_training_container:latest`
    1. Build
         1. `$ cd .`
-        1. `$ docker build --tag gcr.io/[YOUR_PROJECT_NAME]/rapids_training_container:latest --file Dockerfile.training.unified .`
+        1. `$ docker build --tag gcr.io/[YOUR_PROJECT_NAME]/rapids_training_container:latest --file common/docker/Dockerfile.training.unified .`
         1. `$ docker push gcr.io/[YOUR_PROJECT_NAME]/rapids_training_container:latest`
 1. Training via GCP UI
     1. A quick note regarding GCP's cloudml-Hypertune
@@ -143,49 +182,3 @@ Workflow: Install the required libraries, and authentication components for GCP,
         1. `$ gcloud ai-platform jobs submit training [YOUR_JOB_NAME] --config ./example_config.json`
     1. Monitor your training job
         1. `$ gcloud ai-platform jobs stream-logs [YOUR_JOB_NAME]`
-
-
-### Install RAPIDS on a pre-made Notebook
-Motivation: We have an existing GCP notebook that we wish to update to support RAPIDS functionality.  
-Workflow: We will create a notebook instance, and run a shell script that will install a Jupyter kernel and allow us to run RAPIDS based tasks.  
-  
-1. Log into your GCP console.
-    1. Select AI-Platform -> Notebooks
-    1. Select a "Create new notebook". And select the RAPIDS XGBoost variant (comes with Conda installed)
-        1. Select 'install gpu driver for me'
-        1. Select 'customize'
-            1. Pick the CUDA variant you want (10.1, 10.0, etc..)
-            1. For your GPU type, select T4, or V100
-            1. Select the number of GPUs 1-8
-        1. Launch your notebook service.
-    1. Once JupyterLab is running
-        1. Open a new terminal
-        1. Copy the 'rapids-py37-kernel.sh' GCP script into the local environment.
-        1. Run the script
-            1. Once completed, you will have a new kernel in your jupyter notebooks called 'rapids_py37' which will have rapids installed.
-
-### Deploy a custom RAPIDS container notebook
-Motivation: We want to build a custom docker container for the GCP AI Platform, with out of the box support for RAPIDS, and pre-installed Jupyter kernels.  
-Workflow: We will build a custom docker container with RAPIDS, using Google's recommended base image, push this container to the Google Container Registry (GCR),
-and launch an AI Platform notebook backed on this container.
-
-1. Pull or create custom container
-    1. Build locally
-        1. `$ cd cloud_service_providers/gcp/docker`
-        1. `$ docker build --tag gcr.io/[YOUR PROJECT NAME]/rapids-py38 --file Dockerfile.jupyter_notebook ./`
-1. Push to the Google Container Registry
-    1. Ensure gcloud is installed and you have configured the GCR authentication helper for Docker.
-        1. See: https://cloud.google.com/container-registry/docs/advanced-authentication 
-    1. `$ docker push gcr.io/[YOUR PROJECT NAME]/rapids-py38`
-1. Log into your GCP console.
-    1. Select AI-Platform -> Notebooks
-    1. Select a "New Instance" -> "Customize Instance"
-        1. Name your instance
-        1. Select Environment -> Custom Container
-            1. Enter: gcr.io/[YOUR PROJECT NAME]/rapids-py38 
-        1. Select 'install gpu driver for me'
-        1. Select 'customize'
-            1. For your GPU type, select T4, or V100
-            1. Select the number of GPUs 1-8
-        1. Launch your notebook service.
-    1. Once JupyterLab is running, you will have a kernel available in your jupyter notebooks called 'rapids_py38' which will have rapids installed.

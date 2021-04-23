@@ -1,5 +1,5 @@
 ARG RAPIDS_VER="0.18"
-ARG CUDA_VER="10.2"
+ARG CUDA_VER="11.0"
 ARG IMG_TYPE="base"
 ARG LINUX_VER="ubuntu18.04"
 ARG PYTHON_VER="3.8"
@@ -49,14 +49,22 @@ COPY aws/code/entrypoint.sh \
     aws/code/MLWorkflow.py \
     aws/code/serve.py \
     aws/code/train.py \
-    opt/rapids/aws/
+    ${aws_cloud_path}"/"
+
+COPY aws/code/workflows/MLWorkflowMultiCPU.py \
+    aws/code/workflows/MLWorkflowMultiGPU.py \
+    aws/code/workflows/MLWorkflowSingleCPU.py \
+    aws/code/workflows/MLWorkflowSingleGPU.py \
+    ${aws_cloud_path}"/workflows/"
 
 RUN . /opt/conda/etc/profile.d/conda.sh \
     && conda activate rapids \
     && conda install -c anaconda -c conda-forge \
         flask \
         dask-ml \
-    && pip install sagemaker-training
+    && conda clean --all \
+    && pip install sagemaker-training \
+    && pip cache purge
 
 # Azure Install
 RUN mkdir -p ${RAPIDS_AZURE_INSTALL_PATH}
@@ -70,7 +78,8 @@ RUN . /opt/conda/etc/profile.d/conda.sh \
         azureml-widgets \
         azureml-mlflow \
         optuna \
-        dask-optuna
+        dask-optuna \
+    && pip cache purge
 
 # GCP Install
 RUN mkdir -p ${RAPIDS_GCP_INSTALL_PATH}
@@ -82,9 +91,9 @@ RUN . /opt/conda/etc/profile.d/conda.sh \
     && pip install -U \
         gcsfs \
         cloudml-hypertune \
-        ax-platform \
         sqlalchemy \
-        'ray[tune]'
+        'ray[tune]' \
+    && pip cache purge
 
 RUN mkdir -p /opt/rapids_cloudml
 COPY common/docker/infrastructure/* \

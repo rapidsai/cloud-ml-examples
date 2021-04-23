@@ -9,7 +9,7 @@
 - Create a new conda environment.
     - `$ conda create -f envs/conda.yaml`
 - Train the model
-    - `$ cd mlflow_project`
+    - `$ cd mlflow`
     - MLflow project configuration is described in our [MLProject](https://www.mlflow.org/docs/latest/projects.html) file.
         - This can be edited to allow additional command line variables, specify conda environments, and training
         parameters (see link for additional information).

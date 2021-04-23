@@ -36,7 +36,7 @@ __Allocate the Appropriate Hardware__
         ![GCP Node Pool Configuration 2](./images/gcp_node_pools_2.png)  
     - __GPU Pool__   
         ![GCP Node Pool Configuration 3](./images/gcp_node_pools_3.png)  
-        ![GCP Node Pool Configuration 4](./images/gcp_node_pools_4.png)  
+        ![GCP Node Pool Configuration 4](./images/gcp_node_pools_5.png)  
 - Click __Create__ and wait for your cluster to come up.
 
 ## [Configure Kubectl](#anchor-kubectl)
