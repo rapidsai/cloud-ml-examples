@@ -19,9 +19,9 @@ HELP="$0 [<target> ...] [<flag> ...]
    -h, --help             - print this text
 
    --action         [pack|unpack] - action to take (default: pack)
-   --cuda           [version]     - cuda version to install (default: 10.2)
-   --python         [version]     - python version to install (default: 3.7)
-   --rapids         [version]     - rapids version to install (default: 0.15)
+   --cuda           [version]     - cuda version to install (default: 11.0)
+   --python         [version]     - python version to install (default: 3.8)
+   --rapids         [version]     - rapids version to install (default: 0.19)
    --rapids-channel [ch]          - rapids channel to install from [rapidsai|rapidsai-nightly] (default: rapidsai)
    --unpack-to      [path]        - path where we should unpack the conda environment
                                     requires 'action unpack' (default: ./rapids_[rapids_version]_py[python version])
@@ -33,9 +33,9 @@ ACTIVATE=$(dirname `which conda`)/../bin/activate
 
 declare -A argvals
 argvals["--action"]="pack"
-argvals["--cuda"]="10.2"
-argvals["--python"]="3.7"
-argvals["--rapids"]="0.15"
+argvals["--cuda"]="11.0"
+argvals["--python"]="3.8"
+argvals["--rapids"]="0.19"
 argvals["--rapids-channel"]="rapidsai"
 
 function usage() {
