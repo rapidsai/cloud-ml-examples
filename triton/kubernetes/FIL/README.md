@@ -19,6 +19,17 @@ Specific parameters used here include:
 - YOUR_CLUSTER_ID     : Name of your GKE cluster.
 - YOUR_CLUSTER_ZONE   : Zone where the cluster will be deployed.
 
+#### Pre-requisites
+- GCP Account with the following permissions
+    - container.clusterRoleBindings.create
+    - container.clusterRoles.update
+    - container.roleBindings.create
+
+- Software
+    - `docker`
+    - `gcloud` `gsutil`
+    - `helm` `kubectl`
+
 ### Obtain the Triton FIL plugin, build the triton host container, and push to GCR
 Note: as of this writing, the [FIL backend plugin](https://github.com/wphicks/triton_fil_backend) is considered 
 experimental / preview-quality.
@@ -39,7 +50,7 @@ This is what will be referenced for the purpose of this demo; however, feel free
 same structure, and they will be included in subsequent steps.
 
 ```shell
-gsutil cp -r ./model_repository gs://${YOUR_BUCKET_PATH}/triton_example/
+gsutil cp -r ./model_repository gs://${YOUR_BUCKET_PATH}/triton/
 gsutil ls gs://${YOUR_BUCKET_PATH}/triton_example/
  gs://${YOUR_BUCKET_PATH}/triton/
  gs://${YOUR_BUCKET_PATH}/triton/model_repository/
@@ -49,18 +60,18 @@ gsutil ls gs://${YOUR_BUCKET_PATH}/triton_example/
 This step is equivalent to the triton-inference-server sample, we just need to create a cluster that will host our
 Triton service, and has a GPU node pool with enough nodes to illustrate horizontal scaling.
 
-1. CLI Workflow:
 ```shell
 gcloud beta container clusters create ${YOUR_CLUSTER_ID} \
---addons=HorizontalPodAutoscaling,HttpLoadBalancing,Istio \
---machine-type=n1-standard-8 \
---node-locations=${YOUR_CLUSTER_ZONE} \
---subnetwork=default \
---scopes cloud-platform \
---num-nodes 1
+  --addons=HorizontalPodAutoscaling,HttpLoadBalancing,Istio \
+  --machine-type=n1-standard-8 \
+  --node-locations=${YOUR_CLUSTER_ZONE} \
+  --zone=${YOUR_CLUSTER_ZONE} \
+  --subnetwork=default \
+  --scopes=cloud-platform \
+  --num-nodes=1
 
 # add GPU node pools, user can modify number of node based on workloads
-gcloud container node-pools create accel \
+gcloud container node-pools create gpu-pool \
   --project ${YOUR_PROJECT_ID} \
   --zone ${YOUR_CLUSTER_ZONE} \
   --cluster ${YOUR_CLUSTER_ID} \
@@ -75,6 +86,9 @@ gcloud container node-pools create accel \
 # so that you can run kubectl locally to the cluster
 gcloud container clusters get-credentials ${YOUR_CLUSTER_ID} --project ${YOUR_PROJECT_ID} --zone ${YOUR_CLUSTER_ZONE}  
 
+# create a shared secret for the gcp bucket where your custom model lives
+kubectl create secret generic gcsfs-creds --from-file=./keyfile.json
+
 # deploy NVIDIA device plugin for GKE to prepare GPU nodes for driver install
 kubectl apply -f https://raw.githubusercontent.com/GoogleCloudPlatform/container-engine-accelerators/master/nvidia-driver-installer/cos/daemonset-preloaded.yaml
 
@@ -83,4 +97,12 @@ kubectl create clusterrolebinding cluster-admin-binding --clusterrole cluster-ad
 
 # enable stackdriver custom metrics adaptor
 kubectl apply -f https://raw.githubusercontent.com/GoogleCloudPlatform/k8s-stackdriver/master/custom-metrics-stackdriver-adapter/deploy/production/adapter.yaml
+```
+
+### Install Triton service using helm.
+```shell
+helm install triton ./helm/chart/triton \
+  --set modelRepositoryPath="gs://${YOUR_BUCKET_PATH}/triton/model_repository" \
+  --set image.repository="${YOUR_PROJECT_ID}/${YOUR_GCR_PATH}/triton_fil" \
+  --set tritonProtocol="HTTP"
 ```
