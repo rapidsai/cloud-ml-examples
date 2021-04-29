@@ -25,11 +25,16 @@ Specific parameters used here include:
     - container.clusterRoles.update
     - container.roleBindings.create
 
-- Software
+- System Software
     - `docker`
     - `gcloud` `gsutil`
     - `helm` `kubectl`
-
+  
+- Python
+  ```shell
+  pip install nvidia-pyindex
+  pip install tritonclient[all]
+  ```
 ### Obtain the Triton FIL plugin, build the triton host container, and push to GCR
 Note: as of this writing, the [FIL backend plugin](https://github.com/wphicks/triton_fil_backend) is considered 
 experimental / preview-quality.
@@ -106,3 +111,8 @@ helm install triton ./helm/chart/triton \
   --set image.repository="${YOUR_PROJECT_ID}/${YOUR_GCR_PATH}/triton_fil" \
   --set tritonProtocol="HTTP"
 ```
+
+### Exploring inference
+At this point, your triton inference cluster should be up and running or in process of coming up. Now we can submit some
+test data to our running server. The process for doing this, assuming the default model, is illustrated in the jupyter
+notebook `interact_with_triton.ipynb`.
