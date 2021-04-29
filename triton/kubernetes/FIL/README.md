@@ -4,7 +4,7 @@
 ### Overview
 This example will illustrate the workflow to deploy a horizontally scaled Triton service, with a non-trival custom
 backend for accelerated forest model inference. It is assumed that you have an existing account with sufficient compute
-and GPU quota, a correctly configured kubectl utility, and a [properly configured]() GCP bucket.
+and GPU quota, a correctly configured kubectl utility, and a [properly configured](https://github.com/rapidsai/cloud-ml-examples/blob/main/mlflow/docker_environment/DetailedConfig.md#create-a-storage-bucket-and-attach-your-service-account) GCP bucket.
 
 For simplicity, this process will be demonstrated using the Google Kubernetes Engine (GKE) platform. But should be
 straight-forward to adapt to any desired Kubernetes environment with Istio and the stackdriver custom metrics adapter.
@@ -41,6 +41,8 @@ experimental / preview-quality.
 ```shell
 git clone git@github.com:wphicks/triton_fil_backend.git
 
+cd triton_fil_backend
+
 docker build --tag gcr.io/${YOUR_PROJECT_ID}/${YOUR_GCR_PATH}/triton_fil --filename ops/Dockerfile .
 
 docker push gcr.io/${YOUR_PROJECT_ID}/${YOUR_GCR_PATH}/triton_fil:latest
@@ -56,7 +58,7 @@ same structure, and they will be included in subsequent steps.
 
 ```shell
 gsutil cp -r ./model_repository gs://${YOUR_BUCKET_PATH}/triton/
-gsutil ls gs://${YOUR_BUCKET_PATH}/triton_example/
+gsutil ls gs://${YOUR_BUCKET_PATH}/triton/
  gs://${YOUR_BUCKET_PATH}/triton/
  gs://${YOUR_BUCKET_PATH}/triton/model_repository/
 ```
