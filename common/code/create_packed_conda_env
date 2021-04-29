@@ -97,7 +97,7 @@ if [[ "$ACTION" == "pack" ]]; then
 
   echo "Installing RAPIDS libraries (this can take a while)"
   time conda install -y -c $RAPIDS_CHANNEL -c nvidia -c conda-forge \
-      -c defaults rapids=$RAPIDS_VERSION python=$PYTHON_VERSION cudatoolkit=$CUDA_VERSION
+      rapids=$RAPIDS_VERSION python=$PYTHON_VERSION cudatoolkit=$CUDA_VERSION
 
   echo "Packing conda environment"
   conda-pack -n $CONDA_ENV_NAME -o ${CONDA_ENV_NAME}.tar.gz

@@ -46,7 +46,7 @@ Packing environment at '[CONDA ENV]/rapids0.19_py3.7' to 'rapids0.19_py3.7.tar.g
     1. Ex. For a full install on Ubuntu 18.04, with CUDA 11.0
         ```bash
         conda install -c rapidsai -c nvidia -c conda-forge 
-            -c defaults rapids=0.19 python=3.7 cudatoolkit=11.0
+            rapids=0.19 python=3.7 cudatoolkit=11.0
         ```
 1. Pack your environment
     1. `conda-pack -n rapids_env -o rapids_py37.tar.gz`
