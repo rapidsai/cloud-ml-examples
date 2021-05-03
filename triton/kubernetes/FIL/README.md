@@ -114,7 +114,13 @@ helm install triton ./helm/chart/triton \
   --set tritonProtocol="HTTP"
 ```
 
+When finished, you can delete the triton deployment using
+```shell
+helm uninstall triton
+```
+
 ### Exploring inference
 At this point, your triton inference cluster should be up and running or in process of coming up. Now we can submit some
 test data to our running server. The process for doing this, assuming the default model, is illustrated in the jupyter
-notebook `interact_with_triton.ipynb`.
+notebook `interact_with_triton.ipynb`. Here, you'll want to run the cells appropriate to your deployment, depending on
+whether you passed tritonProtocol as HTTP or gRPC,  
