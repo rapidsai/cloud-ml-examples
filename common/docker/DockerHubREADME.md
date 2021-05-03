@@ -1,6 +1,6 @@
 # RAPIDS Cloud Machine Learning
 
-RAPIDS is a suite of open-source libraries that bring GPU acceleration to data science pipelines. Users building cloud-based machine learning experiments can take advantage of this acceleration throughout their workloads to build models faster, cheaper, and more easily on the cloud platform of their choice. The [cloud-ml-examples](https://github.com/rapidsai/cloud-ml-examples) repository provides example notebooks and "getting started" code samples and this Docker repository provides a ready to run Docker container with RAPIDS and libraries/SDKs for AWS SageMaker, Azure ML and Google AI Platfrom. 
+RAPIDS is a suite of open-source libraries that bring GPU acceleration to data science pipelines. Users building cloud-based machine learning experiments can take advantage of this acceleration throughout their workloads to build models faster, cheaper, and more easily on the cloud platform of their choice. The [cloud-ml-examples](https://github.com/rapidsai/cloud-ml-examples) repository provides example notebooks and "getting started" code samples and this Docker repository provides a ready to run Docker container with RAPIDS and libraries/SDKs for AWS SageMaker, Azure ML and Google AI Platform. 
 
 **NOTE:** Review our [prerequisites](#prerequisites) section to ensure your system meets the minimum requirements for RAPIDS.
 
