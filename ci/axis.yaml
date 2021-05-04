@@ -9,10 +9,13 @@ IMG_TYPE:
 LINUX_VER:
   - ubuntu18.04
   - ubuntu20.04
-  - centos7
 
 PYTHON_VER:
   - "3.8"
 
 RAPIDS_VER:
   - "0.19"
+
+exclude:
+  - LINUX_VER: ubuntu20.04
+    CUDA_VER: "10.2"
