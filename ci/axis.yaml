@@ -8,6 +8,8 @@ IMG_TYPE:
 
 LINUX_VER:
   - ubuntu18.04
+  - ubuntu20.04
+  - centos7
 
 PYTHON_VER:
   - "3.8"
