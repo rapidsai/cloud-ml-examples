@@ -27,9 +27,6 @@
 initReplicaCount: 1
 minReplicaCount: 1
 maxReplicaCount: 3
-# choice from gRPC and HTTP
-tritonProtocol: 'HTTP'
-# HPA GPU utilization autoscaling target
 HPATargetAverageValue: 85
 modelRepositoryPath: ''
 publishedVersion: '2.8.7'

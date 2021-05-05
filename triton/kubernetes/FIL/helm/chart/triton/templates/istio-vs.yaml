@@ -30,16 +30,22 @@ metadata:
   name: triton-vs
 spec:
   hosts:
-  - "*"
+    - "*"
   gateways:
-  - triton-gateway
+    - triton-gateway
+  tcp:
+    - match:
+        - port: 31400
+      route:
+        - destination:
+            host: {{ template "triton-inference-server.name" . }}
+            port:
+              number: 8001
   http:
-  - route:
-    - destination:
-        host: {{ template "triton-inference-server.name" . }}
-        port:
-          {{ if eq .Values.tritonProtocol "gRPC" }}
-          number: 8001
-          {{ else }}
-          number: 8000
-          {{ end }}
+    - match:
+      - port: 80
+      route:
+        - destination:
+            host: {{ template "triton-inference-server.name" . }}
+            port:
+              number: 8000
