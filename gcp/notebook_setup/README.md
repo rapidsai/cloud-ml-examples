@@ -14,7 +14,7 @@ This section describes the process required to:
 ... processing ...
 Packing conda environment
 Collecting packages...
-Packing environment at '[CONDA ENV]/rapids0.15_py3.7' to 'rapids0.15_py3.7.tar.gz'
+Packing environment at '[CONDA ENV]/rapids0.19_py3.7' to 'rapids0.19_py3.7.tar.gz'
 [########################################] | 100% Completed |  1min 51.1s
 ```
 
@@ -24,7 +24,7 @@ Packing environment at '[CONDA ENV]/rapids0.15_py3.7' to 'rapids0.15_py3.7.tar.g
     1. `common/code/create_packed_conda_env --action unpack` 
 1. Alternatively, the environment can be manually unpacked as
     ```bash
-      CONDA_ENV="rapids0.13_py3.7"
+      CONDA_ENV="rapids0.19_py3.7"
       TARBALL="$CONDA_ENV.tar.gz"
       UNPACK_TO="$CONDA_ENV"
    
@@ -43,10 +43,10 @@ Packing environment at '[CONDA ENV]/rapids0.15_py3.7' to 'rapids0.15_py3.7.tar.g
     1. `conda install -c conda-forge conda-pack`
 1. Install RAPIDS
     1. Select the package level to install from [RAPIDS.ai](rapids.ai/start.html)
-    1. Ex. For a full install on Ubuntu 18.04, with CUDA 10.2
+    1. Ex. For a full install on Ubuntu 18.04, with CUDA 11.0
         ```bash
-        conda install -c rapidsai-nightly -c nvidia -c conda-forge 
-            -c defaults rapids=0.14 python=3.7 cudatoolkit=10.2 
+        conda install -c rapidsai -c nvidia -c conda-forge 
+            rapids=0.19 python=3.7 cudatoolkit=11.0
         ```
 1. Pack your environment
     1. `conda-pack -n rapids_env -o rapids_py37.tar.gz`
@@ -75,7 +75,7 @@ Packing environment at '[CONDA ENV]/rapids0.15_py3.7' to 'rapids0.15_py3.7.tar.g
 1. Pull and unpack your environment manually or via script as
     ```bash
       GCP_STORAGE="https://storage.googleapis.com/$YOUR_BUCKET/rapids_py37.tar.gz"
-      CONDA_ENV="rapids0.13_py3.7"
+      CONDA_ENV="rapids0.19_py3.7"
       TARBALL="$CONDA_ENV.tar.gz"
       UNPACK_TO="$CONDA_ENV"
    

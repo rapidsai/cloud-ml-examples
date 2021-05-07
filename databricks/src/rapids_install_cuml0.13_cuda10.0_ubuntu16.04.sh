@@ -23,7 +23,6 @@ channels:
   - rapidsai
   - nvidia
   - conda-forge
-  - defaults
 dependencies:
   - _libgcc_mutex=0.1=conda_forge
   - _openmp_mutex=4.5=1_llvm
