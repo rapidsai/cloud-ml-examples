@@ -1,0 +1,25 @@
+#!/bin/bash
+
+set -e
+
+sudo -u ec2-user -i <<'EOF'
+
+mkdir -p rapids_kernel
+cd rapids_kernel
+
+wget -q https://rapidsai-data.s3.us-east-2.amazonaws.com/conda-pack/rapidsai/rapids0.19_cuda11.0_py3.8.tar.gz
+echo "wget completed"
+
+tar -xzf *.gz
+echo "unzip completed"
+
+source /home/ec2-user/rapids_kernel/bin/activate
+conda-unpack 
+echo "unpack completed"
+
+# optionally install AutoGluon for AutoML GPU demo
+# source /home/ec2-user/rapids_kernel/bin/activate && pip install --pre autogluon
+
+python -m ipykernel install --user --name rapids-19
+echo "kernel install completed"
+EOF
