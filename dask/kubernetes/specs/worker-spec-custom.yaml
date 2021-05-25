@@ -23,12 +23,12 @@ spec:
       name: dask-cuda-worker
       resources:
         limits:
-          cpu: "7"
-          memory: 25G
+          cpu: "3"
+          memory: 12G
           nvidia.com/gpu: 1
         requests:
-          cpu: "7"
-          memory: 25G
+          cpu: "3"
+          memory: 12G
       ## Uncomment for XGBoost with custom mortgage data
       #volumeMounts:
       #  - name: gcsfs-creds

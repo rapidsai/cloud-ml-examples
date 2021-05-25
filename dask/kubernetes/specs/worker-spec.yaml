@@ -11,10 +11,10 @@ spec:
       name: dask-cuda-worker
       resources:
         limits:
-          cpu: "10"
-          memory: 80G
+          cpu: "3"
+          memory: 12G
           nvidia.com/gpu: 1
         requests:
-          cpu: "10"
-          memory: 80G
+          cpu: "3"
+          memory: 12G
           nvidia.com/gpu: 1
