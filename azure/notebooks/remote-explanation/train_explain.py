@@ -14,22 +14,15 @@
 # limitations under the License.
 #
 
-from cuml import Ridge
 from interpret.ext.blackbox import TabularExplainer
 from azureml.interpret import ExplanationClient
 from cuml.model_selection import train_test_split
 from azureml.core.run import Run
 import joblib
 import os
-import numpy as np
-import time
-import cudf
 import cuml
-import interpret_community
 from cuml.benchmark.datagen import load_higgs
 
-from datetime import datetime
-from dateutil import parser
 
 OUTPUT_DIR = './outputs/'
 os.makedirs(OUTPUT_DIR, exist_ok=True)
@@ -52,7 +45,6 @@ run.upload_file('x_test_higgs.pkl', os.path.join(OUTPUT_DIR, x_test_pkl))
 gamma = 0.001
 C = 100.
 # Use Ridge algorithm to create a regression model
-import cuml
 reg = cuml.svm.SVC(C=C, gamma=gamma, probability=True)
 model = reg.fit(X_train, y_train)
 
