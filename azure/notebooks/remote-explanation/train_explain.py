@@ -35,7 +35,7 @@ OUTPUT_DIR = './outputs/'
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 X, y = load_higgs()
-N_ROWS = 100000
+N_ROWS = 1000000
 run = Run.get_context()
 client = ExplanationClient.from_run(run)
 run.log('N_ROWS', N_ROWS)
@@ -46,7 +46,7 @@ X_train, X_test, y_train, y_test = train_test_split(X[:N_ROWS],
 x_test_pkl = 'x_test.pkl'
 with open(x_test_pkl, 'wb') as file:
     joblib.dump(value=X_test, filename=os.path.join(OUTPUT_DIR, x_test_pkl))
-run.upload_file('x_test.pkl', os.path.join(OUTPUT_DIR, x_test_pkl))
+run.upload_file('x_test_higgs.pkl', os.path.join(OUTPUT_DIR, x_test_pkl))
 
 
 gamma = 0.001
