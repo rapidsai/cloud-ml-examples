@@ -7,6 +7,7 @@ Sections in README
 1. Create an Azure Machine Learning Service Workspace
 2. RAPIDS MNMG example using dask-clouprovider
 3. RAPIDS Hyperparameter Optimization on AzureML
+4. Model Intepretability using GPU SHAP on Azure
 
 
 # 1. Create an Azure Machine Learning Service Workspace
@@ -126,3 +127,15 @@ jupyter notebook
 
 Open your web browser, navigate to http://localhost:8888/ and access `HPO-RAPIDS.ipynb` from your local machine. Follow the steps in the notebook for hyperparameter tuning with RAPIDS on GPUs.
 
+# 4. Model Intepretability using GPU SHAP on Azure
+
+1. Follow steps in 1 to [set up a Resource Group and Machine Learning workspace](https://github.com/rapidsai/cloud-ml-examples/blob/main/azure/README.md#1-create-an-azure-machine-learning-service-workspace).
+2. Follow steps in [2(a) to set up the local environment](https://github.com/rapidsai/cloud-ml-examples/blob/main/azure/README.md#2a-set-up-environment-on-local-computer) using docker.
+3. In the docker container, Clone the cloud-ml-examples repository:
+
+```git
+git clone https://github.com/rapidsai/cloud-ml-examples.git
+```
+
+4. Navigate to the `azure/notebooks/remote-explanation` and open up `azure-gpu-shap.ipynb`
+5. The necessary packages needed are present in the notebook, uncomment and run the appropriate cell.
