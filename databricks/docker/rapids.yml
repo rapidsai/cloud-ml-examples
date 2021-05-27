@@ -1,7 +1,0 @@
-name: rapids
-channels:
-  - defaults
-dependencies:
-- cudatoolkit=11
-- ipykernel=5.3.4  # required by Python notebooks
-- ipython=7.19.0  # required by Python notebooks

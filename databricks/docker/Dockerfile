@@ -1,10 +1,9 @@
 FROM databricksruntime/gpu-conda:cuda11
 
-COPY rapids.yml /tmp/env.yml
+COPY rapids-spec.txt /tmp/spec.txt
 
-RUN conda env create --file /tmp/env.yml && \
-    rm -f /tmp/env.yml && \
-    rm -rf $HOME/.cache/pip/*
+RUN conda create --name rapids --file /tmp/spec.txt && \
+    rm -f /tmp/spec.txt
 
 # Set an environment variable used by Databricks to decide which conda environment to activate by default.
 ENV DEFAULT_DATABRICKS_ROOT_CONDA_ENV=rapids
