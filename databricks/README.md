@@ -6,7 +6,9 @@ The `rapids_intro.ipynb` notebook has been tested with the latest RAPIDS version
 
 The `rapids_airline_hyperopt.ipynb` example walks through the optimization of a random forest model using cuML and hyperopt. It includes init scripts to install an earlier version of RAPIDS (0.13) on DataBricks ML Runtime. 
 
-## Build the RAPIDS container for Databricks
+## 1. Use a custome image on Databricks
+
+## Build the RAPIDS container
 
 docker build --tag ${DockerHub_Repo}/rapids_databricks:latest --file docker/Dockerfile
 
@@ -28,9 +30,9 @@ Push this image to a Docker registry (DockerHub, Amazon ECR or Azure ACR).
 1. Upload the `rapids_intro.ipynb` notebook to your workspace.
 2. Execute the cells to import cuDF and cuML, and walk through simple examples on the GPU.
 
+## 2. Use an init script on Databricks
 
-
-The example below has been tested with an earlier version of RAPIDS (0.13). To use the latest version of RAPIDS, follow the steps mentioned above.
+**The example below has been tested with an earlier version of RAPIDS (0.13). To use the latest version of RAPIDS, follow the steps mentioned above.**
 
 ### Upload RAPIDS 0.13 Init Script to DBFS
 * Copy `src/rapids_install_cuml0.13_cuda10.0_ubuntu16.04.sh` onto your Databricks dbfs file system.
