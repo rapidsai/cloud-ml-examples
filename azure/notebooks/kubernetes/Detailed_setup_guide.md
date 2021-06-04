@@ -1,15 +1,15 @@
 # [Detailed Guide to use Dask on Azure Kubernetes Service (AKS)](#anchor-start)
 
-For all the next steps, we will be using the [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli), however the same can be achieved through the Azure GUI Portal. 
+For all the next steps, we will be using the [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli), however the same can be achieved through the [Azure Portal](https://portal.azure.com/#home). 
 
 ### [Step 0: Install and authenticate with Azure CLI](#anchor-install-azurecli)
 - Install the `az` cli using 
     ```
     curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
     ````
-    in the computer from where you will be running everythning from. Get rid of the `sudo` if you are running things from inside a container. 
+    on the computer from where you will be running these examples from. You can remove the `sudo` if running inside a Docker container. 
 
-- Once `az` is installed, make sure you you configure the local `az` cli to work with your Azure credentials, do `az login` and authenticate from Microsoft's website.
+- Once `az` is installed, make sure you configure the local `az` cli to work with your Azure credentials, run `az login` and authenticate from Microsoft's website.
 
 - For more details follow the steps [Here](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli). 
 
@@ -20,7 +20,7 @@ For all the next steps, we will be using the [Azure CLI](https://docs.microsoft.
 
 
 ### [Step 2: Set some environment variables](#anchor-set-env-variables)
-We will set some environment variables beforehand, namely to help us deploy some resources quickly.  We will keep on using some common values for the rest of the deployments. . 
+We will set some environment variables beforehand, namely to help us deploy some resources quickly.  We will continue using common values for the rest of the deployments. 
 ```bash
 REGION_NAME=<your preferred location>
 RESOURCE_GROUP=<your preferred resource group name>
@@ -34,18 +34,18 @@ VM_SIZE=Standard_NC12s_v3 # or any other VM size. We use VMs with GPU
 
 - We would need a resource group. You can create a resource group in Azure `az group create  --name $RESOURCE_GROUP --location $REGION_NAME`, or use an existing one.
 
-- Secondly, we get the latest non preview Kubernetes version and store it in an env variable using. This provides that the latest version is 1.20.5. Optionally you can directly set the Kubernetes version in the environment variable `VERSION`.
+- Secondly, we get the latest non preview Kubernetes version for the specific region and store it in an env variable `VERSION`. At the time of writing this article, the latest version is 1.20.5. Optionally you can directly set the Kubernetes version in the environment variable `VERSION`.
 
-- **NOTE 1**: There are two network modes to choose from when deploying an AKS cluster. The default one is *Kubenet networking* which we will use here. The other more sophisticated one is Azure Container Networking Interface. We will not need this at the moment. Please look [here](https://docs.microsoft.com/en-us/learn/modules/aks-workshop/02-deploy-aks) to get an idea about how to deploy Azure CNI.  
+- **NOTE 1**: There are two network modes to choose from when deploying an AKS cluster. The default one is *Kubenet networking* which we will use here. 
 
-- **NOTE 2**: Depending on your account limitations, the number and type of VMs that you can spin up may vary. Also there may be zone limitations. Make sure you spin up VMs having GPU capabilities GPU: NVIDIA Pascal™ or better with compute capability 6.0+. 
+- **NOTE 2**: Depending on your account limitations, the number and type of VMs that you can spin up may vary. Also there may be zone limitations. Make sure you spin up VMs with GPUs: NVIDIA Pascal™ or better with compute capability 6.0+. To give some examples of types of VMs you can use, the Azure [NC series](https://docs.microsoft.com/en-us/azure/virtual-machines/nc-series) / [NCv3 series](https://docs.microsoft.com/en-us/azure/virtual-machines/ncv3-series) VMs provide single or multi-gpu capabilities. In this setup guide for Kubernetes, we are using `Standard_NC12s_v3` VMs which have 2 NVIDIA V100 GPUs each.
 
 
-### [Step 3: Create the cluster and get credentials](#anchor-create-aks-cluster)
+### [Step 3: Create the cluster and get Kubernetes credentials](#anchor-create-aks-cluster)
 
 Once you verify that you are allowed to use the necessary VM sizes in your preferred location, now its time to create a managed kubernetes cluster, namely an AKS cluster. The process is pretty simple. Also, after you successfully deploy a cluster with a node-pool of some nodes, you will be able to run workers as pods on the kubernetes cluster using [dask-kubernetes](https://github.com/dask/dask-kubernetes).
 
-- Anyway, first, run the following command to create a AKKS cluster running the latest kubernetes version. It will take a few minutes before it completes. Grab a coffee :coffee: :coffee: .
+- Let's first run the following command to create a AKS cluster using the latest kubernetes version. It will take a few minutes before it completes. Grab a coffee :coffee: :coffee: .
     ```bash
     az aks create \
         --resource-group $RESOURCE_GROUP \
@@ -56,7 +56,7 @@ Once you verify that you are allowed to use the necessary VM sizes in your prefe
         --node-vm-size $VM_SIZE \
         --generate-ssh-keys
     ```
-- Once the cluster is created successfully, lets get the credentials for your AKS cluster to access it from your machine.
+- Once the cluster is created successfully, let's get the credentials for your AKS cluster to access it from your machine.
     ```bash
     az aks get-credentials --resource-group $RESOURCE_GROUP --name $AKS_CLUSTER_NAME
     ```
@@ -70,7 +70,7 @@ Once you verify that you are allowed to use the necessary VM sizes in your prefe
     ```
 
 ### [Step 3: Set up the AKS cluster to use GPUs for our workload](#anchor-setup-gpu)
-Once you have a AKS cluster up and running with nodes which have GPU capabilities, you need to install the [NVIDIA device plugin](https://github.com/NVIDIA/k8s-device-plugin) which allows allocation of GPUs to pods. 
+Once you have an AKS cluster up and running with nodes which have GPU capabilities, you need to install the [NVIDIA device plugin](https://github.com/NVIDIA/k8s-device-plugin) which allows allocation of GPUs to pods. 
 - First create a namespace using: 
     ```
     kubectl create namespace gpu-resources
@@ -167,7 +167,7 @@ We need to authenticate AKS to pull the images from ACR. For this purpose we wil
     "username": "<your user name>"
     }
     ```
-    Note down the password and the username. Any of the two password will work.
+    Note down the password and the username. Any of the two passwords will work.
 
 - Docker login and create a secret with `docker login`
     ```bash
