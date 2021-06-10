@@ -1,4 +1,4 @@
-### Example Notebooks to run RAPIDS with Azure Kubernetes Service
+### Example Notebooks to run RAPIDS with Azure Kubernetes Service and Dask Kubernetes
 
 - Detailed instructions to set up RAPIDS with AKS is in the markdown file [Detailed_setup_guide.md](Detailed_setup_guide.md) . Go through this before you try to run any other notebooks.
 - Shorter example notebook using Dask + RAPIDS + XGBoost in [MNMG_XGBoost.ipynb](./MNMG_XGBoost.ipynb)
