@@ -8,6 +8,7 @@ Sections in README
 2. RAPIDS MNMG example using dask-clouprovider
 3. RAPIDS Hyperparameter Optimization on AzureML
 4. Model Intepretability using GPU SHAP on Azure
+5. RAPIDS MNMG with Azure Kubernetes Service (AKS) using Dask Kubernetes
 
 
 # 1. Create an Azure Machine Learning Service Workspace
@@ -139,3 +140,11 @@ git clone https://github.com/rapidsai/cloud-ml-examples.git
 
 4. Navigate to the `azure/notebooks/remote-explanation` and open up `azure-gpu-shap.ipynb`
 5. The necessary packages needed are present in the notebook, uncomment and run the appropriate cell.
+
+# 5. RAPIDS MNMG with Azure Kubernetes Service (AKS) using Dask Kubernetes
+
+For detailed instructions of setup and example notebooks to run RAPIDS with Azure Kubernetes Service using Dask Kubernetes, navigate to the `kubernetes` subdirectory.
+
+- Detailed instructions to set up RAPIDS with AKS using Dask Kubernetes is in the markdown file [Detailed_setup_guide.md](./kubernetes/Detailed_setup_guide.md) . Go through this before you try to run any other notebooks.
+- Shorter example notebook using Dask + RAPIDS + XGBoost in [MNMG_XGBoost.ipynb](./kubernetes/MNMG_XGBoost.ipynb)
+- Full example with performance sweeps over multiple algorithms and larger dataset in [Dask_cuML_Exploration_Full.ipynb](./kubernetes/Dask_cuML_Exploration_Full.ipynb)
