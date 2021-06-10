@@ -5,15 +5,15 @@ metadata:
 spec:
   restartPolicy: Never
   containers:
-    - image: gcr.io/[YOUR_PROJECT_PATH]/dask-unified:0.18
+    - image: gcr.io/[YOUR_GCP_PROJECT]/[YOUR_USER_ID]/dask-unified:0.19
       imagePullPolicy: IfNotPresent
       args: [ dask-scheduler ]
       name: dask-scheduler
       resources:
         limits:
           cpu: "3"
-          memory: 10G
+          memory: 12G
           nvidia.com/gpu: 1
         requests:
           cpu: "3"
-          memory: 10G
+          memory: 12G

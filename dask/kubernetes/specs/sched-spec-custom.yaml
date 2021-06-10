@@ -1,0 +1,39 @@
+kind: Pod
+metadata:
+  labels:
+    dask_type: "scheduler"
+spec:
+  restartPolicy: Never
+  volumes:
+    - name: gcsfs-creds
+      secret:
+        secretName: gcsfs-creds
+        items:
+          - key: keyfile.json
+            path: keyfile.json
+  tolerations:
+    - key: "daskrole"
+      operator: "Equal"
+      value: "scheduler"
+      effect: "NoSchedule"
+  containers:
+    - image: gcr.io/[YOUR_GCP_PROJECT]/[YOUR_USER_ID]/dask-unified:0.19
+      imagePullPolicy: IfNotPresent
+      args: [ dask-scheduler ]
+      name: dask-scheduler
+      resources:
+        limits:
+          cpu: "3"
+          memory: 12G
+          nvidia.com/gpu: 1
+        requests:
+          cpu: "3"
+          memory: 12G
+      ## Uncomment for XGBoost with custom mortgage data
+      #volumeMounts:
+      #  - name: gcsfs-creds
+      #    mountPath: "/etc/secrets"
+      #    readOnly: true
+      #env:
+      #  - name: GOOGLE_APPLICATION_CREDENTIALS
+      #    value: "/etc/secrets/keyfile.json"

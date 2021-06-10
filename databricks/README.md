@@ -1,15 +1,40 @@
-# Databricks Notebooks with MLFlow, RAPIDS, and Hyperopt
+# RAPIDS on Databricks
 
-This directory contains a sample notebook that walks through the
-optimization of a random forest model using cuML and hyperopt on the
-DataBricks cloud. It also includes init scripts to install RAPIDS
-automatically on your DataBricks cluster.
+This directory contains sample notebooks for running RAPIDS on Databricks.
 
-It has been tested with RAPIDS 0.13 on DataBricks ML Runtime 6.6. (Support for RAPIDS 0.14 is planned for the near future.)
+The `rapids_intro.ipynb` notebook has been tested with the latest RAPIDS version (0.19) by building a custom container, and contains basic examples to get started with cuDF and cuML.
 
-# Running the demo on DataBricks
+The `rapids_airline_hyperopt.ipynb` example walks through the optimization of a random forest model using cuML and hyperopt. It includes init scripts to install an earlier version of RAPIDS (0.13) on DataBricks ML Runtime. 
 
-## Upload RAPIDS 0.13 Init Script to DBFS
+## 1. Use a custome image on Databricks
+
+## Build the RAPIDS container
+
+docker build --tag ${DockerHub_Repo}/rapids_databricks:latest --file docker/Dockerfile
+
+Push this image to a Docker registry (DockerHub, Amazon ECR or Azure ACR).
+
+## Configure and create a cluster
+
+* Create your cluster:
+    1. Select a standard Databricks runtime. In this example 8.2 version, since we're using a container with CUDA 11.
+        *  This needs to be a Databricks runtime version that supports Databricks Container Services.
+    2. Select "Use your own Docker container".
+    3. In the Docker Image URL field, enter the image that you created above. 
+    4. Select a GPU enabled worker and driver type.
+        * **Note** Selected GPU must be Pascal generation or greater.
+    5. Create and launch your cluster.
+
+## Launching the notebook example
+
+1. Upload the `rapids_intro.ipynb` notebook to your workspace.
+2. Execute the cells to import cuDF and cuML, and walk through simple examples on the GPU.
+
+## 2. Use an init script on Databricks
+
+**The example below has been tested with an earlier version of RAPIDS (0.13). To use the latest version of RAPIDS, follow the steps mentioned above.**
+
+### Upload RAPIDS 0.13 Init Script to DBFS
 * Copy `src/rapids_install_cuml0.13_cuda10.0_ubuntu16.04.sh` onto your Databricks dbfs file system.
     * This will become the base init script that is run at cluster start up.
     * Example:
@@ -19,7 +44,7 @@ It has been tested with RAPIDS 0.13 on DataBricks ML Runtime 6.6. (Support for R
     $ dbfs cp src/rapids_install_cuml0.13_cuda10.0_ubuntu16.04.sh dbfs:/databricks/init_scripts/
     ```
    
-## Create and Configure a Cluster
+### Create and Configure a Cluster
 * Create your cluster:
     1. Select a GPU enabled Databricks runtime. Ex: 6.6 ML 
         * Currently 'Use your own Docker container' is not available for ML instances.
@@ -33,7 +58,7 @@ It has been tested with RAPIDS 0.13 on DataBricks ML Runtime 6.6. (Support for R
 
 ![Setting up init script](imgs/init_script_config.png)
 
-## Launching the notebook
+### Launching the notebook
 
 1. Upload the `rapids_airline_hyperopt.ipynb` notebook to your workspace.
 2. Uncomment the "data download" cell and configure it to point to a path of your choice for data download. By default, it will use a smaller (200k row) dataset. This executes fast but doesn't demonstrate the full speedups possible with larger datasets.
@@ -44,16 +69,3 @@ It has been tested with RAPIDS 0.13 on DataBricks ML Runtime 6.6. (Support for R
 ## More on Integrating Databricks Jobs with MLFlow and RAPIDS
 
 You can find more detail in [this blog post on MLFlow + RAPIDS](https://medium.com/rapids-ai/managing-and-deploying-high-performance-machine-learning-models-on-gpus-with-rapids-and-mlflow-753b6fcaf75a).
-
-### MLFlow and RAPIDS
-1. RAPIDS Attempts to maintain compatibility with the SKlearn API. This means that, in general, you will be able to
-utilize cuML models with the MLFlow Sklearn interface, including model training, saving artifacts/models, and deploying
-saved models.
-    1. Ex. 
-    ```python
-   import mlflow
-   from cuml.ensemble import RandomForestClassifier
-   
-   model = RandomForestClassifier()
-   mlflow.sklearn.log_model(model, "cuml_model", conda_env='conda.yaml')
-    ```
