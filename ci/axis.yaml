@@ -1,7 +1,6 @@
 CUDA_VER:
   - "11.2"
   - "11.0"
-  - "10.2"
 
 IMG_TYPE:
   - base
@@ -14,8 +13,4 @@ PYTHON_VER:
   - "3.8"
 
 RAPIDS_VER:
-  - "0.19"
-
-exclude:
-  - LINUX_VER: ubuntu20.04
-    CUDA_VER: "10.2"
+  - "21.06"
