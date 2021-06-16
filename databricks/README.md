@@ -10,7 +10,7 @@ The `rapids_airline_hyperopt.ipynb` example walks through the optimization of a 
 
 ## Build the RAPIDS container
 
-docker build --tag ${DockerHub_Repo}/rapids_databricks:latest --file docker/Dockerfile
+`docker build --tag ${DockerHub_Repo}/rapids_databricks:latest --file Dockerfile .`
 
 Push this image to a Docker registry (DockerHub, Amazon ECR or Azure ACR).
 
