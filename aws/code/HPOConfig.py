@@ -78,6 +78,8 @@ class HPOConfig(object):
                 model_type = 'RandomForest'
             elif model_selection in ['xgboost']:
                 model_type = 'XGBoost'
+            elif model_selection in ['kmeans']:
+                model_type = 'KMeans'
 
             # parse compute choice
             compute_selection = os.environ['AWS_ML_WORKFLOW_CHOICE'].lower()
@@ -165,6 +167,17 @@ class HPOConfig(object):
                 'n_bins': args.n_bins,
                 'bootstrap': args.bootstrap,
                 'random_state': args.random_state
+            }
+            
+        elif 'KMeans' in self.model_type: 
+            parser.add_argument( '--n_clusters', type = int, default = 8)
+            parser.add_argument( '--max_iter'  , type = int, default = 300)
+            
+            args, unknown_args = parser.parse_known_args(input_args)
+            
+            model_params = {
+                'n_clusters': args.n_clusters, 
+                'max_iter': args.max_iter
             }
 
         else:
