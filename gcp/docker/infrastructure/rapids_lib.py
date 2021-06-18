@@ -26,9 +26,11 @@ from sklearn.model_selection import train_test_split as sklearn_train_test_split
 ##hack
 try:
     import cudf, cuml
-    from cuml.preprocessing.model_selection import train_test_split as cuml_train_test_split
     import pynvml
     import cupy
+    from cuml import train_test_split as cuml_train_test_split
+    import sklearn
+    from sklearn.model_selection import train_test_split
 except:
     print("Caught import failures -- probably missing GPU")
 
