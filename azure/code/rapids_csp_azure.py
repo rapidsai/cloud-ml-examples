@@ -41,7 +41,7 @@ from cuml.dask.common import utils as dask_utils
 
 from cuml.dask.ensemble import RandomForestClassifier as cumlDaskRF
 from cuml.metrics.accuracy import accuracy_score
-from cuml.preprocessing.model_selection import \
+from cuml.model_selection import \
     train_test_split as cuml_train_test_split
 from dask_cuda import LocalCUDACluster
 from dask_ml.model_selection import train_test_split as dask_train_test_split

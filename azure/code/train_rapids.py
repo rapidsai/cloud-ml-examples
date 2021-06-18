@@ -25,7 +25,7 @@ import cuml
 import mlflow
 
 from cuml import RandomForestClassifier as cuRF
-from cuml.preprocessing.model_selection import train_test_split
+from cuml.model_selection import train_test_split
 from cuml.metrics.accuracy import accuracy_score
 
 from rapids_csp_azure import RapidsCloudML, PerfTimer
