@@ -43,7 +43,7 @@ Packing environment at '[CONDA ENV]/rapids21.06_py3.7' to 'rapids21.06_py3.7.tar
     1. `conda install -c conda-forge conda-pack`
 1. Install RAPIDS
     1. Select the package level to install from [RAPIDS.ai](rapids.ai/start.html)
-    1. Ex. For a full install on Ubuntu 18.04, with CUDA 11.0
+    1. Ex. For a full install on Ubuntu 18.04, with CUDA 11.2
         ```bash
         conda install -c rapidsai -c nvidia -c conda-forge 
             rapids=21.06 python=3.8 cudatoolkit=11.2
