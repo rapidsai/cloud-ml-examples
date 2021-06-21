@@ -28,7 +28,7 @@ try:
     import cudf, cuml
     import pynvml
     import cupy
-    from cuml import train_test_split as cuml_train_test_split
+    from cuml.model_selection import train_test_split as cuml_train_test_split
     import sklearn
     from sklearn.model_selection import train_test_split
 except:
