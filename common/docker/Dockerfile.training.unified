@@ -59,7 +59,7 @@ COPY aws/code/workflows/MLWorkflowMultiCPU.py \
 
 RUN . /opt/conda/etc/profile.d/conda.sh \
     && conda activate rapids \
-    && conda install -c anaconda -c conda-forge \
+    && conda install -c conda-forge \
         flask \
         dask-ml \
     && conda clean --all \
