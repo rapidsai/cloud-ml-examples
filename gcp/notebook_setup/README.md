@@ -14,7 +14,7 @@ This section describes the process required to:
 ... processing ...
 Packing conda environment
 Collecting packages...
-Packing environment at '[CONDA ENV]/rapids21.06_py3.7' to 'rapids21.06_py3.7.tar.gz'
+Packing environment at '[CONDA ENV]/rapids21.06_py3.8' to 'rapids21.06_py3.8.tar.gz'
 [########################################] | 100% Completed |  1min 51.1s
 ```
 
