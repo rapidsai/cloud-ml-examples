@@ -75,7 +75,7 @@ Packing environment at '[CONDA ENV]/rapids21.06_py3.8' to 'rapids21.06_py3.8.tar
 1. Pull and unpack your environment manually or via script as
     ```bash
       GCP_STORAGE="https://storage.googleapis.com/$YOUR_BUCKET/rapids_py38.tar.gz"
-      CONDA_ENV="rapids21.06_py3.7"
+      CONDA_ENV="rapids21.06_py3.8"
       TARBALL="$CONDA_ENV.tar.gz"
       UNPACK_TO="$CONDA_ENV"
    
