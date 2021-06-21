@@ -24,7 +24,7 @@ Packing environment at '[CONDA ENV]/rapids21.06_py3.8' to 'rapids21.06_py3.8.tar
     1. `common/code/create_packed_conda_env --action unpack` 
 1. Alternatively, the environment can be manually unpacked as
     ```bash
-      CONDA_ENV="rapids21.06_py3.7"
+      CONDA_ENV="rapids21.06_py3.8"
       TARBALL="$CONDA_ENV.tar.gz"
       UNPACK_TO="$CONDA_ENV"
    
