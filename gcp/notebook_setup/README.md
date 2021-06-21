@@ -14,7 +14,7 @@ This section describes the process required to:
 ... processing ...
 Packing conda environment
 Collecting packages...
-Packing environment at '[CONDA ENV]/rapids21.06_py3.7' to 'rapids21.06_py3.7.tar.gz'
+Packing environment at '[CONDA ENV]/rapids21.06_py3.8' to 'rapids21.06_py3.8.tar.gz'
 [########################################] | 100% Completed |  1min 51.1s
 ```
 
@@ -24,7 +24,7 @@ Packing environment at '[CONDA ENV]/rapids21.06_py3.7' to 'rapids21.06_py3.7.tar
     1. `common/code/create_packed_conda_env --action unpack` 
 1. Alternatively, the environment can be manually unpacked as
     ```bash
-      CONDA_ENV="rapids21.06_py3.7"
+      CONDA_ENV="rapids21.06_py3.8"
       TARBALL="$CONDA_ENV.tar.gz"
       UNPACK_TO="$CONDA_ENV"
    
@@ -75,7 +75,7 @@ Packing environment at '[CONDA ENV]/rapids21.06_py3.7' to 'rapids21.06_py3.7.tar
 1. Pull and unpack your environment manually or via script as
     ```bash
       GCP_STORAGE="https://storage.googleapis.com/$YOUR_BUCKET/rapids_py38.tar.gz"
-      CONDA_ENV="rapids21.06_py3.7"
+      CONDA_ENV="rapids21.06_py3.8"
       TARBALL="$CONDA_ENV.tar.gz"
       UNPACK_TO="$CONDA_ENV"
    
