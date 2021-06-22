@@ -173,7 +173,9 @@ class MLWorkflowMultiGPU(MLWorkflow):
             hpo_log.info('> fit kmeans model')
             trained_model = KMeans(
                 n_clusters=self.hpo_config.model_params['n_clusters'], 
-                max_iter=self.hpo_config.model_params['max_iter']
+                max_iter=self.hpo_config.model_params['max_iter'], 
+                random_state=self.hpo_config.model_params['random_state'], 
+                init=self.hpo_config.model_params['init']
             ).fit(X_train)
 
         return trained_model
