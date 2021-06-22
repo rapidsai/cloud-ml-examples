@@ -25,6 +25,7 @@ import joblib
 
 from dask_ml.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.cluster import KMeans
 from sklearn.metrics import accuracy_score
 
 import logging
@@ -159,6 +160,13 @@ class MLWorkflowMultiCPU(MLWorkflow):
                 max_features=self.hpo_config.model_params['max_features'],
                 n_jobs=-1
             ).fit(X_train, y_train.astype('int32'))
+            
+        elif 'KMeans' in self.hpo_config.model_type:
+            hpo_log.info('> fit kmeans model')
+            trained_model = KMeans(
+                n_clusters=self.hpo_config.model_params['n_clusters'], 
+                max_iter=self.hpo_config.model_params['max_iter']
+            ).fit(X_train)
 
         return trained_model
 
@@ -177,6 +185,9 @@ class MLWorkflowMultiCPU(MLWorkflow):
             predictions = (predictions > threshold) * 1.0
 
         elif 'RandomForest' in self.hpo_config.model_type:
+            predictions = trained_model.predict(X_test)
+            
+        elif 'KMeans' in self.hpo_config.model_type: 
             predictions = trained_model.predict(X_test)
 
         return predictions
@@ -209,6 +220,8 @@ class MLWorkflowMultiCPU(MLWorkflow):
                 trained_model.save_model(f'{output_filename}_mcpu_xgb')
             elif 'RandomForest' in self.hpo_config.model_type:
                 joblib.dump(trained_model, f'{output_filename}_mcpu_rf')
+            elif 'KMeans' in self.hpo_config.model_type:
+                joblib.dump(trained_model, f'{output_filename}_mcpu_kmeans')
 
     @timer_decorator
     async def cleanup(self, i_fold):
