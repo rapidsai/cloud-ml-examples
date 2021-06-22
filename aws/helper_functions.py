@@ -163,7 +163,7 @@ def new_job_name_from_config(dataset_directory, region, code_choice,
         if 'xgboost' in algorithm_choice.lower():
             algorithm_choice_str = 'XGB'
         if 'kmeans' in algorithm_choice.lower():
-            algorithm_choice_str = "KMeans"
+            algorithm_choice_str = 'KMeans'
 
         # instance_type_str = '-'.join(instance_type.split('.')[1:])
 
