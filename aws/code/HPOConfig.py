@@ -170,14 +170,23 @@ class HPOConfig(object):
             }
             
         elif 'KMeans' in self.model_type: 
-            parser.add_argument( '--n_clusters', type = int, default = 8)
-            parser.add_argument( '--max_iter'  , type = int, default = 300)
+            parser.add_argument( '--n_clusters'  , type = int, default = 8)
+            parser.add_argument( '--max_iter'    , type = int, default = 300)
+            parser.add_argument( '--random_state', type = int, default = 1)
+            
+            compute_selection = os.environ['AWS_ML_WORKFLOW_CHOICE'].lower()
+            if 'gpu' in compute_selection:
+                parser.add_argument( '--init'    , type = str, default = 'scalable-k-means++')
+            else:
+                parser.add_argument( '--init'    , type = str, default = 'k-means++')
             
             args, unknown_args = parser.parse_known_args(input_args)
             
             model_params = {
                 'n_clusters': args.n_clusters, 
-                'max_iter': args.max_iter
+                'max_iter': args.max_iter, 
+                'random_state': args.random_state, 
+                'init': args.init
             }
 
         else:
