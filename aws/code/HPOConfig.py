@@ -80,6 +80,8 @@ class HPOConfig(object):
                 model_type = 'XGBoost'
             elif model_selection in ['kmeans']:
                 model_type = 'KMeans'
+            elif model_selection in ['kneighbors']:
+                model_type = 'KNeighbors'
 
             # parse compute choice
             compute_selection = os.environ['AWS_ML_WORKFLOW_CHOICE'].lower()
@@ -99,7 +101,7 @@ class HPOConfig(object):
             hpo_log.info(f'Configuration parser failed : {error}')
 
         assert (dataset_type in ['Airline', 'NYCTaxi', 'BYOData'])
-        assert (model_type in ['RandomForest', 'XGBoost'])
+        assert (model_type in ['RandomForest', 'XGBoost', 'KMeans', 'KNeighbors'])
         assert (compute_type in ['single-GPU', 'multi-GPU',
                                  'single-CPU', 'multi-CPU'])
         assert (cv_folds >= 1)
