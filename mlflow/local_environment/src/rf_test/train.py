@@ -7,7 +7,7 @@ import mlflow
 import mlflow.sklearn
 
 from cuml.metrics.accuracy import accuracy_score
-from cuml.preprocessing.model_selection import train_test_split
+from cuml.model_selection import train_test_split
 from cuml.ensemble import RandomForestClassifier
 
 from hyperopt import fmin, tpe, hp, Trials, STATUS_OK
