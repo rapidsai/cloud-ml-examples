@@ -31,11 +31,12 @@ Workflow: We will create a notebook instance, and run a shell script that will i
         1. Open a new terminal
         1. Run
            ```shell
-           RAPIDS_VER=0.19
+           RAPIDS_VER=21.06
            CUDA_VER=11.0
            wget -q https://rapidsai-data.s3.us-east-2.amazonaws.com/conda-pack/rapidsai/rapids${RAPIDS_VER}_cuda${CUDA_VER}_py3.8.tar.gz
            tar -xzf rapids${RAPIDS_VER}_cuda${CUDA_VER}_py3.8.tar.gz -C /opt/conda/envs/rapids_py38
            conda activate rapids_py38
+           conda unpack
            ipython kernel install --user --name=rapids_py38
            ```
         1. Once completed, you will now have a new kernel in your jupyter notebooks called 'rapids_py38' which will have rapids installed.

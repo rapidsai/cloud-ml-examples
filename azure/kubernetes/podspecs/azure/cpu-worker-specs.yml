@@ -1,0 +1,26 @@
+kind: Pod
+metadata:
+  labels:
+    dask_type: "worker"
+spec:
+  restartPolicy: Never
+  tolerations:
+    - key: "daskrole"
+      operator: "Equal"
+      value: "worker"
+      effect: "NoSchedule"
+  containers:
+    - image: <username>.azurecr.io/aks-mnmg/dask-unified:21.06
+      imagePullPolicy: IfNotPresent
+      args: [ dask-worker, $(DASK_SCHEDULER_ADDRESS) ]
+      name: dask-worker
+      resources:
+        limits:
+          cpu: "4"
+          memory: 25G
+          #nvidia.com/gpu: 1
+        requests:
+          cpu: "4"
+          memory: 25G
+  imagePullSecrets:
+    - name: "aks-secret"
