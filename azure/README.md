@@ -59,17 +59,19 @@ This file will be used with [Azure Machine Learning SDK for Python](https://docs
 
 # 2. RAPIDS MNMG example using Dask Cloud Provider
 
-This [Azure MNMG notebook](#) will use [Dask Cloud Provider](https://cloudprovider.dask.org/en/latest/) to run a multi-node muli-GPU example on Azure. For this, we will make use of [AzureVMCluster](https://cloudprovider.dask.org/en/latest/azure.html#azurevm) function to set-up a cluster and run an example.
-
+Our [Azure MNMG notebooks](#) will use [Dask Cloud Provider](https://cloudprovider.dask.org/en/latest/) to run multi-node muli-GPU examples on Azure. For each example, we will make use of [AzureVMCluster](https://cloudprovider.dask.org/en/latest/azure.html#azurevm) function to set-up a cluster and run an example. We have two example notebooks: 
+- [Random Forest using Dask CloudProvider](./notebooks/Azure-MNMG-RF.ipynb)
+- [XGBoost using Dask CloudProvider](./notebooks/azure_mnmg_xgboost.ipynb). This notebook additionally demonstrates how to speed up deployment using custom VM images via [`packer`](https://www.packer.io/).
 
 ## 2(a) Set up environment on local computer
 
 We recommend using RAPIDS docker image on your local system and using the same image in the notebook so that the libraries can match accurately. You can achieve this using conda environments for RAPIDS too.
 
-In the example notebook we are using `rapidsai/rapidsai:0.19-cuda11.0-runtime-ubuntu18.04-py3.8` docker image, to pull and run this use the following command. The `-v` flag sets the volume you'd like to mount on the docker container. This way, the changes you make within the docker container are present on your local system to. Make sure to change `local/path` to the path which contains this repository.
+For example, in the Random Forest Notebook, we are using `rapidsai/rapidsai:21.06-cuda11.0-runtime-ubuntu18.04-py3.8` docker image, to pull and run this use the following command. The `-v` flag sets the volume you'd like to mount on the docker container. This way, the changes you make within the docker container are present on your local system to. Make sure to change `local/path` to the path which contains this repository.
 
-`docker run --runtime nvidia --rm -it -p 8888:8888 -p 8787:8787 -v /local/path:/docker/path rapidsai/rapidsai:0.19-cuda11.0-runtime-ubuntu18.04-py3.8`
+`docker run --runtime nvidia --rm -it -p 8888:8888 -p 8787:8787 -v /local/path:/docker/path rapidsai/rapidsai:21.06-cuda11.0-runtime-ubuntu18.04-py3.8`
 
+For the XGBoost notebook, we are using the image `rapidsai/rapidsai:cuda11.2-runtime-ubuntu18.04-py3.8`. 
 
 ## 2(b) Setup Azure environment
 
@@ -102,7 +104,7 @@ For more details, visit [Microsoft Azure - dask cloud provider](https://cloudpro
 jupyter notebook --ip 0.0.0.0 --port 8888 --no-browser --allow-root --NotebookApp.token=''
 ```
 
-6. Navigate to the notebook `azure_mnmg.ipynb` under `azure/notebooks`
+6. Navigate either to either of the two notebooks `Azure-MNMG-RF.ipynb` or `azure_mnmg_xgboost.ipynb` under `./notebooks`.
 
 7. Update the notebook with the names of resources appropriately and run it.
 
