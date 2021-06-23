@@ -175,11 +175,11 @@ class HPOConfig(object):
             parser.add_argument( '--random_state', type = int, default = 1)
             
             compute_selection = os.environ['AWS_ML_WORKFLOW_CHOICE'].lower()
-            if 'gpu' in compute_selection:
+            if 'gpu' in compute_selection:  # 'singlegpu' or 'multigpu'
                 parser.add_argument( '--init'    , type = str, default = 'scalable-k-means++')
             elif 'multicpu' in compute_selection:
                 parser.add_argument( '--init'    , type = str, default = 'k-means||')
-            else:
+            elif 'singlecpu' in compute_selection: 
                 parser.add_argument( '--init'    , type = str, default = 'k-means++')
             
             args, unknown_args = parser.parse_known_args(input_args)
