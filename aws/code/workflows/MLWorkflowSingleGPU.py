@@ -22,7 +22,7 @@ import cudf
 import xgboost
 import joblib
 
-from cuml.preprocessing.model_selection import train_test_split
+from cuml.model_selection import train_test_split
 from cuml.ensemble import RandomForestClassifier
 from cuml.metrics import accuracy_score
 
