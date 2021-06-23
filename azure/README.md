@@ -61,7 +61,7 @@ This file will be used with [Azure Machine Learning SDK for Python](https://docs
 
 Our [Azure MNMG notebooks](#) will use [Dask Cloud Provider](https://cloudprovider.dask.org/en/latest/) to run multi-node muli-GPU examples on Azure. For each example, we will make use of [AzureVMCluster](https://cloudprovider.dask.org/en/latest/azure.html#azurevm) function to set-up a cluster and run an example. We have two example notebooks: 
 - [Random Forest using Dask CloudProvider](./notebooks/Azure-MNMG-RF.ipynb)
-- [XGBoost using Dask CloudProvider](./notebooks/azure_mnmg_xgboost.ipynb). This notebook additionally demonstrates how to speed up deployment using custom VM images via [`packer`](https://www.packer.io/).
+- [XGBoost using Dask CloudProvider](./notebooks/Azure-MNMG-XGBoost.ipynb). This notebook additionally demonstrates how to speed up deployment using custom VM images via [`packer`](https://www.packer.io/).
 
 ## 2(a) Set up environment on local computer
 
@@ -104,7 +104,7 @@ For more details, visit [Microsoft Azure - dask cloud provider](https://cloudpro
 jupyter notebook --ip 0.0.0.0 --port 8888 --no-browser --allow-root --NotebookApp.token=''
 ```
 
-6. Navigate either to either of the two notebooks `Azure-MNMG-RF.ipynb` or `azure_mnmg_xgboost.ipynb` under `./notebooks`.
+6. Navigate either to either of the two notebooks `Azure-MNMG-RF.ipynb` or `Azure-MNMG-XGBoost.ipynb` under `./notebooks`.
 
 7. Update the notebook with the names of resources appropriately and run it.
 
