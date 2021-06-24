@@ -25,7 +25,7 @@ import joblib
 
 from dask_ml.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
-from dask_ml.cluster import KMeans
+from sklearn.cluster import KMeans
 from sklearn.metrics import accuracy_score
 
 import logging
@@ -167,7 +167,8 @@ class MLWorkflowMultiCPU(MLWorkflow):
                 n_clusters=self.hpo_config.model_params['n_clusters'], 
                 max_iter=self.hpo_config.model_params['max_iter'], 
                 random_state=self.hpo_config.model_params['random_state'], 
-                init=self.hpo_config.model_params['init']
+                init=self.hpo_config.model_params['init'], 
+                n_jobs=-1  # Deprecated since version 0.23 and will be removed in 1.0 (renaming of 0.25)
             ).fit(X_train)
 
         return trained_model

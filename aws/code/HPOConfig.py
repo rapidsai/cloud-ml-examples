@@ -177,9 +177,7 @@ class HPOConfig(object):
             compute_selection = os.environ['AWS_ML_WORKFLOW_CHOICE'].lower()
             if 'gpu' in compute_selection:  # 'singlegpu' or 'multigpu'
                 parser.add_argument( '--init'    , type = str, default = 'scalable-k-means++')
-            elif 'multicpu' in compute_selection:
-                parser.add_argument( '--init'    , type = str, default = 'k-means||')
-            elif 'singlecpu' in compute_selection: 
+            elif 'cpu' in compute_selection: 
                 parser.add_argument( '--init'    , type = str, default = 'k-means++')
             
             args, unknown_args = parser.parse_known_args(input_args)
@@ -218,11 +216,13 @@ class HPOConfig(object):
 
         elif len(parquet_files):
             hpo_log.info('Parquet input files detected')
+            """
             if 'single-CPU' in self.compute_type:
-                # pandas read_parquet needs a directory input
+                # pandas read_parquet needs a directory input - no longer the case with newest pandas
                 target_files = directory_structure['train_data'] + '/'
             else:
-                target_files = parquet_files
+            """
+            target_files = parquet_files
             input_file_type = 'Parquet'
         else:
             raise Exception("! No [CSV or Parquet] input files detected")
