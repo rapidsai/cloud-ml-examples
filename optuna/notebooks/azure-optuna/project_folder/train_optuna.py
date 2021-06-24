@@ -14,7 +14,7 @@ import dask
 import dask_optuna
 
 from cuml import LogisticRegression
-from cuml.preprocessing.model_selection import train_test_split
+from cuml.model_selection import train_test_split
 from cuml.metrics import log_loss
 
 from dask_cuda import LocalCUDACluster
