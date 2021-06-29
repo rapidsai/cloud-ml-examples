@@ -23,8 +23,8 @@ between them. (Note that the "best" HPO algorithm may be *very*
 problem-dependent, so results are not fully generalizable.)
 
 You need both Jupyter and RAPIDS 0.13 or later installed to begin. See
-https://rapids.ai/start.html for instructions. We recommend using 0.14
-nightly packages. For Ray, you should also install a few additional
+https://rapids.ai/start.html for instructions. We recommend using the latest 21.06
+package. For Ray, you should also install a few additional
 packages.
 
 ```

@@ -1,4 +1,4 @@
-FROM rapidsai/rapidsai:0.15-cuda11.0-base-ubuntu18.04-py3.7 
+FROM rapidsai/rapidsai:21.06-cuda11.0-base-ubuntu18.04-py3.7 
 
 ENV AWS_DATASET_DIRECTORY="1_year"
 ENV AWS_ALGORITHM_CHOICE="XGBoost"
