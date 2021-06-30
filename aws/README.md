@@ -13,8 +13,8 @@
    > https://console.aws.amazon.com/sagemaker/
    
    - Choose **Notebook Instances**, then choose 'Create notebook instance'.
-   - Note that this notebook does not currently work in SageMaker Studio, due to lack of docker support. We plan to release a version with documentation on how to work around this limitation.
-   
+   - Note that this notebook is for SageMaker notebook instances only, however instructions for running RAPIDS + HPO in SageMaker Studio can be found in the **sagemaker_studio** directory. 
+
 <img src='img/sagemaker_notebook_instance.png'>
 
 2. On the Create notebook instance page, provide the following information (if a field is not mentioned, leave the default values):
