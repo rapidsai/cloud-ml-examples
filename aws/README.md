@@ -1,4 +1,12 @@
-# Instructions for Running RAPIDS + SageMaker HPO 
+# RAPIDS on AWS
+
+There are a few example notebooks to help you get started with running RAPIDS on AWS. Here are the instructions to setup the environment locally to run the examples.
+
+Sections in README
+1. Instructions for Running RAPIDS + SageMaker HPO
+2. Instructions to run MNMG example on EC2
+
+## 1. Instructions for Running RAPIDS + SageMaker HPO
 
 0. Upload train/test data to S3 
 
@@ -30,3 +38,11 @@
 
 3. Run Notebook
    - Once inside JupyterLab you should be able to navigate to the notebook in the root directory named **rapids_sagemaker_hpo.ipynb**
+
+## 2. Instructions to run MNMG example on EC2
+
+We recommend using RAPIDS docker image on your local system and using the same image in the notebook so that the libraries can match accurately. You can achieve this using conda environments for RAPIDS too.
+
+For example, in the `rapids_ec2_mnmg.ipynb` notebook, we are using `rapidsai/rapidsai:21.06-cuda11.0-runtime-ubuntu18.04-py3.8` docker image, to pull and run this use the following command. The `-v` flag sets the volume you'd like to mount on the docker container. This way, the changes you make within the docker container are present on your local system to. Make sure to change `local/path` to the path which contains this repository.
+
+`docker run --runtime nvidia --rm -it -p 8888:8888 -p 8787:8787 -v /local/path:/docker/path rapidsai/rapidsai:21.06-cuda11.0-runtime-ubuntu18.04-py3.8`
