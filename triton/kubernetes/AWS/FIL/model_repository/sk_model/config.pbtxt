@@ -1,0 +1,53 @@
+name: "sk_model"
+backend: "fil"
+max_batch_size: 8192
+input [
+ {
+    name: "input__0"
+    data_type: TYPE_FP32
+    dims: [ 32 ]
+  }
+]
+output [
+ {
+    name: "output__0"
+    data_type: TYPE_FP32
+    dims: [ 1 ]
+  }
+]
+instance_group [{ kind: KIND_GPU }]
+parameters [
+  {
+    key: "model_type"
+    value: { string_value: "treelite_checkpoint" }
+  },
+  {
+    key: "predict_proba"
+    value: { string_value: "false" }
+  },
+  {
+    key: "output_class"
+    value: { string_value: "true" }
+  },
+  {
+    key: "threshold"
+    value: { string_value: "0.5" }
+  },
+  {
+    key: "algo"
+    value: { string_value: "ALGO_AUTO" }
+  },
+  {
+    key: "storage_type"
+    value: { string_value: "AUTO" }
+  },
+  {
+    key: "blocks_per_sm"
+    value: { string_value: "0" }
+  }
+]
+
+dynamic_batching {
+  preferred_batch_size: [1, 2, 4, 8, 16, 32, 64, 128, 1024, 2048, 4096, 8192]
+  max_queue_delay_microseconds: 30000
+}
