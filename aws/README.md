@@ -4,7 +4,7 @@ There are a few example notebooks to help you get started with running RAPIDS on
 
 Sections in README
 1. Instructions for Running RAPIDS + SageMaker HPO
-2. Instructions to run MNMG example on EC2
+2. Instructions to run multi-node multi-GPU (MNMG) example on EC2
 
 ## 1. Instructions for Running RAPIDS + SageMaker HPO
 
