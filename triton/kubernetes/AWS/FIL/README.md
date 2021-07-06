@@ -36,7 +36,7 @@ Specific parameters used here include:
 ### Obtain the Triton FIL plugin, build the triton host container, and push to ECR
 Note: as of this writing, the [FIL backend plugin](https://github.com/triton-inference-server/fil_backend) is supported in the official [Triton Inference Server](https://ngc.nvidia.com/catalog/containers/nvidia:tritonserver) image officially available in the [NVIDIA NGC Catalog](https://ngc.nvidia.com/catalog).
 
-However, here, we will show how to create a custom image with FIL backend:
+However, here, we will show how to create a custom image with FIL backend.
 
 #### First we create a ECR repository
 ```shell
@@ -162,12 +162,12 @@ To confirm that the metrics server is running do :
 kubectl get pods -n kube-system -l k8s-app=metrics-server
 ```
 
-### Install `istio`
+### Install `istio` on your EKS cluster
 Install the demo profile of `istio` by doing 
 ```shell
 istioctl install --set profile=demo
 ``` 
-This will install the "Istio core", "Istiod", "Ingress gateways" and "Egress gateways" along with exposing all the necessary ports for gRPC and http connections for the ingres gateways.
+This will install the "Istio core", "Istiod", "Ingress gateways" and "Egress gateways" along with exposing all the necessary ports for gRPC and http connections for the ingress gateways.
 
 Finally, enable sidecar injection to the triton pods in the default namespace:
 ```shell
