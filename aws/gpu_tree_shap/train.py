@@ -72,8 +72,11 @@ if __name__ == "__main__":
 
     sklearn_dataset = args.sklearn_dataset
     if "None" in sklearn_dataset: 
-        dtrain = get_dmatrix(args.train, "libsvm")
-        dval = get_dmatrix(args.validation, "libsvm")
+        dtrain = get_dmatrix(args.train, "csv")  # or "libsvm"
+        try:
+            dval = get_dmatrix(args.validation, "csv")  # or "libsvm"
+        except Exception: 
+            dval = None
     else:  # Use a dataset from sklearn.datasets
         import sklearn.datasets
         try:
