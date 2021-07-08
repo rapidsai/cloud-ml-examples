@@ -2,7 +2,8 @@
 This directory contains a few examples to get started on using RAPIDS on AWS. The sections in this README are the following:
 
 1. Instructions for Running RAPIDS + SageMaker HPO
-2. RAPIDS MNMG with Amazon Elastic Kubernetes Service (EKS) using Dask Kubernetes
+2. Instructions to run multi-node multi-GPU (MNMG) example on EC2
+3. RAPIDS MNMG with Amazon Elastic Kubernetes Service (EKS) using Dask Kubernetes
 
 ## 1. Instructions for Running RAPIDS + SageMaker HPO 
 
@@ -37,11 +38,21 @@ This directory contains a few examples to get started on using RAPIDS on AWS. Th
 3. Run Notebook
    - Once inside JupyterLab you should be able to navigate to the notebook in the root directory named **rapids_sagemaker_hpo.ipynb**
 
+## 2. Instructions to run MNMG example on EC2
 
-## 2. RAPIDS MNMG with Amazon Elastic Kubernetes Service (EKS) using Dask Kubernetes
+We recommend using RAPIDS docker image on your local system and using the same image in the notebook so that the libraries can match accurately. You can achieve this using conda environments for RAPIDS too.
+
+For example, in the `rapids_ec2_mnmg.ipynb` notebook, we are using `rapidsai/rapidsai:21.06-cuda11.0-runtime-ubuntu18.04-py3.8` docker image, to pull and run this use the following command. The `-v` flag sets the volume you'd like to mount on the docker container. This way, the changes you make within the docker container are present on your local system to. Make sure to change `local/path` to the path which contains this repository.
+
+`docker run --runtime nvidia --rm -it -p 8888:8888 -p 8787:8787 -v /local/path:/docker/path rapidsai/rapidsai:21.06-cuda11.0-runtime-ubuntu18.04-py3.8`
+
+## 3. RAPIDS MNMG with Amazon Elastic Kubernetes Service (EKS) using Dask Kubernetes
 
 For detailed instructions of setup and example notebooks to run RAPIDS with Amazon Elastic Kubernetes Service using Dask Kubernetes, navigate to the `kubernetes` subdirectory.
 
 - Detailed instructions to set up RAPIDS with EKS using Dask Kubernetes is in the markdown file [Detailed_setup_guide.md](./kubernetes/Detailed_setup_guide.md) . Go through this before you try to run any other notebooks.
 - Shorter example notebook using Dask + RAPIDS + XGBoost in [MNMG_XGBoost.ipynb](./kubernetes/MNMG_XGBoost.ipynb)
 - Full example with performance sweeps over multiple algorithms and larger dataset in [Dask_cuML_Exploration_Full.ipynb](./kubernetes/Dask_cuML_Exploration_Full.ipynb)
+
+**NOTE:** At the time of writing this, in EKS, there is a potential bug where if you call `dataframe.compute` or some other method which results in movement of a large amount of data out of AWS to a local node, the local client on the user's notebook will restart. This will result in a `CommClosedError: in <closed TCP>: Stream is closed` error and that operation will fail. As far as we know, this is an AWS specific phenomenon and does not exist at the moment with AKS or GKE with the same workflow and data at the moment. A potential solution would be to avoid moving too much data out from AWS to your local machine. For example if you call compute on a single column (e.g. a prediction column) then that would most likely be fine. But if you call compute to bring an entire training dataset (which has been persisted on the workers) to the local machine with all rows and columns, then that operation may fail with high probability.
+
