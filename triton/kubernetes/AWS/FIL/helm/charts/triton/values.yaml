@@ -26,11 +26,12 @@
 
 initReplicaCount: 1
 minReplicaCount: 2
-maxReplicaCount: 4
-HPATargetAverageValue: 85
+maxReplicaCount: 6
+HPATargetAverageValue: 80
+DCGMExporterService: dcgm-exporter
 
 image:
-  imageName: < update this with the image name you just pushed >
+  imageName:  < update this with the image name you just pushed >
   pullPolicy: IfNotPresent
   modelRepositoryPath: s3://S3_BUCKET_PATH/model_repository
   numGpus: 1
@@ -38,10 +39,10 @@ image:
   allowGPUMetrics: True
 
 secret:
-  region: < replace with base64 AWS_REGION >
-  id: < replace with base64 AWS_SECRET_KEY_ID >
-  key: < replace with base64 AWS_SECRET_ACCESS_KEY >
-  session_token: < replace with base64 AWS_SESSION_TOKEN >
+  -  region: < replace with base64 AWS_REGION >
+  -  id: < replace with base64 AWS_SECRET_KEY_ID >
+  -  key: < replace with base64 AWS_SECRET_ACCESS_KEY >
+  -  session_token: < replace with base64 AWS_SESSION_TOKEN >
   
 service:
   type: NodePort 

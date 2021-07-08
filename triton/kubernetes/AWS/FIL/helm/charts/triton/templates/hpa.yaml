@@ -35,10 +35,13 @@ spec:
   minReplicas: {{ .Values.minReplicaCount }}
   maxReplicas: {{ .Values.maxReplicaCount }}
   metrics:
-  - type: External
-    external:
-      metricName: kubernetes.io|container|accelerator|duty_cycle # will have to change later since this only works on GKE
-      targetAverageValue: {{ .Values.HPATargetAverageValue }}
+  - type: Object
+    object:
+      metricName: DCGM_FI_DEV_GPU_UTIL
+      targetValue: {{ .Values.HPATargetAverageValue }}
+      target:
+        kind: Service
+        name: {{ .Values.DCGMExporterService }}
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
