@@ -1,4 +1,4 @@
-# Instructions for Running RAPIDS + SageMaker Studio
+# Instructions for Running RAPIDS + SageMaker Studio + HPO
 
 0. Upload train/test data to S3 
 
@@ -8,7 +8,7 @@
 
 1. Publish a container to the Amazon Elastic Container Registry (ECR)
 
-   - Unfortunately, SageMaker Studio notebooks do not provide docker support (e.g., you cannot "!docker push ..." to the ECR within a Studio notebook), however in order to use a custom container with an Estimator, you must first publish it to the ECR. In order to work around this, we recommend running the studio_container_setup.ipynb notebook within a notebook instance. To create a notebook instance: 
+   - Because SageMaker Studio runs from a Docker container, you cannot create and upload a Docker container from a SageMaker Studio instance. However, in order to use a custom container with an Estimator, you must first publish it to the ECR. In order to work around this, we recommend running the studio_hpo_container_setup.ipynb notebook within a notebook instance. To create a notebook instance: 
    
    - Sign in to the Amazon SageMaker console at 
    > https://console.aws.amazon.com/sagemaker/
