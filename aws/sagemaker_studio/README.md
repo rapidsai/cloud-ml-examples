@@ -1,4 +1,4 @@
-# Instructions for Running RAPIDS + SageMaker Studio + HPO
+# Instructions for Running RAPIDS + SageMaker Studio
 
 0. Upload train/test data to S3 
 
