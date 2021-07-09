@@ -3,7 +3,7 @@
 
 ### Overview
 
-This example will illustrate the workflow to deploy a horizontally scalable Triton inference service, with a [non-trival custom backend](https://github.com/triton-inference-server/fil_backend) for accelerated forest model inference on [Amazon Elastic Kubernetes Service (EKS)](https://aws.amazon.com/eks/?whats-new-cards.sort-by=item.additionalFields.postDateTime&whats-new-cards.sort-order=desc&eks-blogs.sort-by=item.additionalFields.createdDate&eks-blogs.sort-order=desc). We will use [Prometheus](https://prometheus.io/), [Prometheus Adapter](https://github.com/kubernetes-sigs/prometheus-adapter) and [dcgm-exporter](https://github.com/NVIDIA/gpu-monitoring-tools) (also known as NVIDIA GPU Monitoring Tools) to set up a Horizontal Pod Autoscaler (HPA) in EKS so that we can scale up our infrastructure based on inferencing load on the Triton Server.
+This example will illustrate the workflow to deploy a [Triton Inference Server](https://developer.nvidia.com/nvidia-triton-inference-server), with the [cuML Forest Inference Library (FIL)  backend](https://github.com/triton-inference-server/fil_backend) on [Amazon Elastic Kubernetes Service (EKS)](https://aws.amazon.com/eks). [FIL](https://docs.rapids.ai/api/cuml/stable/api.html?highlight=forestinference#cuml.ForestInference) allows GPU accelerated inference for random forest and boosted decision tree models, and the FIL backend is right now available as a fully integrated part of Triton. We will use [Prometheus](https://prometheus.io/), [Prometheus Adapter](https://github.com/kubernetes-sigs/prometheus-adapter) and [dcgm-exporter](https://github.com/NVIDIA/gpu-monitoring-tools) (also known as NVIDIA GPU Monitoring Tools) to set up a Horizontal Pod Autoscaler (HPA) in EKS so that we can scale up our infrastructure based on inferencing load on the Triton Server.
 
 It is assumed that you have an existing account with sufficient compute and GPU quota, a correctly configured `kubectl` utility, and a properly configured and accessible AWS S3 bucket.
 
@@ -25,7 +25,7 @@ Specific parameters used here include:
   
 ---
 
-### Step 0: Pre-requisites
+### Step 1: Prerequisites
 
 - AWS account with at least the following permissions mentioned in https://eksctl.io/usage/minimum-iam-policies/ along with permissions to create, pull and push to AWS ECR repositories.
 - System Softwares
@@ -42,14 +42,15 @@ Specific parameters used here include:
 **Note:** The rest of the demo uses `aws-cli`  [version 2](https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html). Hence some commands will be a little different from `aws-cli` version 1. We will also be using `helm` 3 that does not need `tiller`.
 
   
+### Step 2: Obtain the Triton Inference Server official NVIDIA image (and optionally build a custom one)
 
-### Step 1: Obtain the Triton FIL plugin, build the triton host container, and push to ECR
+The [FIL backend plugin](https://github.com/triton-inference-server/fil_backend) is natively supported in the official [Triton Inference Server](https://ngc.nvidia.com/catalog/containers/nvidia:tritonserver) image available in the [NVIDIA NGC Catalog](https://ngc.nvidia.com/catalog). The images in this catalogue are the preferred way of deploying the FIL backend. For this example, we will use the most current image: `nvcr.io/nvidia/tritonserver:21.06.1-py3`. 
 
-Note: as of this writing, the [FIL backend plugin](https://github.com/triton-inference-server/fil_backend) is supported in the official [Triton Inference Server](https://ngc.nvidia.com/catalog/containers/nvidia:tritonserver) image officially available in the [NVIDIA NGC Catalog](https://ngc.nvidia.com/catalog).
+**You should skip to [**Step 3**](#Step-3:-Create-some-Triton-model-repository-entries,-or-use-the-provided-examples) if you are using the official NVIDIA image.**
 
-However, here, we will show how to create a custom image with FIL backend.
+For informational purpose, we will also show how to create a custom image with FIL backend below. 
 
-#### Step 1.a: Create an ECR repository
+#### Step 2.a: Create an ECR repository
 
 ```shell
 aws ecr get-login-password --region ${REGION_NAME} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${REGION_NAME}.amazonaws.com
@@ -59,7 +60,7 @@ aws ecr create-repository \
     --region ${REGION_NAME}
 ```
 
-#### Step 1.b: Create and push the image to the ECR repository
+#### Step 2.b: Create and push the image to the ECR repository
 
 **On a different terminal** do the following:
 
@@ -71,7 +72,7 @@ docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${REGION_NAME}.amazonaws.com/${REPOSITORY_
 ```
 
 
-### Step 3: Create some Triton model registry entries, or use the provided examples
+### Step 3: Create some Triton model repository entries, or use the provided examples
 
 A set of sample models, along with their `.pbtext` definition are provided in `./model_repository`. The layout structure and requirements are defined in the [Triton server docs](https://github.com/triton-inference-server/server/blob/master/docs/model_configuration.md),
 and a brief introduction is also provided with the [FIL backend implementation](https://github.com/triton-inference-server/fil_backend/blob/main/README.md).
@@ -120,7 +121,7 @@ eksctl create cluster -f eksctl_config.yaml
 
 This will take a few minutes before it completes. Grab a coffee :coffee: :coffee: . For more `yaml` configurations, you can refer to [eksctl documentation](https://eksctl.io/usage/schema/).
 
-You can check the whether the cluster is successfully created with following:
+You can check whether the cluster is successfully created with following:
 
 ```shell
 eksctl get cluster --name $EKS_CLUSTER_NAME --region $REGION_NAME
