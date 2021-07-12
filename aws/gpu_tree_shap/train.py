@@ -10,8 +10,99 @@ import pandas as pd
 import xgboost as xgb
 from sagemaker_containers import entry_point
 from sagemaker_xgboost_container import distributed
-from sagemaker_xgboost_container.data_utils import get_dmatrix
+# from sagemaker_xgboost_container.data_utils import get_dmatrix
 import time
+
+import shutil
+import csv
+
+
+# Heavily draws from AWS's data_utils.py script: 
+# https://github.com/aws/sagemaker-xgboost-container/blob/cf2a05a525606225e91d7e588f57143827cbe3f7/src/sagemaker_xgboost_container/data_utils.py
+# but we use our own version because the AWS version does not allow you to specify the label column.
+def get_dmatrix(data_path, content_type, label_column, csv_weights=0):
+    """Create Data Matrix from CSV file.
+    Assumes that sanity validation for content type has been done.
+    :param data_path: Either directory or file
+    :param content_type: Only supports "csv"
+    :param label_column: Integer corresponding to index of the label column, starting with 0
+    :param csv_weights: 1 if the instance weights are in the second column of csv file; otherwise, 0
+    :return: xgb.DMatrix or None
+    """
+    
+    if "csv" not in content_type.lower():
+        raise Exception("File type '{}' not supported".format(content_type))
+
+    if not isinstance(data_path, list):
+        if not os.path.exists(data_path):
+            logging.info('File path {} does not exist!'.format(data_path))
+            return None
+        files_path = get_files_path(data_path)
+    else:
+        # Create a directory with symlinks to input files.
+        files_path = "/tmp/sagemaker_xgboost_input_data"
+        shutil.rmtree(files_path, ignore_errors=True)
+        os.mkdir(files_path)
+        for path in data_path:
+            if not os.path.exists(path):
+                return None
+            if os.path.isfile(path):
+                os.symlink(path, os.path.join(files_path, os.path.basename(path)))
+            else:
+                for file in os.scandir(path):
+                    os.symlink(file, os.path.join(files_path, file.name))
+
+    dmatrix = get_csv_dmatrix(files_path, label_column, csv_weights)
+
+    return dmatrix
+
+
+def get_files_path(data_path):
+    if os.path.isfile(data_path):
+        files_path = data_path
+    else:
+        for root, dirs, files in os.walk(data_path):
+            if dirs == []:
+                files_path = root
+                break
+
+    return files_path
+
+
+def get_csv_dmatrix(files_path, label_column, csv_weights):
+    """Get Data Matrix from CSV data in file mode.
+    Infer the delimiter of data from first line of first data file.
+    :param files_path: File path where CSV formatted training data resides, either directory or file
+    :param label_column: Integer corresponding to index of the label column, starting with 0
+    :param csv_weights: 1 if instance weights are in second column of CSV data; else 0
+    :return: xgb.DMatrix
+    """
+    csv_file = files_path if os.path.isfile(files_path) else [
+        f for f in os.listdir(files_path) if os.path.isfile(os.path.join(files_path, f))][0]
+    with open(os.path.join(files_path, csv_file)) as read_file:
+        sample_csv_line = read_file.readline()
+    delimiter = _get_csv_delimiter(sample_csv_line)
+
+    try:
+        if csv_weights == 1:
+            dmatrix = xgb.DMatrix(
+                '{}?format=csv&label_column={}&delimiter={}&weight_column=1'.format(files_path, label_column, delimiter))
+        else:
+            dmatrix = xgb.DMatrix('{}?format=csv&label_column={}&delimiter={}'.format(files_path, label_column, delimiter))
+
+    except Exception as e:
+        raise Exception("Failed to load csv data with exception:\n{}".format(e))
+
+    return dmatrix
+
+
+def _get_csv_delimiter(sample_csv_line):
+    try:
+        delimiter = csv.Sniffer().sniff(sample_csv_line).delimiter
+        logging.info("Determined delimiter of CSV input is \'{}\'".format(delimiter))
+    except Exception as e:
+        raise Exception("Could not determine delimiter on line {}:\n{}".format(sample_csv_line[:50], e))
+    return delimiter
 
 
 def _xgb_train(params, dtrain, evals, num_boost_round, model_dir, is_master):
@@ -55,6 +146,10 @@ if __name__ == "__main__":
     
     # e.g., 'sklearn.datasets.fetch_california_housing()'
     parser.add_argument("--sklearn_dataset", type=str, default="None")
+    # specify file type
+    parser.add_argument("--content_type", type=str)
+    # if csv, should specify a label column
+    parser.add_argument("--label_column", type=int)
 
     # Sagemaker specific arguments. Defaults are set in the environment variables.
     parser.add_argument("--output_data_dir", type=str, default=os.environ.get("SM_OUTPUT_DATA_DIR"))
@@ -72,9 +167,9 @@ if __name__ == "__main__":
 
     sklearn_dataset = args.sklearn_dataset
     if "None" in sklearn_dataset: 
-        dtrain = get_dmatrix(args.train, "csv")  # or "libsvm"
+        dtrain = get_dmatrix(args.train, args.content_type, args.label_column)
         try:
-            dval = get_dmatrix(args.validation, "csv")  # or "libsvm"
+            dval = get_dmatrix(args.validation, args.content_type, args.label_column)
         except Exception: 
             dval = None
     else:  # Use a dataset from sklearn.datasets
