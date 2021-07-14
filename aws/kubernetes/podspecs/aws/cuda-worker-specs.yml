@@ -1,0 +1,27 @@
+kind: Pod
+metadata:
+  labels:
+    dask_type: "worker"
+spec:
+  restartPolicy: Never
+  tolerations:
+    - key: "daskrole"
+      operator: "Equal"
+      value: "worker"
+      effect: "NoSchedule"
+  containers:
+    - image: rapidsai/rapidsai-core:21.06-cuda11.2-runtime-ubuntu18.04-py3.8
+      imagePullPolicy: IfNotPresent
+      args: [ dask-cuda-worker, $(DASK_SCHEDULER_ADDRESS), --rmm-managed-memory ]
+      name: dask-cuda-worker
+      resources:
+        limits:
+          cpu: "4"
+          memory: 30G
+          nvidia.com/gpu: 1
+        requests:
+          cpu: "4"
+          memory: 25G
+      env:
+      - name: EXTRA_PIP_PACKAGES
+        value: "xgboost s3fs gcsfs"

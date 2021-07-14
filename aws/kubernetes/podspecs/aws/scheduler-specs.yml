@@ -1,0 +1,27 @@
+kind: Pod
+metadata:
+  labels:
+    dask_type: "scheduler"
+spec:
+  restartPolicy: Never
+  tolerations:
+    - key: "daskrole"
+      operator: "Equal"
+      value: "scheduler"
+      effect: "NoSchedule"
+  containers:
+    - image: rapidsai/rapidsai-core:21.06-cuda11.2-runtime-ubuntu18.04-py3.8
+      imagePullPolicy: IfNotPresent
+      args: [ dask-scheduler]
+      name: dask-scheduler
+      resources:
+        limits:
+          cpu: "3"
+          memory: 30G
+#           nvidia.com/gpu: 1
+        requests:
+          cpu: "3"
+          memory: 25G
+      env:
+      - name: EXTRA_PIP_PACKAGES
+        value: "xgboost s3fs gcsfs"
