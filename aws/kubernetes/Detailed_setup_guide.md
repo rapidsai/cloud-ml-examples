@@ -93,5 +93,11 @@ Install [dask-kubernetes](https://kubernetes.dask.org/en/latest/) if not already
     ```
     pip install dask-kubernetes
     ```
+### [Step 7: EKS Cluster clean up after experiment](#anchor-eksctl-cleanup)
+After you finish your experiments, you can delete the EKS cluster with the following:
+```shell
+eksctl delete cluster --region=$REGION_NAME --name=$EKS_CLUSTER_NAME
+```
+This will also delete the additional AWS resources EKS created on your behalf during cluster creation. 
 
-**NOTE:** At the time of writing this, in EKS, there is a potential bug where if you call `dataframe.compute` or some other method which results in movement of a large amount of data out of AWS to a local node, the local client on the user's notebook will restart. This will result in a `CommClosedError: in <closed TCP>: Stream is closed` error and that operation will fail. As far as we know, this is an AWS specific phenomenon and does not exist at the moment with AKS or GKE with the same workflow and data at the moment. A potential solution would be to avoid moving too much data out from AWS to your local machine. For example if you call compute on a single column (e.g. a prediction column) then that would most likely be fine. But if you call compute to bring an entire training dataset (which has been persisted on the workers) to the local machine with all rows and columns, then that operation may fail with high probability.
+**NOTE:** At the time of writing this (July 2021), in EKS, there is a potential bug in the dataframe.compute call and other methods, which results in the movement of a large amount of data out of AWS to a local node, the local client on the user's notebook will restart and result in a `CommClosedError: in <closed TCP>: Stream is closed` error. From our experiments, this is an AWS-specific error. We didn't notice this on AKS or GKE with the same data and workflow. A potential solution would be to avoid moving too much data out from AWS to your local machine. For example, calling compute on a single column (e.g. a prediction column) would most likely be fine. But calling compute to bring an entire training dataset (which has been persisted on the workers) to the local machine with all rows and columns, then that operation may fail with high probability
