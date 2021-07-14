@@ -21,8 +21,8 @@ times. By design, it is very similar to the RAPIDS examples provided
 for other cloud and bring-your-own-cloud HPO offerings.
 
 You need both Jupyter and RAPIDS 0.13 or later installed to begin. See
-https://rapids.ai/start.html for instructions. We recommend using 0.14
-nightly packages for the latest updates. Dask-ML can be installed via conda or pip, following the instructions from: https://ml.dask.org/install.html.
+https://rapids.ai/start.html for instructions. We recommend using the 21.06
+packages for the latest updates. Dask-ML can be installed via conda or pip, following the instructions from: https://ml.dask.org/install.html.
 
 ## RAPIDS + Dask-Kubernetes sample notebooks
 Dask_cuML_Exploration and Dask_cuML_Exploration_Full provide a template
