@@ -3,7 +3,8 @@ This directory contains a few examples to get started on using RAPIDS on AWS. Th
 
 1. Instructions for Running RAPIDS + SageMaker HPO
 2. Instructions to run multi-node multi-GPU (MNMG) example on EC2
-3. RAPIDS MNMG with Amazon Elastic Kubernetes Service (EKS) using Dask Kubernetes
+3. Instructions for Running RAPIDS + SageMaker Studio
+4. RAPIDS MNMG with Amazon Elastic Kubernetes Service (EKS) using Dask Kubernetes
 
 ## 1. Instructions for Running RAPIDS + SageMaker HPO 
 
@@ -20,8 +21,8 @@ This directory contains a few examples to get started on using RAPIDS on AWS. Th
    > https://console.aws.amazon.com/sagemaker/
    
    - Choose **Notebook Instances**, then choose 'Create notebook instance'.
-   - Note that this notebook does not currently work in SageMaker Studio, due to lack of docker support. We plan to release a version with documentation on how to work around this limitation.
-   
+   - Note that this notebook is for SageMaker notebook instances only, however instructions for running RAPIDS in SageMaker Studio can be found in the **sagemaker_studio** directory. 
+
 <img src='img/sagemaker_notebook_instance.png'>
 
 2. On the Create notebook instance page, provide the following information (if a field is not mentioned, leave the default values):
@@ -46,7 +47,32 @@ For example, in the `rapids_ec2_mnmg.ipynb` notebook, we are using `rapidsai/rap
 
 `docker run --runtime nvidia --rm -it -p 8888:8888 -p 8787:8787 -v /local/path:/docker/path rapidsai/rapidsai:21.06-cuda11.0-runtime-ubuntu18.04-py3.8`
 
-## 3. RAPIDS MNMG with Amazon Elastic Kubernetes Service (EKS) using Dask Kubernetes
+## 3. Instructions for Running RAPIDS + SageMaker Studio
+
+0. Upload train/test data to S3 
+
+   - We offer a dataset for the HPO demo in a public bucket hosted in either the `us-east-1` or `us-west-2` regions:
+   > https://s3.console.aws.amazon.com/s3/buckets/sagemaker-rapids-hpo-us-east-1/   
+   > https://s3.console.aws.amazon.com/s3/buckets/sagemaker-rapids-hpo-us-west-2/
+   
+1. Create/open a SageMaker Studio session   
+
+   - Choose **Amazon SageMaker Studio**, and set up a domain if one does not already exist in the region. See the Quick start procedure for details: 
+   > https://docs.aws.amazon.com/sagemaker/latest/dg/onboard-quick-start.html
+   - Add a user to the SageMaker Studio Control Panel (if one does not already exist), and Open Studio to start a session.
+   
+2. Within the SageMaker Studio session, clone this repository
+
+   - Click the Git icon on the far left of the screen (second button, below the folder icon), select Clone a Repository, and paste: 
+   > https://github.com/rapidsai/cloud-ml-examples 
+   
+   - After cloning, you should see the directory **cloud-ml-examples** in your file browser. 
+
+3. Run desired notebook
+
+   - Within the root directory **cloud-ml-examples**, navigate to **aws**, and open and run the rapids_studio_hpo notebook. 
+
+## 4. RAPIDS MNMG with Amazon Elastic Kubernetes Service (EKS) using Dask Kubernetes
 
 For detailed instructions of setup and example notebooks to run RAPIDS with Amazon Elastic Kubernetes Service using Dask Kubernetes, navigate to the `kubernetes` subdirectory.
 
