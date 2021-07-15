@@ -1,6 +1,6 @@
-FROM rapidsai/rapidsai:21.06-cuda11.0-base-ubuntu18.04-py3.7 
+FROM rapidsai/rapidsai-cloud-ml:latest 
 
-ENV AWS_DATASET_DIRECTORY="1_year"
+ENV AWS_DATASET_DIRECTORY="3_year"
 ENV AWS_ALGORITHM_CHOICE="XGBoost"
 ENV AWS_ML_WORKFLOW_CHOICE="singleGPU"
 ENV AWS_CV_FOLDS="3"
