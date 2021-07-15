@@ -24,6 +24,7 @@ import joblib
 
 from cuml.model_selection import train_test_split
 from cuml.ensemble import RandomForestClassifier
+from cuml.cluster import KMeans
 from cuml.metrics import accuracy_score
 
 from MLWorkflow import MLWorkflow, timer_decorator
@@ -119,6 +120,15 @@ class MLWorkflowSingleGPU(MLWorkflow):
                 max_features=self.hpo_config.model_params['max_features'],
                 n_bins=self.hpo_config.model_params['n_bins']
             ).fit(X_train, y_train.astype('int32'))
+            
+        elif 'KMeans' in self.hpo_config.model_type:
+            hpo_log.info('> fit kmeans model')
+            trained_model = KMeans(
+                n_clusters=self.hpo_config.model_params['n_clusters'], 
+                max_iter=self.hpo_config.model_params['max_iter'], 
+                random_state=self.hpo_config.model_params['random_state'], 
+                init=self.hpo_config.model_params['init']
+            ).fit(X_train)
 
         return trained_model
 
@@ -132,6 +142,8 @@ class MLWorkflowSingleGPU(MLWorkflow):
             predictions = trained_model.predict(dtest)
             predictions = (predictions > threshold) * 1.0
         elif 'RandomForest' in self.hpo_config.model_type:
+            predictions = trained_model.predict(X_test)
+        elif 'KMeans' in self.hpo_config.model_type:
             predictions = trained_model.predict(X_test)
 
         return predictions
@@ -161,6 +173,8 @@ class MLWorkflowSingleGPU(MLWorkflow):
                 trained_model.save_model(f'{output_filename}_sgpu_xgb')
             elif 'RandomForest' in self.hpo_config.model_type:
                 joblib.dump(trained_model, f'{output_filename}_sgpu_rf')
+            elif 'KMeans' in self.hpo_config.model_type:
+                joblib.dump(trained_model, f'{output_filename}_sgpu_kmeans')
 
 
     def cleanup(self, i_fold):

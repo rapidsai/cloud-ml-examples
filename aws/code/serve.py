@@ -71,8 +71,10 @@ def serve(xgboost_threshold=0.5):
         """
         xgb_models = glob.glob('/opt/ml/model/*_xgb')
         rf_models = glob.glob('/opt/ml/model/*_rf')
+        kmeans_models = glob.glob('/opt/ml/model/*_kmeans')
         app.logger.info(f'detected xgboost models : {xgb_models}')
-        app.logger.info(f'detected randomforest models : {rf_models}\n\n')
+        app.logger.info(f'detected randomforest models : {rf_models}')
+        app.logger.info(f'detected kmeans models : {kmeans_models}\n\n')
         model_type = None
 
         start_time = time.perf_counter()
@@ -91,6 +93,11 @@ def serve(xgboost_threshold=0.5):
         elif len(rf_models):
             model_type = 'RandomForest'
             model_filename = rf_models[0]
+            reloaded_model = joblib.load(model_filename)
+            
+        elif len(kmeans_models):
+            model_type = 'KMeans'
+            model_filename = kmeans_models[0]
             reloaded_model = joblib.load(model_filename)
         else:
             raise Exception('! No trained models detected')
@@ -150,6 +157,17 @@ def serve(xgboost_threshold=0.5):
                     raise Exception('attempting to run CPU inference '
                                     'on a GPU trained RandomForest model')
 
+                predictions = reloaded_model.predict(
+                                query_data.astype('float32'))
+                
+            elif model_type == 'KMeans':
+                app.logger.info('running inference using KMeans model :'
+                               f'{model_filename}')
+                
+                if 'gpu' in model_filename and not GPU_INFERENCE_FLAG: 
+                    raise Exception('attempting to run CPU inference '
+                                   'on a GPU trained KMeans model')
+                    
                 predictions = reloaded_model.predict(
                                 query_data.astype('float32'))
 
