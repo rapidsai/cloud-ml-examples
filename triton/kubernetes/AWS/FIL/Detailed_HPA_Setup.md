@@ -1,5 +1,5 @@
 
-## Deploying an autoscaling Triton service that uses a custom plugin for the RAPIDS cuML Forest Inference Library (FIL).
+## Deploying an autoscaling Triton service that uses the RAPIDS cuML Forest Inference Library (FIL) backend.
 
 ### Overview
 
