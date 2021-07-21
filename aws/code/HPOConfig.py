@@ -78,6 +78,8 @@ class HPOConfig(object):
                 model_type = 'RandomForest'
             elif model_selection in ['xgboost']:
                 model_type = 'XGBoost'
+            elif model_selection in ['kmeans']:
+                model_type = 'KMeans'
 
             # parse compute choice
             compute_selection = os.environ['AWS_ML_WORKFLOW_CHOICE'].lower()
@@ -97,7 +99,7 @@ class HPOConfig(object):
             hpo_log.info(f'Configuration parser failed : {error}')
 
         assert (dataset_type in ['Airline', 'NYCTaxi', 'BYOData'])
-        assert (model_type in ['RandomForest', 'XGBoost'])
+        assert (model_type in ['RandomForest', 'XGBoost', 'KMeans'])
         assert (compute_type in ['single-GPU', 'multi-GPU',
                                  'single-CPU', 'multi-CPU'])
         assert (cv_folds >= 1)
@@ -166,6 +168,26 @@ class HPOConfig(object):
                 'bootstrap': args.bootstrap,
                 'random_state': args.random_state
             }
+            
+        elif 'KMeans' in self.model_type: 
+            parser.add_argument( '--n_clusters'  , type = int, default = 8)
+            parser.add_argument( '--max_iter'    , type = int, default = 300)
+            parser.add_argument( '--random_state', type = int, default = 1)
+            
+            compute_selection = os.environ['AWS_ML_WORKFLOW_CHOICE'].lower()
+            if 'gpu' in compute_selection:  # 'singlegpu' or 'multigpu'
+                parser.add_argument( '--init'    , type = str, default = 'scalable-k-means++')
+            elif 'cpu' in compute_selection: 
+                parser.add_argument( '--init'    , type = str, default = 'k-means++')
+            
+            args, unknown_args = parser.parse_known_args(input_args)
+            
+            model_params = {
+                'n_clusters': args.n_clusters, 
+                'max_iter': args.max_iter, 
+                'random_state': args.random_state, 
+                'init': args.init
+            }
 
         else:
             raise Exception(f"!error: unknown model type {self.model_type}")
@@ -194,11 +216,13 @@ class HPOConfig(object):
 
         elif len(parquet_files):
             hpo_log.info('Parquet input files detected')
+            """
             if 'single-CPU' in self.compute_type:
-                # pandas read_parquet needs a directory input
+                # pandas read_parquet needs a directory input - no longer the case with newest pandas
                 target_files = directory_structure['train_data'] + '/'
             else:
-                target_files = parquet_files
+            """
+            target_files = parquet_files
             input_file_type = 'Parquet'
         else:
             raise Exception("! No [CSV or Parquet] input files detected")
