@@ -23,6 +23,7 @@ import joblib
 
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.cluster import KMeans
 from sklearn.metrics import accuracy_score
 
 from MLWorkflow import MLWorkflow, timer_decorator
@@ -55,7 +56,7 @@ class MLWorkflowSingleCPU(MLWorkflow):
         if 'Parquet' in self.hpo_config.input_file_type:
             hpo_log.info('> parquet data ingestion')
 
-            assert isinstance(self.hpo_config.target_files, str)
+            # assert isinstance(self.hpo_config.target_files, str)
             filepath = self.hpo_config.target_files
 
             dataset = pandas.read_parquet(filepath,
@@ -125,6 +126,15 @@ class MLWorkflowSingleCPU(MLWorkflow):
                 bootstrap=self.hpo_config.model_params['bootstrap'],
                 n_jobs=-1
             ).fit(X_train, y_train)
+            
+        elif 'KMeans' in self.hpo_config.model_type:
+            hpo_log.info('> fit kmeans model')
+            trained_model = KMeans(
+                n_clusters=self.hpo_config.model_params['n_clusters'], 
+                max_iter=self.hpo_config.model_params['max_iter'], 
+                random_state=self.hpo_config.model_params['random_state'], 
+                init=self.hpo_config.model_params['init']
+            ).fit(X_train)
 
         return trained_model
 
@@ -138,6 +148,8 @@ class MLWorkflowSingleCPU(MLWorkflow):
             predictions = trained_model.predict(dtest)
             predictions = (predictions > threshold) * 1.0
         elif 'RandomForest' in self.hpo_config.model_type:
+            predictions = trained_model.predict(X_test)
+        elif 'KMeans' in self.hpo_config.model_type:
             predictions = trained_model.predict(X_test)
 
         return predictions
@@ -167,6 +179,8 @@ class MLWorkflowSingleCPU(MLWorkflow):
                 trained_model.save_model(f'{output_filename}_scpu_xgb')
             elif 'RandomForest' in self.hpo_config.model_type:
                 joblib.dump(trained_model, f'{output_filename}_scpu_rf')
+            elif 'KMeans' in self.hpo_config.model_type:
+                joblib.dump(trained_model, f'{output_filename}_scpu_kmeans')
 
     def cleanup(self, i_fold):
         hpo_log.info('> end of fold \n')
