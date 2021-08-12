@@ -10,7 +10,7 @@ spec:
       value: "scheduler"
       effect: "NoSchedule"
   containers:
-    - image: <username>.azurecr.io/aks-mnmg/dask-unified:21.06
+    - image: <username>.azurecr.io/aks-mnmg/dask-unified:21.08
       imagePullPolicy: IfNotPresent
       args: [ dask-scheduler ]
       name: dask-scheduler

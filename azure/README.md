@@ -67,9 +67,9 @@ The [Azure MNMG notebooks](#) will use [Dask Cloud Provider](https://cloudprovid
 
 We recommend using RAPIDS docker image on your local system and using the same image in the notebook so that the libraries can match accurately. You can achieve this using conda environments for RAPIDS too.
 
-For example, in the Random Forest Notebook, we are using `rapidsai/rapidsai:21.06-cuda11.0-runtime-ubuntu18.04-py3.8` docker image, to pull and run this use the following command. The `-v` flag sets the volume you'd like to mount on the docker container. This way, the changes you make within the docker container are present on your local system to. Make sure to change `local/path` to the path which contains this repository.
+For example, in the Random Forest Notebook, we are using `rapidsai/rapidsai:{RAPIDS_VERSION}-cuda{CUDA_VERSION}-runtime-ubuntu18.04-py3.8` docker image, to pull and run this use the following command. The `-v` flag sets the volume you'd like to mount on the docker container. This way, the changes you make within the docker container are present on your local system to. Make sure to change `local/path` to the path which contains this repository.
 
-`docker run --runtime nvidia --rm -it -p 8888:8888 -p 8787:8787 -v /local/path:/docker/path rapidsai/rapidsai:21.06-cuda11.0-runtime-ubuntu18.04-py3.8`
+`docker run --runtime nvidia --rm -it -p 8888:8888 -p 8787:8787 -v /local/path:/docker/path rapidsai/rapidsai:{RAPIDS_VERSION}-cuda{CUDA_VERSION}-runtime-ubuntu18.04-py3.8`
 
 For the XGBoost notebook, we are using the image `rapidsai/rapidsai:cuda11.2-runtime-ubuntu18.04-py3.8`. 
 
