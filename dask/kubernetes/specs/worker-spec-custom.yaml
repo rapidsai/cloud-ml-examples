@@ -17,7 +17,7 @@ spec:
       value: "worker"
       effect: "NoSchedule"
   containers:
-    - image: gcr.io/[YOUR_GCP_PROJECT]/[YOUR_USER_ID]/dask-unified:21.06
+    - image: gcr.io/[YOUR_GCP_PROJECT]/[YOUR_USER_ID]/dask-unified:21.08
       imagePullPolicy: IfNotPresent
       args: [ dask-cuda-worker, $(DASK_SCHEDULER_ADDRESS), --rmm-managed-memory ]
       name: dask-cuda-worker
