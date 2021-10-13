@@ -10,7 +10,7 @@ spec:
       value: "worker"
       effect: "NoSchedule"
   containers:
-    - image: <username>.azurecr.io/aks-mnmg/dask-unified:21.06
+    - image: acrnanthini.azurecr.io/aks-mnmg/dask-unified:latest
       imagePullPolicy: IfNotPresent
       args: [ dask-worker, $(DASK_SCHEDULER_ADDRESS) ]
       name: dask-worker

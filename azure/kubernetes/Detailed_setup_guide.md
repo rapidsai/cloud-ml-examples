@@ -202,8 +202,8 @@ We need to authenticate AKS to pull the images from ACR. For this purpose we wil
 Now we build and push the pod images to ACR. We have a `Dockerfile` in the current directory. From the current directory do the following:
 
 ```bash
-docker build -t $ACR_NAME.azurecr.io/aks-mnmg/dask-unified:21.06 .
-docker push $ACR_NAME.azurecr.io/aks-mnmg/dask-unified:21.06
+docker build -t $ACR_NAME.azurecr.io/aks-mnmg/dask-unified:latest .
+docker push $ACR_NAME.azurecr.io/aks-mnmg/dask-unified:latest
 ```
 
 
