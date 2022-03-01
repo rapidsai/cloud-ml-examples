@@ -4,7 +4,7 @@ RAPIDS is a suite of open-source libraries that bring GPU acceleration to data s
 
 **NOTE:** Review our [prerequisites](#prerequisites) section to ensure your system meets the minimum requirements for RAPIDS.
 
-### Current Version - RAPIDS v21.06
+### Current Version - RAPIDS v22.02
 
 The RAPIDS images are based on [nvidia/cuda](https://hub.docker.com/r/nvidia/cuda), and are intended to be drop-in replacements for the corresponding CUDA
 images in order to make it easy to add RAPIDS libraries while maintaining support for existing CUDA applications.
@@ -13,7 +13,7 @@ images in order to make it easy to add RAPIDS libraries while maintaining suppor
 
 The tag naming scheme for RAPIDS images incorporates key platform details into the tag as shown below:
 ```
-21.06-cuda11.0-base-ubuntu18.04-py3.8
+22.02-cuda11.2-base-ubuntu20.04-py3.8
  ^       ^    ^        ^         ^
  |       |    type     |         python version
  |       |             |
