@@ -1,8 +1,8 @@
-ARG RAPIDS_VER="21.06"
-ARG CUDA_VER="11.0"
+ARG RAPIDS_VER="22.06"
+ARG CUDA_VER="11.6"
 ARG IMG_TYPE="base"
 ARG LINUX_VER="ubuntu18.04"
-ARG PYTHON_VER="3.8"
+ARG PYTHON_VER="3.9"
 FROM rapidsai/rapidsai-core:${RAPIDS_VER}-cuda${CUDA_VER}-${IMG_TYPE}-${LINUX_VER}-py${PYTHON_VER}
 
 # ensure printed output/log-messages retain correct order

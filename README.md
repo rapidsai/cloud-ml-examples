@@ -33,7 +33,7 @@ The [Cloud ML Docker Repository](https://hub.docker.com/r/rapidsai/rapidsai-clou
 
 ### Pull Docker Image:
 ```shell script
-docker pull rapidsai/rapidsai-cloud-ml:21.06-cuda11.0-base-ubuntu18.04-py3.8
+docker pull rapidsai/rapidsai-cloud-ml:22.06-cuda11.6-base-ubuntu18.04-py3.8
 ```
 ### Build Docker Image:
 From the root cloud-ml-examples directory:
