@@ -24,7 +24,7 @@ The tag naming scheme for RAPIDS images incorporates key platform details into t
 ## Prerequisites
 
 - NVIDIA Pascal™ GPU architecture or better
-- CUDA [11.0 - 11.6](https://developer.nvidia.com/cuda-downloads) with a compatible NVIDIA driver
+- CUDA [11.0 - 11.5](https://developer.nvidia.com/cuda-downloads) with a compatible NVIDIA driver
 - Ubuntu 18.04/20.04 or CentOS 7
 - Docker CE v18+
 - [nvidia-container-toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html#docker)
