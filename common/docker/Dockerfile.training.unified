@@ -1,7 +1,7 @@
-ARG RAPIDS_VER="21.06"
-ARG CUDA_VER="11.0"
+ARG RAPIDS_VER="22.06"
+ARG CUDA_VER="11.5"
 ARG IMG_TYPE="base"
-ARG LINUX_VER="ubuntu18.04"
+ARG LINUX_VER="ubuntu20.04"
 ARG PYTHON_VER="3.8"
 FROM rapidsai/rapidsai-core:${RAPIDS_VER}-cuda${CUDA_VER}-${IMG_TYPE}-${LINUX_VER}-py${PYTHON_VER}
 
@@ -71,15 +71,16 @@ RUN mkdir -p ${RAPIDS_AZURE_INSTALL_PATH}
 COPY azure/* \
     /opt/rapids/azure/
 
-RUN . /opt/conda/etc/profile.d/conda.sh \
-    && conda activate rapids \
-    && pip install \
-        azureml-sdk \
-        azureml-widgets \
-        azureml-mlflow \
-        optuna \
-        dask-optuna \
-    && pip cache purge
+# azureml-sdk installs pyarrow=3.0.0 (issue: https://github.com/rapidsai/cloud-ml-examples/issues/165)
+# RUN . /opt/conda/etc/profile.d/conda.sh \
+#     && conda activate rapids \
+#     && pip install \
+#         azureml-sdk \
+#         azureml-widgets \
+#         azureml-mlflow \
+#         optuna \
+#         dask-optuna \
+#     && pip cache purge
 
 # GCP Install
 RUN mkdir -p ${RAPIDS_GCP_INSTALL_PATH}
