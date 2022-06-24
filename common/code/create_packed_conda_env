@@ -33,7 +33,7 @@ ACTIVATE=$(dirname `which conda`)/../bin/activate
 
 declare -A argvals
 argvals["--action"]="pack"
-argvals["--cuda"]="11.0"
+argvals["--cuda"]="11.5"
 argvals["--python"]="3.8"
 argvals["--rapids"]="22.06"
 argvals["--rapids-channel"]="rapidsai"
