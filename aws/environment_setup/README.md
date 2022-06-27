@@ -2,7 +2,7 @@
 This section describes the process required to augment a SageMaker notebook instance with a RAPIDS conda environment.
 
 The RAPIDS Ops team builds and publishes the latest RAPIDS release as a packed conda tarball. 
-> e.g.: https://rapidsai-data.s3.us-east-2.amazonaws.com/conda-pack/rapidsai/rapids21.06_cuda11.0_py3.8.tar.gz
+> e.g.: https://rapidsai-data.s3.us-east-2.amazonaws.com/conda-pack/rapidsai/rapids22.06_cuda11.5_py3.9.tar.gz
 
 We will use this packed conda environment to augment the set of Jupyter ipython kernels available in our SageMaker notebook instance.
 
