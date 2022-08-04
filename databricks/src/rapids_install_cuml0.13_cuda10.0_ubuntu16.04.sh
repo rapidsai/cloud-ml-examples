@@ -125,6 +125,7 @@ dependencies:
   - typing_extensions=3.7.4.2=py_0
   - ucx=1.7.0+g9d06c3a=cuda10.0_0
   - ucx-py=0.13.0+g9d06c3a=py37_0
+  - ucx-proc=*=gpu
   - uriparser=0.9.3=he1b5a44_1
   - wheel=0.34.2=py37_0
   - xz=5.2.5=h7b6447c_0

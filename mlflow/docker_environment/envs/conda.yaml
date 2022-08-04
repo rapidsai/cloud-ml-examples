@@ -157,6 +157,7 @@ dependencies:
   - typing_extensions=3.7.4.3=py_0
   - ucx=1.8.1+g6b29558=cuda11.0_0
   - ucx-py=0.15.0+g6b29558=py38_0
+  - ucx-proc=*=gpu
   - urllib3=1.25.10=py_0
   - websocket-client=0.57.0=py38h32f6830_2
   - werkzeug=1.0.1=pyh9f0ad1d_0
