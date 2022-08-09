@@ -5,11 +5,11 @@ metadata:
 spec:
   restartPolicy: Never
   containers:
-    - image: rapidsai/rapidsai-core-nightly:22.08-cuda11.5-runtime-ubuntu20.04-py3.9
-      imagePullPolicy: IfNotPresent
+    - image: rapidsai/rapidsai-core-nightly:22.06-cuda11.5-runtime-ubuntu20.04-py3.9
+      imagePullPolicy: IfNotPresent 
       env:
-        - name: DISABLE_JUPYTER
-          value: true
+      - name: DISABLE_JUPYTER
+        value: "true"
       args: [ dask-scheduler ]
       name: dask-scheduler
       resources:
