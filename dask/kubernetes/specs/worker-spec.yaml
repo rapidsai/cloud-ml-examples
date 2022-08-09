@@ -7,13 +7,12 @@ metadata:
 spec:
   restartPolicy: Never
   containers:
-    - image: rapidsai/rapidsai-core-nightly:22.06-cuda11.5-runtime-ubuntu20.04-py3.9
+    - image: rapidsai/rapidsai-core:22.06-cuda11.5-runtime-ubuntu20.04-py3.9
       imagePullPolicy: IfNotPresent
       env:
       - name: DISABLE_JUPYTER
         value: "true"
-      # args: [ dask-cuda-worker, $(DASK_SCHEDULER_ADDRESS), --rmm-managed-memory ]
-      args: ['sleep', '3600']
+      args: [ dask-cuda-worker, $(DASK_SCHEDULER_ADDRESS), --rmm-managed-memory ]
       name: dask-cuda-worker
       resources:
         limits:
