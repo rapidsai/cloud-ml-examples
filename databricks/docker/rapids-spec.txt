@@ -1,3 +1,4 @@
+## docker run rapidsai/rapidsai-core:0.19-cuda11.0-base-ubuntu18.04-py3.8 conda list --explicit
 ## docker run rapidsai/rapidsai-core:22.06-cuda11.0-base-ubuntu18.04-py3.8 conda list –explicit   
 
 # This file may be used to create an environment using:
