@@ -4,13 +4,15 @@ This directory contains sample notebooks for running RAPIDS on Databricks.
 
 The `rapids_intro.ipynb` notebook has been tested with the latest RAPIDS version (0.19) by building a custom container, and contains basic examples to get started with cuDF and cuML.
 
-The `rapids_airline_hyperopt.ipynb` example walks through the optimization of a random forest model using cuML and hyperopt. It includes init scripts to install an earlier version of RAPIDS (0.13) on DataBricks ML Runtime. 
+The `rapids_airline_hyperopt.ipynb` example walks through the optimization of a random forest model using cuML and hyperopt. It includes init scripts to install an earlier version of RAPIDS (0.13) on DataBricks ML Runtime.
 
 ## 1. Use a custome image on Databricks
 
 ## Build the RAPIDS container
 
-`docker build --tag ${DockerHub_Repo}/rapids_databricks:latest /docker`
+```console
+$ docker build --tag <username>/rapids_databricks:latest ./docker
+```
 
 Push this image to a Docker registry (DockerHub, Amazon ECR or Azure ACR).
 
@@ -20,7 +22,7 @@ Push this image to a Docker registry (DockerHub, Amazon ECR or Azure ACR).
     1. Select a standard Databricks runtime. In this example 8.2 version, since we're using a container with CUDA 11.
         *  This needs to be a Databricks runtime version that supports Databricks Container Services.
     2. Select "Use your own Docker container".
-    3. In the Docker Image URL field, enter the image that you created above. 
+    3. In the Docker Image URL field, enter the image that you created above.
     4. Select a GPU enabled worker and driver type.
         * **Note** Selected GPU must be Pascal generation or greater.
     5. Create and launch your cluster.
@@ -43,10 +45,10 @@ Push this image to a Docker registry (DockerHub, Amazon ECR or Azure ACR).
        ... configure your dbfs client for your account ...
     $ dbfs cp src/rapids_install_cuml0.13_cuda10.0_ubuntu16.04.sh dbfs:/databricks/init_scripts/
     ```
-   
+
 ### Create and Configure a Cluster
 * Create your cluster:
-    1. Select a GPU enabled Databricks runtime. Ex: 6.6 ML 
+    1. Select a GPU enabled Databricks runtime. Ex: 6.6 ML
         * Currently 'Use your own Docker container' is not available for ML instances.
     2. Select a GPU enabled worker and driver type
         * **Note** Selected GPU must be Pascal generation or greater. p2.X is not supported.

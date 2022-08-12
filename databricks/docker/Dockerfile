@@ -1,6 +1,10 @@
+FROM rapidsai/rapidsai-core:22.06-cuda11.0-base-ubuntu18.04-py3.8 as rapids
+
+RUN conda list --explicit > /rapids/rapids-spec.txt
+
 FROM databricksruntime/gpu-conda:cuda11
 
-COPY rapids-spec.txt /tmp/spec.txt
+COPY --from=rapids /rapids/rapids-spec.txt /tmp/spec.txt
 
 RUN conda create --name rapids --file /tmp/spec.txt && \
     rm -f /tmp/spec.txt
