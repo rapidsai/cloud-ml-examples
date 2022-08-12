@@ -11,7 +11,7 @@ The `rapids_airline_hyperopt.ipynb` example walks through the optimization of a 
 ## Build the RAPIDS container
 
 ```console
-$ docker build --tag <username>/rapids_databricks:latest ./docker
+$ docker build --tag <username>/rapids_databricks:latest --build-arg RAPIDS_IMAGE=rapidsai/rapidsai-core:22.06-cuda11.0-base-ubuntu18.04-py3.8 ./docker
 ```
 
 Push this image to a Docker registry (DockerHub, Amazon ECR or Azure ACR).

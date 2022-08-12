@@ -1,4 +1,5 @@
-FROM rapidsai/rapidsai-core:22.06-cuda11.0-base-ubuntu18.04-py3.8 as rapids
+ARG RAPIDS_IMAGE
+FROM $RAPIDS_IMAGE as rapids
 
 RUN conda list --explicit > /rapids/rapids-spec.txt
 
