@@ -1,25 +1,28 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: gpu-worker
   labels:
+    cluster_type: dask
     dask_type: GPU_worker
 spec:
   restartPolicy: Never
   containers:
-    - image: rapidsai/rapidsai-core:22.06-cuda11.5-runtime-ubuntu20.04-py3.9
-      imagePullPolicy: IfNotPresent
+  # TODO: update image to official image
+    - image: isvoid/rapidsai-cloud-worker:22.06-cuda11.5-runtime-ubuntu20.04-py3.9
+      imagePullPolicy: Always
       env:
       - name: DISABLE_JUPYTER
         value: "true"
       args: [ dask-cuda-worker, $(DASK_SCHEDULER_ADDRESS), --rmm-managed-memory ]
       name: dask-cuda-worker
+      # Optimized against GCP n1-standard-4 P100 nodes to increase occupancy.
+      # Other node pool setup may require different setups
       resources:
         limits:
-          cpu: "3"
-          memory: 12G
+          cpu: "2"
+          memory: 3G
           nvidia.com/gpu: 1
         requests:
-          cpu: "3"
-          memory: 12G
+          cpu: "2"
+          memory: 3G
           nvidia.com/gpu: 1

@@ -1,11 +1,15 @@
+apiVersion: v1
 kind: Pod
 metadata:
+  name: dask-scheduler
   labels:
+    cluster_type: dask
     dask_type: scheduler
 spec:
   restartPolicy: Never
   containers:
-    - image: rapidsai/rapidsai-core:22.06-cuda11.5-runtime-ubuntu20.04-py3.9
+  # TODO: update image to official image
+    - image: isvoid/rapidsai-cloud-worker:22.06-cuda11.5-runtime-ubuntu20.04-py3.9
       imagePullPolicy: IfNotPresent 
       env:
       - name: DISABLE_JUPYTER
@@ -14,9 +18,8 @@ spec:
       name: dask-scheduler
       resources:
         limits:
-          cpu: "3"
-          memory: 12G
-          nvidia.com/gpu: 1
+          cpu: "2"
+          memory: 3G
         requests:
-          cpu: "3"
-          memory: 12G
+          cpu: "2"
+          memory: 3G
