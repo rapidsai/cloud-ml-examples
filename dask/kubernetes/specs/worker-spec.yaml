@@ -15,8 +15,6 @@ spec:
         value: "true"
       args: [ dask-cuda-worker, $(DASK_SCHEDULER_ADDRESS), --rmm-managed-memory ]
       name: dask-cuda-worker
-      # Optimized against GCP n1-standard-4 P100 nodes to increase occupancy.
-      # Other node pool setup may require different setups
       resources:
         limits:
           cpu: "2"
