@@ -5,8 +5,7 @@ This guide aims to showcase a joint working example of [`cuML`](https://docs.rap
 
 ## Prerequisite
 
-Install the following package in your environment:
-- [kubectl] (https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/)
+Install gcloud in your environment:
 - [gcloud] (https://cloud.google.com/sdk/docs/install)
 
 Login to your gcloud account with
@@ -15,22 +14,7 @@ Login to your gcloud account with
 gcloud init
 ```
 
-## Cluster Setup
-
-First,
-let's setup the cluster to supply the resources required by the examples.
-In total,
-we will use at most 1 dask-scheduler pod and 8 dask-cuda-workers.
-See `spec/sched-spec.yaml` and `spec/worker-spec.yaml` for resource requirements.
-
-```bash
-gcloud container clusters create rapids-dask-kubernetes \
-  --accelerator type=a100,count=8 \
-  --zone us-west1-b \
-  --machine-type a2-highgpu-1g
-```
-
-## Launch Notebook Client
+## Launch Client
 
 `Dockerfile` contains the image capable of running the notebooks in this folder.
 Build the image:
@@ -51,11 +35,25 @@ docker run --gpus all --rm -it --shm-size=1g --ulimit memlock=-1 -p 8888:8888 -p
 > The config files for `gcloud` is bind to the container for reuse,
 > reconfigure if necessary.
 
-Fetch the cluster information in the container:
+
+## Setup Cluster
+
+Let's setup the cluster to supply the resources required by the examples.
+In total,
+we will use at most 1 dask-scheduler pod and 8 dask-cuda-workers.
+See `spec/sched-spec.yaml` and `spec/worker-spec.yaml` for resource requirements.
 
 ```bash
-gcloud container clusters get-credentials rapids-dask-kubernetes --region us-west1-b
+gcloud container clusters create rapids-dask-kubernetes \
+  --accelerator type=nvidia-tesla-a100,count=8 \
+  --zone us-central1-c \
+  --num-nodes=1 \
+  --machine-type a2-highgpu-8g
 ```
+
+> **Note**
+> GPU availability in different region and zone may vary. See latest list of available
+> nodes at https://cloud.google.com/compute/docs/regions-zones#available
 
 Install Nvidia driver:
 
