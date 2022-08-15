@@ -1,3 +1,5 @@
+# **This guide is deprecated an no longer maintained.**
+
 ## **Pack and Deploy Conda Environments for RAPIDS on Google Cloud Platform (GCP)**
 This section describes the process required to:
 1. Package and deploy a RAPIDS conda environment via helper script
