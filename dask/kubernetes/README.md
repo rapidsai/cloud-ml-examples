@@ -35,7 +35,6 @@ docker run --gpus all --rm -it --shm-size=1g --ulimit memlock=-1 -p 8888:8888 -p
 > The config files for `gcloud` is bind to the container for reuse,
 > reconfigure if necessary.
 
-
 ## Setup Cluster
 
 Let's setup the cluster to supply the resources required by the examples.
