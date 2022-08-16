@@ -1,3 +1,6 @@
+# **This guide is deprecated an no longer maintained.**
+
+
 ## Quick start guide
 Here we will go over some common tasks, related to utilizing RAPIDS on the GCP AI Platform. Note that strings containing '[YOUR_XXX]' indicate items that you will need to supply, based on your specific resource names and environment.
 
