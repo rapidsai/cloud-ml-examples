@@ -1,7 +1,7 @@
 ARG RAPIDS_IMAGE
 FROM $RAPIDS_IMAGE as rapids
 
-RUN conda list --explicit > /rapids/rapids-spec.txt
+RUN conda list -n rapids --explicit > /rapids/rapids-spec.txt
 
 FROM databricksruntime/gpu-conda:cuda11
 
