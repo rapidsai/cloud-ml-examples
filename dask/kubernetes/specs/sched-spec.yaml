@@ -8,12 +8,13 @@ metadata:
 spec:
   restartPolicy: Never
   containers:
-  # TODO: update image to official image
-    - image: isvoid/rapidsai-cloud-worker:22.06-cuda11.5-runtime-ubuntu20.04-py3.9
+    - image: rapidsai/rapidsai-core:22.06-cuda11.5-runtime-ubuntu20.04-py3.9
       imagePullPolicy: IfNotPresent 
       env:
       - name: DISABLE_JUPYTER
         value: "true"
+      - name: EXTRA_PIP_PACKAGES
+        value: "gcsfs"
       args: [ dask-scheduler ]
       name: dask-scheduler
       resources:
