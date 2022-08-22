@@ -1,20 +1,27 @@
+apiVersion: v1
 kind: Pod
 metadata:
   labels:
+    cluster_type: dask
     dask_type: GPU_worker
 spec:
   restartPolicy: Never
   containers:
-    - image: gcr.io/[YOUR_GCP_PROJECT]/[YOUR_USER_ID]/dask-unified:21.06
+    - image: rapidsai/rapidsai-core:22.06-cuda11.5-runtime-ubuntu20.04-py3.9
       imagePullPolicy: IfNotPresent
+      env:
+      - name: DISABLE_JUPYTER
+        value: "true"
+      - name: EXTRA_PIP_PACKAGES
+        value: "gcsfs"
       args: [ dask-cuda-worker, $(DASK_SCHEDULER_ADDRESS), --rmm-managed-memory ]
       name: dask-cuda-worker
       resources:
         limits:
-          cpu: "3"
-          memory: 12G
+          cpu: "2"
+          memory: 3G
           nvidia.com/gpu: 1
         requests:
-          cpu: "3"
-          memory: 12G
+          cpu: "2"
+          memory: 3G
           nvidia.com/gpu: 1
