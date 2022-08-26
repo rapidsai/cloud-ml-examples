@@ -22,9 +22,9 @@ a variety of HPO algorithms, the sample includes utilities to compare
 between them. (Note that the "best" HPO algorithm may be *very*
 problem-dependent, so results are not fully generalizable.)
 
-You need both Jupyter and RAPIDS 0.13 or later installed to begin. See
-https://rapids.ai/start.html for instructions. We recommend using the latest 21.06
-package. For Ray, you should also install a few additional
+You need both Jupyter and RAPIDS 22.08 or later installed to begin. See
+https://rapids.ai/start.html for instructions. We recommend using the stable
+release. For Ray, you should also install a few additional
 packages.
 
 ```
