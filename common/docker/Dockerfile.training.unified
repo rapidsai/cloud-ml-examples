@@ -63,7 +63,9 @@ RUN . /opt/conda/etc/profile.d/conda.sh \
         flask \
         dask-ml \
     && conda clean --all \
-    && pip install sagemaker-training \
+    && pip install \
+        sagemaker-training \
+        protobuf==3.20.1 \
     && pip cache purge
 
 # Azure Install
@@ -89,13 +91,11 @@ COPY gcp/docker/infrastructure/* \
 
 RUN . /opt/conda/etc/profile.d/conda.sh \
     && conda activate rapids \
-    && pip install -U \
+    && conda install -c conda-forge \
         gcsfs \
-        cloudml-hypertune \
         sqlalchemy \
-        'ray[tune]' \
-    && pip install protobuf==3.20.1 \
-    && pip cache purge \
+        ray-tune \
+        conda-forge/label/cloudml_hypertune_dev::cloudml-hypertune \
     && conda clean --all
 
 RUN mkdir -p /opt/rapids_cloudml
