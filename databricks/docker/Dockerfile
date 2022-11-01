@@ -1,6 +1,11 @@
+ARG RAPIDS_IMAGE
+FROM $RAPIDS_IMAGE as rapids
+
+RUN conda list -n rapids --explicit > /rapids/rapids-spec.txt
+
 FROM databricksruntime/gpu-conda:cuda11
 
-COPY rapids-spec.txt /tmp/spec.txt
+COPY --from=rapids /rapids/rapids-spec.txt /tmp/spec.txt
 
 RUN conda create --name rapids --file /tmp/spec.txt && \
     rm -f /tmp/spec.txt
