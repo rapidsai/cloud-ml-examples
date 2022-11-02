@@ -7,11 +7,10 @@ IMG_TYPE:
   - base
 
 LINUX_VER:
-  - ubuntu18.04
   - ubuntu20.04
 
 PYTHON_VER:
-  - "3.8"
+  - "3.9"
 
 RAPIDS_VER:
-  - "22.06"
+  - "22.10"
