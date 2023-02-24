@@ -17,14 +17,14 @@ Workflow: We will create a notebook instance using the `RAPIDS 0.18 [Experimenta
 
 To create an instance with A100s:
 1. Select "New Instance" -> "Customize instance"
-1. Select us-central1 region 
+1. Select us-central1 region
 1. Select "RAPIDS 0.18 [Experimental]" Environment
 1. Choose A2 highgpu (for 1, 2 4 and 8 A100s) or A1 megagpu (16x A100s) as machine type
 
 ### Install RAPIDS on a pre-made Notebook
-Motivation: We have an existing GCP notebook that we wish to update to support RAPIDS functionality.  
-Workflow: We will create a notebook instance, and run a shell script that will install a Jupyter kernel and allow us to run RAPIDS based tasks.  
-  
+Motivation: We have an existing GCP notebook that we wish to update to support RAPIDS functionality.
+Workflow: We will create a notebook instance, and run a shell script that will install a Jupyter kernel and allow us to run RAPIDS based tasks.
+
 1. Log into your GCP console.
     1. Select AI-Platform -> Notebooks
     1. Select a "New Instance" -> "Python 3 (CUDA Toolkit 11.0)" -> With 1 NVIDIA Tesla T4
@@ -36,7 +36,7 @@ Workflow: We will create a notebook instance, and run a shell script that will i
            ```shell
            RAPIDS_VER=21.06
            CUDA_VER=11.0
-           wget -q https://rapidsai-data.s3.us-east-2.amazonaws.com/conda-pack/rapidsai/rapids${RAPIDS_VER}_cuda${CUDA_VER}_py3.8.tar.gz
+           wget -q https://data.rapids.ai/conda-pack/rapidsai/rapids${RAPIDS_VER}_cuda${CUDA_VER}_py3.8.tar.gz
            tar -xzf rapids${RAPIDS_VER}_cuda${CUDA_VER}_py3.8.tar.gz -C /opt/conda/envs/rapids_py38
            conda activate rapids_py38
            conda unpack
@@ -45,14 +45,14 @@ Workflow: We will create a notebook instance, and run a shell script that will i
         1. Once completed, you will now have a new kernel in your jupyter notebooks called 'rapids_py38' which will have rapids installed.
 
 ### Deploy a custom RAPIDS training container utilizing the 'airline dataset', and initiate a training job with support for HyperParameter Optimization (HPO)
-Motivation: We would like to be able to utilize GCP's AI Platform for training a custom model, utilizing RAPIDS.  
+Motivation: We would like to be able to utilize GCP's AI Platform for training a custom model, utilizing RAPIDS.
 Workflow: Install the required libraries, and authentication components for GCP, configure a storage bucket for persistent data, build our custom training container, upload the container, and launch a training job with HPO.
 
 1. Install GCP 'gcloud' SDK
     1. See: https://cloud.google.com/sdk/install
 1. Configure gcloud authorization for docker on your build machine
     1. See: https://cloud.google.com/container-registry/docs/advanced-authentication
-1. Configure a google cloud object storage bucket that will provide and output location 
+1. Configure a google cloud object storage bucket that will provide and output location
 1. Pull or build training containers and upload to GCR
    1. Pull
         1.  Find the appropriate container: [Here](https://hub.docker.com/r/rapidsai/rapidsai-cloud-ml/tags?page=0&ordering=last_updated)
@@ -76,7 +76,7 @@ Workflow: Install the required libraries, and authentication components for GCP,
         1. Set 'Master image' to 'gcr.io/[YOUR_PROJECT_NAME]/rapids_training_container:latest'
         1. Set 'Job directory' to 'gs://[YOUR_GOOGLE_STORAGE_BUCKET]'
     1.  Algorithm Arguments
-        1. Ex:      
+        1. Ex:
         1. ```bash
             --train
             --do-hpo
@@ -85,7 +85,7 @@ Workflow: Install the required libraries, and authentication components for GCP,
             --data-output-path=gs://[YOUR STORAGE BUCKET]/training_output
             --data-name=airline_20000000.orc
            ``` 
-           ![Argument Settings](images/arguments_settings.png)       
+           ![Argument Settings](images/arguments_settings.png)
         1. With Hypertune
             1. Enter the hypertune parameters. Ex:
                 1. ```bash
@@ -126,7 +126,7 @@ Workflow: Install the required libraries, and authentication components for GCP,
             1. Accelerator
                 1. Ex. V100 or T4. K80s are not supported.
         ![Cluster Spec](images/cluster_spec.png)
-        1. Select 'Done', and launch your training job. 
+        1. Select 'Done', and launch your training job.
 1. Training via gcloud job submission
     1. Update your training configuration based on 'example_config.json'
         1. ```json
