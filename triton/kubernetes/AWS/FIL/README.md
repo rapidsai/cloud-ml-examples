@@ -1,4 +1,4 @@
-## Deploying a Triton service that uses a custom plugin for the RAPIDS cuML Forest Inference Library (FIL).
+## Deploying a Triton service that uses the RAPIDS cuML Forest Inference Library (FIL) backend.
 
 **NOTE:** For steps to setup a horizontally autoscalable Triton Service in EKS refer to the instructions in [Detailed_HPA_Setup](./Detailed_HPA_Setup.md).
 
