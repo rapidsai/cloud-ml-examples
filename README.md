@@ -1,5 +1,7 @@
 # <div align="left"><img src="img/rapids_logo.png" width="90px"/>&nbsp;RAPIDS Cloud Machine Learning Services Integration</div>
 
+## Please see https://docs.rapids.ai/deployment/stable/examples/ for up to date examples
+
 RAPIDS is a suite of open-source libraries that bring GPU acceleration
 to data science pipelines. Users building cloud-based machine learning experiments can take advantage of this acceleration
 throughout their workloads to build models faster, cheaper, and more
